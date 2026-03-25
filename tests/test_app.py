@@ -30,7 +30,7 @@ import app.main as main_mod
 from app.main import _schema_to_example
 from tests.conftest import MINI_SPEC, MINI_SPEC_BYTES, PASSWORD, AUTH_COOKIE
 
-LIVE_BASE = "http://localhost:8010"
+LIVE_BASE = "http://localhost:8000"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ def _multipart(fields: dict, file_field: str, filename: str, file_bytes: bytes) 
 
 def _is_docker_up() -> bool:
     try:
-        s = socket.create_connection(("localhost", 8010), timeout=1)
+        s = socket.create_connection(("localhost", 8000), timeout=1)
         s.close()
         return True
     except OSError:
@@ -65,7 +65,7 @@ def _is_docker_up() -> bool:
 
 
 requires_docker = pytest.mark.skipif(
-    not _is_docker_up(), reason="Docker container not reachable on localhost:8010"
+    not _is_docker_up(), reason="Docker container not reachable on localhost:8000"
 )
 
 

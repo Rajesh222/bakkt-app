@@ -3,7 +3,7 @@ Pytest configuration and shared fixtures.
 
 Two test modes:
   - TestClient (in-process)  → uses an isolated tmp data dir, no Docker needed
-  - Live Docker (localhost:8010)  → smoke-tests the real container
+  - Live Docker (localhost:8000)  → smoke-tests the real container
 """
 from __future__ import annotations
 

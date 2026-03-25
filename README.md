@@ -95,9 +95,9 @@ docker compose up -d
 
 3. Open portal:
 
-- http://localhost:8010/login
-- then http://localhost:8010/portal
-- admin UI: http://localhost:8010/portal/admin
+- http://localhost:8000/login
+- then http://localhost:8000/portal
+- admin UI: http://localhost:8000/portal/admin
 
 ## Environment variables
 
