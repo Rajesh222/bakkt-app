@@ -1,103 +1,109 @@
 ﻿# Bakkt Docker Documentation Platform
 
-This project is a Dockerized Bakkt documentation + API mock platform with:
+A Dockerized Bakkt API documentation and mock server. Serves a custom developer portal with versioned API reference pages, guides, and a live mock endpoint for every imported OpenAPI operation.
 
-- All existing `1.0` API sections imported from Bakkt OpenAPI JSON files.
-- All existing `1.0` guides imported and rendered with preserved cross-links.
-- Per-section API versioning (`section + version + openapi.json`) instead of one global API version.
-- Guide versioning using markdown (`.md`) uploads while preserving previous versions for preview.
-- Password protection for docs portal and admin management endpoints.
+## Features
 
-## What is included
+- **Custom developer portal** — Bakkt-styled UI with orange top bar, version dropdown, scrollable sidebar, and article view for guides.
+- **Per-section versioning** — each API section (`onboarding`, `accounts`, `stablecoin`, `zaira`, `bakktx`) stores specs at `data/sections/{section}/{version}/openapi.json`.
+- **Guide versioning** — guides are stored at `data/guides/{version}/{slug}.html` and indexed via `index.json`. Internal cross-links are rewritten to local routes.
+- **Dynamic mock server** — every path in every imported OpenAPI file is callable through `/mock/{section}/{version}/{path}`, with schema-aware example responses.
+- **Password protection** — all portal and API routes require login. Unauthenticated requests are redirected to `/login` with the original URL preserved as a `next` query parameter. Wrong passwords show an inline error on the login page.
+- **Persistent data** — spec and guide data is mounted via a Docker volume so it survives container rebuilds.
 
-### 1) Full 1.0 endpoint coverage (callable)
-On startup, the service imports these section specs from `https://docs.bakkt.com/openapi/`:
+## Project structure
 
-- `onboarding_api.json`
-- `accounts-api.json`
-- `stablecoin_api.json`
-- `zaira_api.json`
-- `bakktx_api.json`
+```
+app/
+  main.py                  # FastAPI app entry point + context wiring
+  app_context.py           # Shared AppContext dataclass
+  routes/
+    auth_routes.py         # Login / logout
+    portal_routes.py       # Portal home, guides, API reference
+    mock_routes.py         # Dynamic mock endpoint
+    admin_api_routes.py    # Raw admin JSON API (upload specs/guides, catalog)
+    system_routes.py       # /healthcheck, root redirect
+  services/
+    auth_service.py
+    content_service.py
+    mock_engine.py
+    presentation_service.py
+    source_client.py
+    file_store.py
+data/
+  sections/{section}/{version}/openapi.json
+  guides/{version}/{slug}.html
+  guides/{version}/index.json
+tests/
+  test_app.py
+```
 
-Each section is stored at:
+## Pages and routes
 
-- `data/sections/{section}/{version}/openapi.json`
+| Route | Description |
+|---|---|
+| `GET /` | Redirects to `/portal` (or `/login` if not authenticated) |
+| `GET /login` | Login page |
+| `POST /login` | Authenticate; redirects to `next` on success |
+| `POST /logout` | Clear session cookie |
+| `GET /portal` | Developer hub home |
+| `GET /portal/guides/{version}` | Guides index (first guide) |
+| `GET /portal/guides/{version}/{slug}` | Individual guide article |
+| `GET /portal/reference/{section}/{version}` | API reference for a section |
+| `GET /mock/{section}/{version}/{path}` | Live mock endpoint |
+| `GET /healthcheck` | Health status (no auth required) |
+| `GET /admin/catalog` | JSON catalog of all sections and guide versions |
+| `POST /admin/sections/{section}/versions/{version}/openapi` | Upload an OpenAPI spec |
+| `POST /admin/sections/{section}/versions/{version}/guides/{slug}` | Upload a guide markdown file |
 
-Each section/version OpenAPI has its `servers` rewritten to:
+## Environment variables
 
-- `/mock/{section}/{version}`
+| Variable | Default | Description |
+|---|---|---|
+| `DOCS_PASSWORD` | `Rajesh123` | Password for the documentation portal |
+| `BAKKT_SOURCE_BASE_URL` | `https://docs.bakkt.com` | Source URL for seeding specs and guides on startup |
+| `BAKKT_SOURCE_PASSWORD` | *(empty)* | Password for the source docs site (if required) |
 
-So **every path in each imported 1.0 OpenAPI file is callable locally** through the dynamic mock router.
-
-### 2) Existing guides visible unchanged + cross-links preserved
-The system imports guide pages from `docs.bakkt.com/docs/*`, stores their rendered body HTML, and serves them as versioned guides:
-
-- `data/guides/1.0/{slug}.html`
-- `data/guides/1.0/index.json`
-
-Internal guide links such as `/docs/{slug}` are rewritten to local routes:
-
-- `/portal/guides/1.0/{slug}`
-
-### 3) Management system for new versions
-The browser-based Admin UI is available at:
-
-- `/portal/admin`
-
-It lets you:
-
-- upload a new section/version OpenAPI JSON
-- upload a new versioned guide as markdown
-- inspect current section and guide versions
-- re-seed the 1.0 dataset
-
-Raw admin APIs are also available if you want to automate uploads:
-
-- `POST /admin/sections/{section}/versions/{version}/openapi`
-  - upload OpenAPI `.json` file
-- `POST /admin/sections/{section}/versions/{version}/guides/{slug}`
-  - upload markdown `.md` guide
-- `GET /admin/catalog`
-  - view current section/version and guide inventory
-
-Old versions remain untouched and available for preview.
-
-### 4) Password protection
-Docs and admin routes require login:
-
-- `GET /login`
-- `POST /login`
-- `POST /logout`
-
-Password is controlled by env var `DOCS_PASSWORD`.
-
-## Run with Docker
-
-1. Ensure env file exists:
+Copy the example file and customise before running:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-2. Build and run:
+## Run with Docker
 
 ```powershell
 docker compose up --build -d
 ```
 
-If Docker BuildKit fails with `invalid file request app/main.py` in a OneDrive-backed folder on Windows, build with classic mode:
+> **OneDrive / Windows BuildKit issue:** If the build fails with `invalid file request app/main.py`, disable BuildKit:
+> ```powershell
+> $env:DOCKER_BUILDKIT='0'
+> docker compose build
+> docker compose up -d
+> ```
+
+Once running, open:
+
+- http://localhost:8000 — redirects to login then portal
+- http://localhost:8000/portal — developer hub home
+- http://localhost:8000/healthcheck — health status
+
+## Run tests
 
 ```powershell
-$env:DOCKER_BUILDKIT='0'
-docker compose build
-docker compose up -d
+.venv\Scripts\pytest tests/ -v
 ```
 
-3. Open portal:
+The test suite covers auth, portal pages, API reference, guide rendering, mock engine behaviour, schema-example generation, and version-delete routes. Live Docker smoke tests are automatically skipped when the container is not reachable.
 
-- http://localhost:8000/login
-- then http://localhost:8000/portal
-- admin UI: http://localhost:8000/portal/admin
+## Tech stack
+
+- **Python 3.12**
+- **FastAPI 0.116** + **Uvicorn**
+- **Pydantic 2**
+- **python-markdown**
+- **Docker / Docker Compose**
 
 ## Environment variables
 
