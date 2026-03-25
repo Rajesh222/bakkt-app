@@ -1,0 +1,47 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>The Accounts API manages Virtual IBANs and fiat custody accounts. Create bank accounts in supported currencies (EUR, GBP, USD, NGN), manage beneficiaries, track transactions, and view balances. This is the foundation for fiat account management in the Bakkt ecosystem.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="key-features"></div><div class="heading-text">Key Features</div><a aria-label="Skip link to Key Features" class="heading-anchor-icon fa fa-regular fa-anchor" href="#key-features"></a></h2>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:4"><a class="Card Card_card" href="#"><i class="Card-icon fa-duotone fa-solid fa-coins"></i><div class="Card-content"><div class="Card-title">Fiat Custody<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Create Bakkt bank accounts in EUR, GBP, and USD for holding customer funds.</p></div></a><a class="Card Card_card" href="#"><i class="Card-icon fa-duotone fa-solid fa-user"></i><div class="Card-content"><div class="Card-title">Beneficiary Management<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Manage payment destinations - domestic payouts and cross-border remittances.</p></div></a><a class="Card Card_card" href="#" target="_blank"><i class="Card-icon fa-duotone fa-solid fa-left-to-bracket"></i><div class="Card-content"><div class="Card-title">Money IN<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Accept deposits via bank transfers and ACH pull (Plaid integration).</p></div></a><a class="Card Card_card" href="#" target="_blank"><i class="Card-icon fa-duotone fa-solid fa-right-to-bracket"></i><div class="Card-content"><div class="Card-title">Money OUT<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Send money via ACH, SEPA, and international corridors to 7+ countries.</p></div></a></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="how-it-works"></div><div class="heading-text">How It Works</div><a aria-label="Skip link to How It Works" class="heading-anchor-icon fa fa-regular fa-anchor" href="#how-it-works"></a></h2>
+<p>The Accounts API handles all fiat banking operations:</p>
+<blockquote>
+<p><strong>Note:</strong> This section includes a diagram. Refer to the original documentation for the visual representation.</p>
+</blockquote>
+<p><strong>Use Cases</strong>:</p>
+<ul>
+<li><strong>Fiat Custody</strong>: Virtual IBANs for holding customer funds in EUR, GBP, USD, NGN</li>
+<li><strong>Account Management</strong>: Balances, transactions, statements</li>
+<li><strong>Beneficiary Management</strong>: Create and manage payout destinations</li>
+<li><strong>Settlement Accounts</strong>: For Stablecoin API and BakktX services</li>
+<li><strong>Future</strong>: Credit card program backing accounts</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="integration-with-other-apis"></div><div class="heading-text">Integration with Other APIs</div><a aria-label="Skip link to Integration with Other APIs" class="heading-anchor-icon fa fa-regular fa-anchor" href="#integration-with-other-apis"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="with-onboarding-api"></div><div class="heading-text">With Onboarding API</div><a aria-label="Skip link to With Onboarding API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#with-onboarding-api"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Create user (Onboarding API)
+const user = await bakkt.onboarding.createUser({...});
+
+// 2. Authenticate (Onboarding API)
+const session = await bakkt.onboarding.login(user.user_uuid);
+
+// 3. Create bank account (Accounts API)
+const account = await bakkt.payments.createBankAccount(session.session_id, {
+  currency: &#x27;EUR&#x27;
+});
+
+// Now user has fiat custody account</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="next-steps"></div><div class="heading-text">Next Steps</div><a aria-label="Skip link to Next Steps" class="heading-anchor-icon fa fa-regular fa-anchor" href="#next-steps"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-accounts"></div><div class="heading-text">Bank Accounts</div><a aria-label="Skip link to Bank Accounts" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-accounts"></a></h3>
+<p>Create Virtual IBANs and manage fiat custody accounts</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="payments--transfers"></div><div class="heading-text">Payments &amp; Transfers</div><a aria-label="Skip link to Payments &amp; Transfers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payments--transfers"></a></h3>
+<p>Manage beneficiaries, send money, and track transactions</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="advanced-features"></div><div class="heading-text">Advanced Features</div><a aria-label="Skip link to Advanced Features" class="heading-anchor-icon fa fa-regular fa-anchor" href="#advanced-features"></a></h3>
+<p>Exchange rates, webhooks, compliance, and testing</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="view-full-api-reference"></div><div class="heading-text">View Full API Reference</div><a aria-label="Skip link to View Full API Reference" class="heading-anchor-icon fa fa-regular fa-anchor" href="#view-full-api-reference"></a></h3>
+<p>Explore all endpoints with interactive examples</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="stablecoin-api"></div><div class="heading-text">Stablecoin API</div><a aria-label="Skip link to Stablecoin API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#stablecoin-api"></a></h3>
+<p>Convert between fiat and stablecoins</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="onboarding-api"></div><div class="heading-text">Onboarding API</div><a aria-label="Skip link to Onboarding API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#onboarding-api"></a></h3>
+<p>Create and manage user accounts</p>

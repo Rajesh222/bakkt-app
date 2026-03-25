@@ -1,0 +1,72 @@
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="-single-use-wallets-corporate-only"></div><div class="heading-text"><div id="section-📦-single-use-wallets-corporate-only" class="heading-anchor_backwardsCompatibility"></div>📦 Single-Use Wallets (Corporate Only)</div><a aria-label="Skip link to 📦 Single-Use Wallets (Corporate Only)" class="heading-anchor-icon fa fa-anchor" href="#-single-use-wallets-corporate-only"></a></h2>
+<p>Generate unique, one-time wallet addresses for batch processing and invoice tracking.</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="what-are-single-use-wallets"></div><div class="heading-text"><div id="section-what-are-single-use-wallets" class="heading-anchor_backwardsCompatibility"></div>What Are Single-Use Wallets?</div><a aria-label="Skip link to What Are Single-Use Wallets?" class="heading-anchor-icon fa fa-anchor" href="#what-are-single-use-wallets"></a></h3>
+<p>Single-use wallets are <strong>one-time crypto deposit addresses</strong> linked to a specific external reference (like an invoice ID). When crypto is sent to these addresses, it automatically offramps to the corporate&#x27;s main beneficiary.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>✅ One address per external reference (e.g., one per invoice)</li>
+<li>✅ Automatic offramp when crypto received</li>
+<li>✅ Links to corporate&#x27;s main beneficiary bank account</li>
+<li>✅ Perfect for batch processing and reconciliation</li>
+<li>⚠️ Whitelisted corporates only (contact <a href="mailto:sales@bakkt.com" target="" title="">sales@bakkt.com</a>)</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="use-cases"></div><div class="heading-text"><div id="section-use-cases" class="heading-anchor_backwardsCompatibility"></div>Use Cases</div><a aria-label="Skip link to Use Cases" class="heading-anchor-icon fa fa-anchor" href="#use-cases"></a></h3>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="invoice-payments"></div><div class="heading-text"><div id="section-invoice-payments" class="heading-anchor_backwardsCompatibility"></div>Invoice Payments</div><a aria-label="Skip link to Invoice Payments" class="heading-anchor-icon fa fa-anchor" href="#invoice-payments"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Generate unique wallet per invoice. Track which customer paid which invoice.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="batch-settlements"></div><div class="heading-text"><div id="section-batch-settlements" class="heading-anchor_backwardsCompatibility"></div>Batch Settlements</div><a aria-label="Skip link to Batch Settlements" class="heading-anchor-icon fa fa-anchor" href="#batch-settlements"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Process multiple payments simultaneously with unique addresses for reconciliation.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="customer-deposits"></div><div class="heading-text"><div id="section-customer-deposits" class="heading-anchor_backwardsCompatibility"></div>Customer Deposits</div><a aria-label="Skip link to Customer Deposits" class="heading-anchor-icon fa fa-anchor" href="#customer-deposits"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Assign each customer a unique address. Auto-convert and settle to treasury.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="vendor-payments"></div><div class="heading-text"><div id="section-vendor-payments" class="heading-anchor_backwardsCompatibility"></div>Vendor Payments</div><a aria-label="Skip link to Vendor Payments" class="heading-anchor-icon fa fa-anchor" href="#vendor-payments"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Track vendor-specific crypto payments with external references.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="how-single-use-works"></div><div class="heading-text"><div id="section-how-single-use-works" class="heading-anchor_backwardsCompatibility"></div>How Single-Use Works</div><a aria-label="Skip link to How Single-Use Works" class="heading-anchor-icon fa fa-anchor" href="#how-single-use-works"></a></h3>
+<blockquote>
+<p><strong>Note:</strong> This section includes a sequence diagram showing the workflow. Refer to the original documentation for the visual diagram.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="corporate-example"></div><div class="heading-text"><div id="section-corporate-example" class="heading-anchor_backwardsCompatibility"></div>Corporate Example</div><a aria-label="Skip link to Corporate Example" class="heading-anchor-icon fa fa-anchor" href="#corporate-example"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Prerequisites: Corporate has ACTIVE status and main beneficiary set
+
+// 1. Create single-use wallet for invoice
+const singleUseWallet = await fetch(
+  `https://api.bakkt.com/corporate/${corporateUuid}/single-offramp-wallet`,
+  {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: apiKey,
+      &#x27;unblock-session-id&#x27;: sessionId
+    },
+    body: JSON.stringify({
+      external_reference: &#x27;invoice-12345&#x27;
+    })
+  }
+);
+
+const wallet = await singleUseWallet.json();
+console.log(&#x27;Chain:&#x27;, wallet.chain);
+console.log(&#x27;Address:&#x27;, wallet.address);
+console.log(&#x27;Reference:&#x27;, wallet.external_reference);
+
+// 2. Share address with customer
+sendInvoice(customer, {
+  invoiceId: &#x27;invoice-12345&#x27;,
+  amount: &#x27;$1000 or equivalent USDC&#x27;,
+  paymentAddress: wallet.address,
+  chain: wallet.chain
+});
+
+// 3. When customer pays, auto-offramp happens
+// → Webhook received with external_reference: &quot;invoice-12345&quot;
+// → Mark invoice as paid in your system
+// → Fiat arrives in corporate&#x27;s main beneficiary account
+</code></pre></div></div>
+<!-- -->
+  **Perfect for Reconciliation**: The external_reference in webhooks lets you automatically match payments to invoices without manual reconciliation.
+<!-- -->
+<blockquote>
+<p><strong>Warning:</strong><br/>
+<strong>Whitelist Required</strong>: Single-use wallet feature is available only to whitelisted corporates. Contact <a href="mailto:sales@bakkt.com" target="" title="">sales@bakkt.com</a> to enable this feature.</p>
+</blockquote>

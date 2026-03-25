@@ -1,0 +1,120 @@
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="prerequisites"></div><div class="heading-text"><div id="section-prerequisites" class="heading-anchor_backwardsCompatibility"></div>Prerequisites</div><a aria-label="Skip link to Prerequisites" class="heading-anchor-icon fa fa-anchor" href="#prerequisites"></a></h2>
+<p>Before using the Stablecoin API, users must be set up through the Onboarding API:</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="1-usercorporate-creation"></div><div class="heading-text"><div id="section-1-user-corporate-creation" class="heading-anchor_backwardsCompatibility"></div>1. User/Corporate Creation</div><a aria-label="Skip link to 1. User/Corporate Creation" class="heading-anchor-icon fa fa-anchor" href="#1-usercorporate-creation"></a></h3>
+<p><strong>Create via Onboarding API:</strong></p>
+<ul>
+<li>Users: <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">POST /user</code> - <a href="/guides/onboarding" target="" title="">See Onboarding API</a></li>
+<li>Corporates: <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">POST /corporate</code> - <a href="/guides/onboarding" target="" title="">See Onboarding API</a></li>
+</ul>
+<p><strong>Target Address Setup:</strong><br/>
+During user creation, you must set the <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">target_address</code> field:</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">POST /user
+{
+  &quot;first_name&quot;: &quot;John&quot;,
+  &quot;last_name&quot;: &quot;Doe&quot;,
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;country&quot;: &quot;US&quot;,
+  &quot;target_address&quot;: &quot;0xABC...123&quot;,  // DEFAULT wallet for on-ramp conversions
+  &quot;target_solana_address&quot;: &quot;3KWx...&quot;  // Optional: for Solana support
+}
+</code></pre></div></div>
+<blockquote>
+<p><strong>Note:</strong><br/>
+<strong>Target Address</strong>: This is the user&#x27;s EXTERNAL wallet (MetaMask, Coinbase, hardware wallet, etc.) where on-ramp conversions will be sent by default. This is different from Bakkt custody addresses.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="2-kyckyb-verification"></div><div class="heading-text"><div id="section-2-kyc-kyb-verification" class="heading-anchor_backwardsCompatibility"></div>2. KYC/KYB Verification</div><a aria-label="Skip link to 2. KYC/KYB Verification" class="heading-anchor-icon fa fa-anchor" href="#2-kyckyb-verification"></a></h3>
+<p>Users and corporates <strong>must complete verification</strong> before using On/Off Ramp:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Entity Type</th><th>Required Status</th><th>Verification</th></tr></thead><tbody><tr><td><strong>Users</strong></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">FULL_USER</code></td><td>Complete KYC via Sumsub</td></tr><tr><td><strong>Corporates</strong></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ACTIVE</code></td><td>Complete KYB verification</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Warning:</strong><br/>
+<strong>No Partial Access</strong>: Users cannot use On/Off Ramp until fully verified. Access is binary: either full access (unlimited) or no access.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="3-authentication"></div><div class="heading-text"><div id="section-3-authentication" class="heading-anchor_backwardsCompatibility"></div>3. Authentication</div><a aria-label="Skip link to 3. Authentication" class="heading-anchor-icon fa fa-anchor" href="#3-authentication"></a></h3>
+<p>Different endpoints have different auth requirements:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Operation</th><th>Auth Required</th><th>Headers</th></tr></thead><tbody><tr><td><strong>GET endpoints</strong></td><td>API Key + User UUID</td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Authorization</code>, <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">user-uuid</code></td></tr><tr><td><strong>POST/PUT/PATCH</strong></td><td>Session ID</td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Authorization</code>, <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">unblock-session-id</code></td></tr></tbody></table></div></div>
+<!-- -->
+  Merchants can query wallet addresses and settings with just API key + user-uuid. Users must authenticate (via SIWE or OTP) to create or modify resources.
+<!-- -->
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text"><div id="section-overview" class="heading-anchor_backwardsCompatibility"></div>Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-anchor" href="#overview"></a></h2>
+<p>The Stablecoin API enables bi-directional crypto-fiat conversions:</p>
+<ul>
+<li><strong>On-Ramp</strong>: Fiat → Stablecoin (link Accounts API Virtual IBAN to user&#x27;s wallet)</li>
+<li><strong>Off-Ramp</strong>: Stablecoin → Fiat (1st party to user&#x27;s own VA, or 3rd party to any bank)</li>
+<li><strong>Single-Use</strong>: One-time wallets for corporate batch processing</li>
+<li><strong>Custody</strong>: Hold crypto without automatic conversion</li>
+</ul>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="key-features"></div><div class="heading-text"><div id="section-key-features" class="heading-anchor_backwardsCompatibility"></div>Key Features</div><a aria-label="Skip link to Key Features" class="heading-anchor-icon fa fa-anchor" href="#key-features"></a></h2>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="on-ramp-fiat-→-stable"></div><div class="heading-text"><div id="section-on-ramp-fiat-→-stable" class="heading-anchor_backwardsCompatibility"></div>On-Ramp (Fiat → Stable)</div><a aria-label="Skip link to On-Ramp (Fiat → Stable)" class="heading-anchor-icon fa fa-anchor" href="#on-ramp-fiat-→-stable"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Link Accounts API Virtual IBAN to wallet. Deposit fiat, automatically receive stablecoin.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="off-ramp-stable-→-fiat"></div><div class="heading-text"><div id="section-off-ramp-stable-→-fiat" class="heading-anchor_backwardsCompatibility"></div>Off-Ramp (Stable → Fiat)</div><a aria-label="Skip link to Off-Ramp (Stable → Fiat)" class="heading-anchor-icon fa fa-anchor" href="#off-ramp-stable-→-fiat"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Send crypto to receive fiat. First party (own VA) or third party (any bank account).
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="single-use-wallets"></div><div class="heading-text"><div id="section-single-use-wallets" class="heading-anchor_backwardsCompatibility"></div>Single-Use Wallets</div><a aria-label="Skip link to Single-Use Wallets" class="heading-anchor-icon fa fa-anchor" href="#single-use-wallets"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Corporate-only: Generate unique wallets per invoice with auto-offramp to main beneficiary.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="custody-wallets"></div><div class="heading-text"><div id="section-custody-wallets" class="heading-anchor_backwardsCompatibility"></div>Custody Wallets</div><a aria-label="Skip link to Custody Wallets" class="heading-anchor-icon fa fa-anchor" href="#custody-wallets"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Hold crypto without auto-conversion. User controls when to convert.
+</code></pre>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="feature-guides"></div><div class="heading-text"><div id="section-feature-guides" class="heading-anchor_backwardsCompatibility"></div>Feature Guides</div><a aria-label="Skip link to Feature Guides" class="heading-anchor-icon fa fa-anchor" href="#feature-guides"></a></h2>
+<p>Explore detailed guides for each major feature:</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="on-ramp"></div><div class="heading-text"><div id="section-on-ramp" class="heading-anchor_backwardsCompatibility"></div>On-Ramp</div><a aria-label="Skip link to On-Ramp" class="heading-anchor-icon fa fa-anchor" href="#on-ramp"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Fiat to stablecoin conversions
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="off-ramp"></div><div class="heading-text"><div id="section-off-ramp" class="heading-anchor_backwardsCompatibility"></div>Off-Ramp</div><a aria-label="Skip link to Off-Ramp" class="heading-anchor-icon fa fa-anchor" href="#off-ramp"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Stablecoin to fiat conversions
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="custody-wallets-1"></div><div class="heading-text"><div id="section-custody-wallets" class="heading-anchor_backwardsCompatibility"></div>Custody Wallets</div><a aria-label="Skip link to Custody Wallets" class="heading-anchor-icon fa fa-anchor" href="#custody-wallets-1"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Hold crypto securely
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="single-use-wallets-1"></div><div class="heading-text"><div id="section-single-use-wallets" class="heading-anchor_backwardsCompatibility"></div>Single-Use Wallets</div><a aria-label="Skip link to Single-Use Wallets" class="heading-anchor-icon fa fa-anchor" href="#single-use-wallets-1"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Corporate invoice tracking (whitelisted only)
+</code></pre>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="reference"></div><div class="heading-text"><div id="section-reference" class="heading-anchor_backwardsCompatibility"></div>Reference</div><a aria-label="Skip link to Reference" class="heading-anchor-icon fa fa-anchor" href="#reference"></a></h2>
+<p>Technical reference and integration resources:</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-assets"></div><div class="heading-text"><div id="section-supported-assets" class="heading-anchor_backwardsCompatibility"></div>Supported Assets</div><a aria-label="Skip link to Supported Assets" class="heading-anchor-icon fa fa-anchor" href="#supported-assets"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Chains, tokens, and currencies
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="integration"></div><div class="heading-text"><div id="section-integration" class="heading-anchor_backwardsCompatibility"></div>Integration</div><a aria-label="Skip link to Integration" class="heading-anchor-icon fa fa-anchor" href="#integration"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Webhooks, monitoring, and fees
+</code></pre>

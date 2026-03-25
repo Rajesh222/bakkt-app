@@ -1,0 +1,37 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><p>Zaira can send events to your server via webhooks. When you register a webhook, you&#x27;ll receive a <code class="rdmd-code lang- theme-undefined" data-lang="">secret</code> - save it, you&#x27;ll need it to verify incoming requests.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="types"></div><div class="heading-text">Types</div><a aria-label="Skip link to Types" class="heading-anchor-icon fa fa-regular fa-anchor" href="#types"></a></h2>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">RESPONSE</code></td><td>Zaira&#x27;s reply to a user message</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">ANNOUNCEMENT</code></td><td>Status updates during longer operations</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">WEBHOOK</code></td><td>Events from external systems (e.g. transaction updates)</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="request-format"></div><div class="heading-text">Request format</div><a aria-label="Skip link to Request format" class="heading-anchor-icon fa fa-regular fa-anchor" href="#request-format"></a></h2>
+<pre><code class="rdmd-code lang- theme-undefined" data-lang="">POST /your-endpoint
+Content-Type: application/json
+x-webhook-signature: &lt;signature&gt;</code></pre>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="payload"></div><div class="heading-text">Payload</div><a aria-label="Skip link to Payload" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payload"></a></h2>
+<p>All webhook types share the same payload structure:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;uuid&quot;: &quot;user-external-uuid&quot;,
+  &quot;message&quot;: &quot;Your current balance is $1,234.56 USD.&quot;,
+  &quot;attachments&quot;: [],
+  &quot;execution_id&quot;: &quot;execution-uuid&quot;
+}</code></pre></div></div>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">uuid</code></td><td>External UUID of the user</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">message</code></td><td>Message text</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">attachments</code></td><td>Array of attachments (may be empty)</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">execution_id</code></td><td>Execution identifier</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="signature-verification"></div><div class="heading-text">Signature verification</div><a aria-label="Skip link to Signature verification" class="heading-anchor-icon fa fa-regular fa-anchor" href="#signature-verification"></a></h2>
+<p>We sign every request using HMAC-SHA256. The signature is a hex-encoded hash of the raw request body using your webhook secret.</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const crypto = require(&#x27;crypto&#x27;);
+
+function verifySignature(rawBody, signature, secret) {
+  const expected = crypto
+    .createHmac(&#x27;sha256&#x27;, secret)
+    .update(rawBody)
+    .digest(&#x27;hex&#x27;);
+
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="delivery"></div><div class="heading-text">Delivery</div><a aria-label="Skip link to Delivery" class="heading-anchor-icon fa fa-regular fa-anchor" href="#delivery"></a></h2>
+<p>Requests timeout after 30 seconds. Return a 2xx status code to acknowledge receipt.</p>
+<p>If delivery fails (non-2xx response or timeout), we retry up to 3 times with increasing delays (1s, 2s, 3s between attempts).</p>

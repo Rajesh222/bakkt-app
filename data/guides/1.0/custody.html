@@ -1,0 +1,536 @@
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="-feature-4-custody-wallets"></div><div class="heading-text"><div id="section-🏦-feature-4-custody-wallets" class="heading-anchor_backwardsCompatibility"></div>🏦 Feature 4: Custody Wallets</div><a aria-label="Skip link to 🏦 Feature 4: Custody Wallets" class="heading-anchor-icon fa fa-anchor" href="#-feature-4-custody-wallets"></a></h2>
+<p>Hold cryptocurrency without automatic conversion. User controls when to convert to fiat.</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="what-are-custody-wallets"></div><div class="heading-text"><div id="section-what-are-custody-wallets" class="heading-anchor_backwardsCompatibility"></div>What Are Custody Wallets?</div><a aria-label="Skip link to What Are Custody Wallets?" class="heading-anchor-icon fa fa-anchor" href="#what-are-custody-wallets"></a></h3>
+<p>Custody wallets are <strong>standard crypto deposit addresses</strong> managed by Bakkt. Unlike on-ramp linked wallets, crypto deposited to custody addresses is <strong>held</strong> until the user manually triggers a conversion.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>✅ Hold crypto without automatic conversion</li>
+<li>✅ User controls conversion timing</li>
+<li>✅ No Accounts API link required</li>
+<li>✅ Works for both users and corporates</li>
+</ul>
+<p><strong>When to use:</strong></p>
+<ul>
+<li>User wants to hold crypto and convert later</li>
+<li>Wait for favorable exchange rates</li>
+<li>Accumulate crypto over time before converting</li>
+<li>Don&#x27;t need immediate fiat access</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="custody-vs-on-ramp-linked"></div><div class="heading-text"><div id="section-custody-vs-on-ramp-linked" class="heading-anchor_backwardsCompatibility"></div>Custody vs On-Ramp Linked</div><a aria-label="Skip link to Custody vs On-Ramp Linked" class="heading-anchor-icon fa fa-anchor" href="#custody-vs-on-ramp-linked"></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Feature</th><th>Custody Wallet</th><th>On-Ramp Linked Wallet</th></tr></thead><tbody><tr><td><strong>Conversion</strong></td><td>Manual (user decides when)</td><td>Automatic (when fiat deposited)</td></tr><tr><td><strong>Accounts API</strong></td><td>Not required</td><td>Required (VA link)</td></tr><tr><td><strong>Use Case</strong></td><td>Hold &amp; convert later</td><td>Auto-convert fiat deposits</td></tr><tr><td><strong>Endpoint</strong></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">GET /user/wallet/{chain}</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">GET /user/wallet/{chain}?linked_bank_account_uuid=xxx</code></td></tr></tbody></table></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="user-custody-example"></div><div class="heading-text"><div id="section-user-custody-example" class="heading-anchor_backwardsCompatibility"></div>User Custody Example</div><a aria-label="Skip link to User Custody Example" class="heading-anchor-icon fa fa-anchor" href="#user-custody-example"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// No Accounts API needed for custody
+
+// 1. Get custody wallet address
+const wallet = await fetch(&#x27;https://api.bakkt.com/user/wallet/polygon&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;user-uuid&#x27;: userUuid
+  }
+});
+
+const walletData = await wallet.json();
+console.log(&#x27;Custody address:&#x27;, walletData[0].address);
+console.log(&#x27;Chain:&#x27;, walletData[0].chain);
+
+// 2. User deposits crypto (held in custody)
+// User sends USDC from their wallet to custody address
+
+// 3. Later, when user wants to convert:
+// User triggers off-ramp (see Off-Ramp feature above)
+// → Adds beneficiary
+// → Sends crypto to wallet
+// → Receives fiat in bank account
+</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="corporate-custody-example"></div><div class="heading-text"><div id="section-corporate-custody-example" class="heading-anchor_backwardsCompatibility"></div>Corporate Custody Example</div><a aria-label="Skip link to Corporate Custody Example" class="heading-anchor-icon fa fa-anchor" href="#corporate-custody-example"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Get corporate custody wallet
+GET /corporate/{corporate_uuid}/wallet/base
+
+// Returns custody address for holding crypto
+// Corporate can accumulate and convert when ready
+</code></pre></div></div>
+<blockquote>
+<p><strong>Info:</strong><br/>
+<strong>Custody Benefit</strong>: Users can hold crypto in Bakkt custody (secure, insured) and convert to fiat whenever they choose, without needing an immediate Accounts API integration.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="-feature-5-smart-contract-custodial-wallets"></div><div class="heading-text"><div id="section-🔐-feature-5-smart-contract-custodial-wallets" class="heading-anchor_backwardsCompatibility"></div>🔐 Feature 5: Smart Contract Custodial Wallets</div><a aria-label="Skip link to 🔐 Feature 5: Smart Contract Custodial Wallets" class="heading-anchor-icon fa fa-anchor" href="#-feature-5-smart-contract-custodial-wallets"></a></h2>
+<p>Create smart contract-based custodial wallets for enhanced security and control. These wallets provide institutional-grade custody with programmable security rules.</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="what-are-smart-contract-custodial-wallets"></div><div class="heading-text"><div id="section-what-are-smart-contract-custodial-wallets" class="heading-anchor_backwardsCompatibility"></div>What Are Smart Contract Custodial Wallets?</div><a aria-label="Skip link to What Are Smart Contract Custodial Wallets?" class="heading-anchor-icon fa fa-anchor" href="#what-are-smart-contract-custodial-wallets"></a></h3>
+<p>Smart contract custodial wallets are <strong>on-chain smart contracts</strong> that hold user funds with enhanced security features:</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>✅ Smart contract-based custody (not just EOA addresses)</li>
+<li>✅ Enhanced security with programmable rules</li>
+<li>✅ OTP-based withdrawal confirmation</li>
+<li>✅ View balances across all tokens</li>
+<li>✅ Per-chain wallet creation</li>
+</ul>
+<p><strong>When to use:</strong></p>
+<ul>
+<li>Enterprise clients requiring institutional custody</li>
+<li>Applications needing programmable withdrawal rules</li>
+<li>Multi-signature or approval workflows</li>
+<li>Enhanced security requirements</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="how-smart-contract-wallets-work"></div><div class="heading-text"><div id="section-how-smart-contract-wallets-work" class="heading-anchor_backwardsCompatibility"></div>How Smart Contract Wallets Work</div><a aria-label="Skip link to How Smart Contract Wallets Work" class="heading-anchor-icon fa fa-anchor" href="#how-smart-contract-wallets-work"></a></h3>
+<blockquote>
+<p><strong>Note:</strong> This section includes a sequence diagram showing the workflow. Refer to the original documentation for the visual diagram.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="create-custodial-wallet"></div><div class="heading-text"><div id="section-create-custodial-wallet" class="heading-anchor_backwardsCompatibility"></div>Create Custodial Wallet</div><a aria-label="Skip link to Create Custodial Wallet" class="heading-anchor-icon fa fa-anchor" href="#create-custodial-wallet"></a></h3>
+<p><strong>Step 1: Create the wallet</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Create custodial wallet on Polygon
+const wallet = await fetch(&#x27;https://api.bakkt.com/wallet/custodial&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;user-uuid&#x27;: userUuid,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    chain: &#x27;Polygon&#x27;
+  })
+});
+
+const walletData = await wallet.json();
+console.log(&#x27;Wallet UUID:&#x27;, walletData.walletUuid);
+console.log(&#x27;Merchant UUID:&#x27;, walletData.merchantUuid);
+console.log(&#x27;Chain:&#x27;, walletData.chain);
+</code></pre></div></div>
+<p><strong>Response:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;walletUuid&quot;: &quot;c12345b5-7890-4a2f-8c2f-f3e913c12e5f&quot;,
+  &quot;merchantUuid&quot;: &quot;d12345b5-7890-4a2f-8c2f-f3e913c12e5f&quot;,
+  &quot;chain&quot;: &quot;polygon&quot;
+}
+</code></pre></div></div>
+<blockquote>
+<p><strong>Warning:</strong><br/>
+<strong>Wallet Status</strong>: Initially, the wallet will be in <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Pending</code> status while the smart contract is deployed. Check status using GET endpoint.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="get-wallet-details--status"></div><div class="heading-text"><div id="section-get-wallet-details-status" class="heading-anchor_backwardsCompatibility"></div>Get Wallet Details &amp; Status</div><a aria-label="Skip link to Get Wallet Details &amp; Status" class="heading-anchor-icon fa fa-anchor" href="#get-wallet-details--status"></a></h3>
+<p><strong>Step 2: Check wallet status and get addresses</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Get custodial wallet details
+const details = await fetch(
+  `https://api.bakkt.com/wallet/custodial/${walletUuid}`,
+  {
+    headers: {
+      &#x27;Authorization&#x27;: apiKey,
+      &#x27;unblock-session-id&#x27;: sessionId,
+      &#x27;user-uuid&#x27;: userUuid
+    }
+  }
+);
+
+const walletDetails = await details.json();
+console.log(&#x27;Status:&#x27;, walletDetails.status); // &quot;Pending&quot; or &quot;Active&quot;
+console.log(&#x27;Smart Contract Address:&#x27;, walletDetails.smartContractAddress);
+console.log(&#x27;Key Address:&#x27;, walletDetails.smartContractKeyAddress);
+</code></pre></div></div>
+<p><strong>Response (Active wallet):</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;walletUuid&quot;: &quot;c12345b5-7890-4a2f-8c2f-f3e913c12e5f&quot;,
+  &quot;merchantUuid&quot;: &quot;d56789a1-2345-6789-abcd-1234567890ef&quot;,
+  &quot;chain&quot;: &quot;polygon&quot;,
+  &quot;status&quot;: &quot;Active&quot;,
+  &quot;smartContractAddress&quot;: &quot;0xabc123...def456&quot;,
+  &quot;smartContractKeyAddress&quot;: &quot;0xkey123...abc789&quot;
+}
+</code></pre></div></div>
+<p><strong>Wallet Lifecycle:</strong></p>
+<ul>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Pending</code>: Smart contract deployment in progress (1-2 minutes)</li>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Active</code>: Wallet ready to receive deposits</li>
+</ul>
+<!-- -->
+  **Smart Contract Details**: The `smartContractAddress` is where users send funds. The `smartContractKeyAddress` is the key holder for the contract.
+<!-- -->
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="check-wallet-balance"></div><div class="heading-text"><div id="section-check-wallet-balance" class="heading-anchor_backwardsCompatibility"></div>Check Wallet Balance</div><a aria-label="Skip link to Check Wallet Balance" class="heading-anchor-icon fa fa-anchor" href="#check-wallet-balance"></a></h3>
+<p><strong>View balance across all tokens:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Get current balance
+const balance = await fetch(&#x27;https://api.bakkt.com/wallet/balance&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;user-uuid&#x27;: userUuid
+  }
+});
+
+const balanceData = await balance.json();
+console.log(&#x27;Balance:&#x27;, balanceData.balance);
+</code></pre></div></div>
+<p><strong>Response:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;balance&quot;: 100.23
+}
+</code></pre></div></div>
+<blockquote>
+<p><strong>Note:</strong><br/>
+<strong>Balance Tracking</strong>: The balance endpoint shows the total value of all assets in the custodial wallet, aggregated across all supported tokens.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="request-offramp-from-custodial-wallet"></div><div class="heading-text"><div id="section-request-offramp-from-custodial-wallet" class="heading-anchor_backwardsCompatibility"></div>Request Offramp from Custodial Wallet</div><a aria-label="Skip link to Request Offramp from Custodial Wallet" class="heading-anchor-icon fa fa-anchor" href="#request-offramp-from-custodial-wallet"></a></h3>
+<p><strong>Step 3: Initiate withdrawal with OTP</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Request offramp (triggers OTP email/SMS)
+const offrampRequest = await fetch(
+  &#x27;https://api.bakkt.com/wallet/custodial/offramp&#x27;,
+  {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: apiKey,
+      &#x27;unblock-session-id&#x27;: sessionId,
+      &#x27;user-uuid&#x27;: userUuid,
+      &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    body: JSON.stringify({
+      walletUuid: &#x27;c12345b5-7890-4a2f-8c2f-f3e913c12e5f&#x27;,
+      chain: &#x27;polygon&#x27;,
+      token: &#x27;USDC&#x27;,
+      amount: 25.0,
+      offrampAddress: &#x27;0xF2f5F4Df47664C1030d3FAAC2E5D6b927d0717B1&#x27;
+    })
+  }
+);
+
+const offrampData = await offrampRequest.json();
+console.log(&#x27;Offramp Request UUID:&#x27;, offrampData.offrampRequestUuid);
+console.log(&#x27;Beneficiary UUID:&#x27;, offrampData.beneficiaryUuid);
+// OTP sent to user&#x27;s email/phone
+</code></pre></div></div>
+<p><strong>Response:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;offrampRequestUuid&quot;: &quot;f19c111e-5a2e-41c2-9f00-8e7d0b8c2e31&quot;,
+  &quot;merchantUuid&quot;: &quot;e0123abc-7890-4567-a1b2-c3d4e5f67890&quot;,
+  &quot;walletUuid&quot;: &quot;a12345bc-6789-4def-9012-3456789abcde&quot;,
+  &quot;token&quot;: &quot;USDC&quot;,
+  &quot;amount&quot;: 20.5,
+  &quot;beneficiaryUuid&quot;: &quot;b98765cb-3210-4321-8765-abcdef987654&quot;
+}
+</code></pre></div></div>
+<blockquote>
+<p><strong>Warning:</strong><br/>
+<strong>OTP Security</strong>: An OTP (One-Time Password) will be sent to the user&#x27;s registered email/phone. This must be provided to confirm the withdrawal.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="confirm-offramp-with-otp"></div><div class="heading-text"><div id="section-confirm-offramp-with-otp" class="heading-anchor_backwardsCompatibility"></div>Confirm Offramp with OTP</div><a aria-label="Skip link to Confirm Offramp with OTP" class="heading-anchor-icon fa fa-anchor" href="#confirm-offramp-with-otp"></a></h3>
+<p><strong>Step 4: Submit OTP to execute withdrawal</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// User receives OTP via email/SMS
+const userOTP = &#x27;123456&#x27;; // 6-digit code
+
+// Confirm offramp
+const confirmation = await fetch(
+  &#x27;https://api.bakkt.com/wallet/custodial/offramp/confirm&#x27;,
+  {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: apiKey,
+      &#x27;unblock-session-id&#x27;: sessionId,
+      &#x27;user-uuid&#x27;: userUuid,
+      &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    body: JSON.stringify({
+      offrampRequestUuid: &#x27;f19c111e-5a2e-41c2-9f00-8e7d0b8c2e31&#x27;,
+      otp: userOTP
+    })
+  }
+);
+
+// Returns 204 No Content on success
+if (confirmation.status === 204) {
+  console.log(&#x27;Offramp confirmed! Funds will be transferred.&#x27;);
+}
+</code></pre></div></div>
+<!-- -->
+  **Two-Step Security**: The OTP confirmation provides an additional security layer, ensuring that withdrawals require both API authentication AND user confirmation.
+<!-- -->
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="sign-in-with-custodial-wallet"></div><div class="heading-text"><div id="section-sign-in-with-custodial-wallet" class="heading-anchor_backwardsCompatibility"></div>Sign In with Custodial Wallet</div><a aria-label="Skip link to Sign In with Custodial Wallet" class="heading-anchor-icon fa fa-anchor" href="#sign-in-with-custodial-wallet"></a></h3>
+<p><strong>Authenticate using a custodial wallet:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Sign in or link custodial wallet
+const signin = await fetch(&#x27;https://api.bakkt.com/wallet/custodial/signin&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;user-uuid&#x27;: userUuid,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    walletUuid: &#x27;c12345b5-7890-4a2f-8c2f-f3e913c12e5f&#x27;
+  })
+});
+
+const signinData = await signin.json();
+console.log(&#x27;Message to sign:&#x27;, signinData.message);
+console.log(&#x27;Signature:&#x27;, signinData.signature);
+console.log(&#x27;Wallet UUID:&#x27;, signinData.walletUuid);
+</code></pre></div></div>
+<p><strong>Response:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;message&quot;: &quot;Please sign this message to authenticate your wallet.&quot;,
+  &quot;signature&quot;: &quot;0xabcdef1234567890&quot;,
+  &quot;merchantUuid&quot;: &quot;f4b32e1e-d9e0-4b4f-bbb3-6fc2f8a7b9dc&quot;,
+  &quot;walletUuid&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+}
+</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="complete-custodial-workflow"></div><div class="heading-text"><div id="section-complete-custodial-workflow" class="heading-anchor_backwardsCompatibility"></div>Complete Custodial Workflow</div><a aria-label="Skip link to Complete Custodial Workflow" class="heading-anchor-icon fa fa-anchor" href="#complete-custodial-workflow"></a></h3>
+<p><strong>End-to-end example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// === SETUP: Create &amp; Activate Custodial Wallet ===
+
+// 1. Create custodial wallet
+const createResponse = await bakkt.custodial.create({
+  chain: &#x27;Polygon&#x27;
+});
+
+const walletUuid = createResponse.walletUuid;
+
+// 2. Wait for activation (poll until Active)
+let walletStatus = &#x27;Pending&#x27;;
+while (walletStatus === &#x27;Pending&#x27;) {
+  await new Promise(r =&gt; setTimeout(r, 5000)); // Wait 5 seconds
+
+  const statusCheck = await bakkt.custodial.getDetails(walletUuid);
+  walletStatus = statusCheck.status;
+
+  if (walletStatus === &#x27;Active&#x27;) {
+    console.log(&#x27;Wallet active!&#x27;);
+    console.log(&#x27;Deposit address:&#x27;, statusCheck.smartContractAddress);
+  }
+}
+
+// === DEPOSIT: User Sends Crypto ===
+
+// 3. User deposits USDC to smart contract address
+// (happens in user&#x27;s wallet app, e.g., MetaMask)
+
+// 4. Check balance
+const balance = await bakkt.custodial.getBalance();
+console.log(&#x27;Current balance:&#x27;, balance.balance, &#x27;USDC&#x27;);
+
+// === WITHDRAW: Offramp to Fiat ===
+
+// 5. Add destination bank account (if not already added)
+const bankAccount = await bakkt.stablecoin.addBeneficiary({
+  account_name: &#x27;My Bank&#x27;,
+  main_beneficiary: true,
+  account_details: {
+    currency: &#x27;EUR&#x27;,
+    iban: &#x27;DE89370400440532013000&#x27;
+  }
+});
+
+// 6. Request offramp (triggers OTP)
+const offrampRequest = await bakkt.custodial.requestOfframp({
+  walletUuid,
+  chain: &#x27;polygon&#x27;,
+  token: &#x27;USDC&#x27;,
+  amount: 100,
+  offrampAddress: bankAccount.receiving_address
+});
+
+console.log(&#x27;OTP sent to user. Request UUID:&#x27;, offrampRequest.offrampRequestUuid);
+
+// 7. User receives OTP and submits
+const userOTP = promptUser(&#x27;Enter OTP from email/SMS:&#x27;);
+
+// 8. Confirm offramp
+await bakkt.custodial.confirmOfframp({
+  offrampRequestUuid: offrampRequest.offrampRequestUuid,
+  otp: userOTP
+});
+
+console.log(&#x27;Withdrawal confirmed! Processing...&#x27;);
+
+// 9. Monitor via webhooks
+webhook.on(&#x27;cryptoToFiat SUCCESS&#x27;, (data) =&gt; {
+  console.log(`${data.amountCrypto} USDC → ${data.amountFiat} EUR`);
+  console.log(&#x27;Fiat sent to bank account&#x27;);
+});
+</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="security-features"></div><div class="heading-text"><div id="section-security-features" class="heading-anchor_backwardsCompatibility"></div>Security Features</div><a aria-label="Skip link to Security Features" class="heading-anchor-icon fa fa-anchor" href="#security-features"></a></h3>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="smart-contract-security"></div><div class="heading-text"><div id="section-smart-contract-security" class="heading-anchor_backwardsCompatibility"></div>Smart Contract Security</div><a aria-label="Skip link to Smart Contract Security" class="heading-anchor-icon fa fa-anchor" href="#smart-contract-security"></a></h3>
+<p><strong>On-Chain Custody</strong>: Funds are held in audited smart contracts, not hot wallets.</p>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">**Programmable Rules**: Withdrawal limits, multi-sig, time locks can be configured.
+
+**Transparent**: All transactions visible on-chain via block explorer.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="otp-confirmation"></div><div class="heading-text"><div id="section-otp-confirmation" class="heading-anchor_backwardsCompatibility"></div>OTP Confirmation</div><a aria-label="Skip link to OTP Confirmation" class="heading-anchor-icon fa fa-anchor" href="#otp-confirmation"></a></h3>
+<p><strong>Two-Factor Withdrawal</strong>: Every withdrawal requires both API auth + OTP.</p>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">**6-Digit Code**: Sent via email or SMS to registered user.
+
+**Time-Limited**: OTP expires after 10 minutes for security.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="balance-tracking"></div><div class="heading-text"><div id="section-balance-tracking" class="heading-anchor_backwardsCompatibility"></div>Balance Tracking</div><a aria-label="Skip link to Balance Tracking" class="heading-anchor-icon fa fa-anchor" href="#balance-tracking"></a></h3>
+<p><strong>Real-Time</strong>: Query balance at any time via GET /wallet/balance.</p>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">**Multi-Token**: Aggregated value across all supported stablecoins.
+
+**Webhook Updates**: Receive notifications on balance changes.
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="custodial-vs-standard-wallets"></div><div class="heading-text"><div id="section-custodial-vs-standard-wallets" class="heading-anchor_backwardsCompatibility"></div>Custodial vs Standard Wallets</div><a aria-label="Skip link to Custodial vs Standard Wallets" class="heading-anchor-icon fa fa-anchor" href="#custodial-vs-standard-wallets"></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Feature</th><th>Smart Contract Custodial</th><th>Standard Custody</th><th>On-Ramp Linked</th></tr></thead><tbody><tr><td><strong>Security</strong></td><td>Smart contract + OTP</td><td>Bakkt custody</td><td>Bakkt custody</td></tr><tr><td><strong>Withdrawal</strong></td><td>Requires OTP</td><td>Automatic</td><td>Automatic</td></tr><tr><td><strong>Use Case</strong></td><td>High-security holding</td><td>Simple holding</td><td>Auto-convert</td></tr><tr><td><strong>Setup</strong></td><td>POST /wallet/custodial</td><td>GET /user/wallet/{chain}</td><td>Virtual IBAN link</td></tr><tr><td><strong>Best For</strong></td><td>Enterprises, high-value</td><td>Individual users</td><td>Fiat depositors</td></tr></tbody></table></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-chains-for-custodial"></div><div class="heading-text"><div id="section-supported-chains-for-custodial" class="heading-anchor_backwardsCompatibility"></div>Supported Chains for Custodial</div><a aria-label="Skip link to Supported Chains for Custodial" class="heading-anchor-icon fa fa-anchor" href="#supported-chains-for-custodial"></a></h3>
+<p>Custodial wallets can be created on all supported EVM chains:</p>
+<ul>
+<li>Ethereum (mainnet)</li>
+<li>Polygon</li>
+<li>Arbitrum</li>
+<li>Optimism</li>
+<li>Base</li>
+<li>BSC (Binance Smart Chain)</li>
+<li>Avalanche</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong><br/>
+<strong>Solana Support</strong>: Smart contract custodial wallets are currently available only on EVM-compatible chains. For Solana, use standard custody wallets via <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">GET /user/wallet/solana</code>.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="best-practices-for-custodial-wallets"></div><div class="heading-text"><div id="section-best-practices-for-custodial-wallets" class="heading-anchor_backwardsCompatibility"></div>Best Practices for Custodial Wallets</div><a aria-label="Skip link to Best Practices for Custodial Wallets" class="heading-anchor-icon fa fa-anchor" href="#best-practices-for-custodial-wallets"></a></h3>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="wallet-creation"></div><div class="heading-text"><div id="section-wallet-creation" class="heading-anchor_backwardsCompatibility"></div>Wallet Creation</div><a aria-label="Skip link to Wallet Creation" class="heading-anchor-icon fa fa-anchor" href="#wallet-creation"></a></h3>
+<ul>
+<li>Create wallets during user onboarding
+<ul>
+<li>Wait for <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Active</code> status before displaying deposit address</li>
+<li>Store walletUuid for future operations</li>
+<li>Create one wallet per chain if multi-chain support needed</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="deposits"></div><div class="heading-text"><div id="section-deposits" class="heading-anchor_backwardsCompatibility"></div>Deposits</div><a aria-label="Skip link to Deposits" class="heading-anchor-icon fa fa-anchor" href="#deposits"></a></h3>
+<ul>
+<li>Only show deposit address when status is <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Active</code>
+<ul>
+<li>Display clear instructions on supported tokens</li>
+<li>Warn about minimum deposit amounts</li>
+<li>Provide transaction hash for tracking</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="withdrawals"></div><div class="heading-text"><div id="section-withdrawals" class="heading-anchor_backwardsCompatibility"></div>Withdrawals</div><a aria-label="Skip link to Withdrawals" class="heading-anchor-icon fa fa-anchor" href="#withdrawals"></a></h3>
+<ul>
+<li>Implement OTP input UI for user
+<ul>
+<li>Show OTP expiration timer (10 minutes)</li>
+<li>Handle OTP errors gracefully (invalid, expired)</li>
+<li>Provide &quot;resend OTP&quot; option</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="security"></div><div class="heading-text"><div id="section-security" class="heading-anchor_backwardsCompatibility"></div>Security</div><a aria-label="Skip link to Security" class="heading-anchor-icon fa fa-anchor" href="#security"></a></h3>
+<ul>
+<li>Never store OTPs in logs or databases
+<ul>
+<li>Implement rate limiting on OTP attempts</li>
+<li>Show clear security warnings to users</li>
+<li>Monitor for suspicious withdrawal patterns</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="error-handling"></div><div class="heading-text"><div id="section-error-handling" class="heading-anchor_backwardsCompatibility"></div>Error Handling</div><a aria-label="Skip link to Error Handling" class="heading-anchor-icon fa fa-anchor" href="#error-handling"></a></h3>
+<p>Common errors and solutions:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Error</th><th>Cause</th><th>Solution</th></tr></thead><tbody><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Wallet status: Pending</code></td><td>Smart contract still deploying</td><td>Wait and retry GET endpoint</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Invalid OTP</code></td><td>Wrong code entered</td><td>Prompt user to re-enter</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">OTP expired</code></td><td>&gt;10 minutes passed</td><td>Request new offramp</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Insufficient balance</code></td><td>Not enough funds</td><td>Check balance first</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Chain not supported</code></td><td>Solana smart contracts</td><td>Use standard custody</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Info:</strong><br/>
+<strong>Production Use</strong>: Custodial wallets are production-ready and used by enterprise clients for institutional custody requirements.</p>
+</blockquote>

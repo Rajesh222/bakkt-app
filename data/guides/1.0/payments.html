@@ -1,0 +1,496 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><br/>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="beneficiary-management"></div><div class="heading-text">Beneficiary Management</div><a aria-label="Skip link to Beneficiary Management" class="heading-anchor-icon fa fa-regular fa-anchor" href="#beneficiary-management"></a></h2>
+<p>Add and manage beneficiaries (external bank accounts) for payouts and conversions in supported currencies (EUR, GBP, USD, NGN).</p>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>Available in Both APIs</strong>: Beneficiary endpoints exist in both Accounts API and <a href="/guides/stablecoin">Stablecoin API</a> for backwards compatibility. Use Accounts API for same-currency transfers, Stablecoin API for crypto-based cross-currency flows.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="two-use-cases-for-ach-pulls"></div><div class="heading-text">Two Use Cases for ACH Pulls</div><a aria-label="Skip link to Two Use Cases for ACH Pulls" class="heading-anchor-icon fa fa-regular fa-anchor" href="#two-use-cases-for-ach-pulls"></a></h3>
+<p>ACH Pulls support two distinct scenarios:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="onramp-transactions"></div><div class="heading-text">Onramp Transactions</div><a aria-label="Skip link to Onramp Transactions" class="heading-anchor-icon fa fa-regular fa-anchor" href="#onramp-transactions"></a></h3>
+<p><strong>Converting to Crypto</strong></p>
+<ul>
+<li>Pull funds from bank → Convert to crypto → Send to crypto address</li>
+<li><strong>Requires</strong>: Crypto address configured</li>
+<li>Use case: User wants to buy crypto with bank funds</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-transfers"></div><div class="heading-text">Bank Transfers</div><a aria-label="Skip link to Bank Transfers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-transfers"></a></h3>
+<p><strong>Keep Funds in Account</strong></p>
+<ul>
+<li>Pull funds from bank → Keep in user&#x27;s account balance</li>
+<li><strong>Does NOT require</strong>: Crypto address</li>
+<li>Use case: User wants to deposit funds to their account</li>
+</ul>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>Important</strong>: Throughout this guide, sections marked as &quot;Onramp Only&quot; apply only to transactions that convert to crypto. Bank transfers (keeping funds in account) do not require crypto addresses and are not subject to transaction path restrictions.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="create-beneficiary"></div><div class="heading-text">Create Beneficiary</div><a aria-label="Skip link to Create Beneficiary" class="heading-anchor-icon fa fa-regular fa-anchor" href="#create-beneficiary"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/bank-account/remote</code></p>
+<p>Add an external bank account with details for payouts. Works for both domestic and international destinations.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="list-beneficiaries"></div><div class="heading-text">List Beneficiaries</div><a aria-label="Skip link to List Beneficiaries" class="heading-anchor-icon fa fa-regular fa-anchor" href="#list-beneficiaries"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/bank-account/remote</code></p>
+<p>View all saved beneficiaries.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-beneficiary-details"></div><div class="heading-text">Get Beneficiary Details</div><a aria-label="Skip link to Get Beneficiary Details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-beneficiary-details"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/bank-account/remote/{uuid}</code></p>
+<p>View specific beneficiary information.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="update"></div><div class="heading-text">Update</div><a aria-label="Skip link to Update" class="heading-anchor-icon fa fa-regular fa-anchor" href="#update"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">PATCH /user/bank-account/remote</code></p>
+<p>Set a specific beneficiary as the default destination for payouts.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="delete"></div><div class="heading-text">Delete</div><a aria-label="Skip link to Delete" class="heading-anchor-icon fa fa-regular fa-anchor" href="#delete"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">DELETE /user/bank-account/remote/{uuid}</code></p>
+<p>Remove a saved beneficiary.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="payments--transfers"></div><div class="heading-text">Payments &amp; Transfers</div><a aria-label="Skip link to Payments &amp; Transfers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payments--transfers"></a></h2>
+<p>Send and receive money:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="transaction-history"></div><div class="heading-text">Transaction History</div><a aria-label="Skip link to Transaction History" class="heading-anchor-icon fa fa-regular fa-anchor" href="#transaction-history"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/ledger/transactions</code></p>
+<p>View all payment and transfer history for a user, including deposits and payouts.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="open-banking-plaid"></div><div class="heading-text">Open Banking (Plaid)</div><a aria-label="Skip link to Open Banking (Plaid)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#open-banking-plaid"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/open-banking/payment</code></p>
+<p>ACH pull via Plaid integration - instant account linking.</p>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>Note</strong>: Sending money to beneficiaries happens when you use payment or remittance endpoints. Direct &quot;send&quot; endpoint coming in future release.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="money-out-payouts"></div><div class="heading-text">Money OUT (Payouts)</div><a aria-label="Skip link to Money OUT (Payouts)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#money-out-payouts"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="domestic-payout"></div><div class="heading-text">Domestic Payout</div><a aria-label="Skip link to Domestic Payout" class="heading-anchor-icon fa fa-regular fa-anchor" href="#domestic-payout"></a></h3>
+<p><strong>Send to same-currency beneficiary</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Create domestic beneficiary
+const beneficiary = await bakkt.payments.createRemoteBankAccount(sessionId, {
+  first_name: &#x27;John&#x27;,
+  last_name: &#x27;Smith&#x27;,
+  beneficiary_country: &#x27;US&#x27;,
+  account_details: {
+    currency: &#x27;USD&#x27;,
+    account_number: &#x27;12365498&#x27;,
+    bank_code: &#x27;026009593&#x27;,  // ABA routing
+    bank_name: &#x27;Bank of America&#x27;
+  }
+});
+
+// 2. User sends payment
+// (Via UI that debits their Bakkt account)
+
+// Funds arrive via ACH in 2-3 business days</code></pre></div></div>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>International Currencies</strong>: To send money to other currencies like PKR, INR, or TRY, use the <a href="/guides/stablecoin#third-party-off-ramp-send-to-any-bank">Stablecoin API third-party off-ramp</a> feature.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="beneficiary-types"></div><div class="heading-text">Beneficiary Types</div><a aria-label="Skip link to Beneficiary Types" class="heading-anchor-icon fa fa-regular fa-anchor" href="#beneficiary-types"></a></h2>
+<p>The Accounts API handles all types of beneficiaries:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="domestic-beneficiaries"></div><div class="heading-text">Domestic Beneficiaries</div><a aria-label="Skip link to Domestic Beneficiaries" class="heading-anchor-icon fa fa-regular fa-anchor" href="#domestic-beneficiaries"></a></h3>
+<p>Same currency, same country - fast settlement:</p>
+<ul>
+<li><strong>US (USD → USD)</strong>: ACH push, 2-3 business days</li>
+<li><strong>Europe (EUR → EUR)</strong>: SEPA, same day to 1 business day</li>
+<li><strong>UK (GBP → GBP)</strong>: FPS, same day</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="supported-beneficiary-currencies"></div><div class="heading-text">Supported Beneficiary Currencies</div><a aria-label="Skip link to Supported Beneficiary Currencies" class="heading-anchor-icon fa fa-regular fa-anchor" href="#supported-beneficiary-currencies"></a></h3>
+<p>Beneficiaries can be created in the same currencies as Virtual IBANs:</p>
+<ul>
+<li><strong>EUR</strong> (SEPA - Europe-wide)</li>
+<li><strong>GBP</strong> (FPS - United Kingdom)</li>
+<li><strong>USD</strong> (ACH - United States)</li>
+<li><strong>NGN</strong> (Local - Nigeria)</li>
+</ul>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>Other Currencies</strong>: Beneficiaries are also available in the <a href="/guides/stablecoin">Stablecoin API</a> for crypto-to-fiat off-ramps to PKR, INR, TRY, and other currencies.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="ach-operations"></div><div class="heading-text">ACH Operations</div><a aria-label="Skip link to ACH Operations" class="heading-anchor-icon fa fa-regular fa-anchor" href="#ach-operations"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="ach-push-via-beneficiary"></div><div class="heading-text">ACH Push (via Beneficiary)</div><a aria-label="Skip link to ACH Push (via Beneficiary)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#ach-push-via-beneficiary"></a></h3>
+<p>Credit beneficiary&#x27;s external bank account:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Add beneficiary (one-time setup)
+const beneficiary = await bakkt.payments.createRemoteBankAccount(sessionId, {
+  first_name: &#x27;Jane&#x27;,
+  last_name: &#x27;Doe&#x27;,
+  beneficiary_country: &#x27;US&#x27;,
+  account_details: {
+    currency: &#x27;USD&#x27;,
+    account_number: &#x27;987654321&#x27;,
+    bank_code: &#x27;026009593&#x27;
+  }
+});
+
+// 2. User initiates payment to this beneficiary
+// (Debit their Bakkt account, credit beneficiary)
+// Settlement in 2-3 business days</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="ach-pull-via-plaid"></div><div class="heading-text">ACH Pull via Plaid</div><a aria-label="Skip link to ACH Pull via Plaid" class="heading-anchor-icon fa fa-regular fa-anchor" href="#ach-pull-via-plaid"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h3>
+<p>This section explains how to enable ACH Pulls via Plaid with Bakkt for an individual user. It covers prerequisites, the end‑to‑end flow, API calls, error handling, and troubleshooting.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="prerequisites"></div><div class="heading-text">Prerequisites</div><a aria-label="Skip link to Prerequisites" class="heading-anchor-icon fa fa-regular fa-anchor" href="#prerequisites"></a></h3>
+<p>Before you begin, ensure the following requirements are met:</p>
+<ul>
+<li>The user must be in status <code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code></li>
+<li>User is fully created and eligible for ACH pulls in your system</li>
+<li>Feature flags and environment variables for Plaid and Bakkt are configured in your backend</li>
+<li>You have the user identifier needed by the APIs below</li>
+<li>This functionality works only for individual users. Joint or business users are not supported</li>
+</ul>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>Individual Users Only</strong>: ACH Pull functionality is currently only supported for individual users. Joint or business users cannot use this feature.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="highlevel-flow"></div><div class="heading-text">High‑level Flow</div><a aria-label="Skip link to High‑level Flow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#highlevel-flow"></a></h3>
+<p>The ACH Pull process follows these key steps:</p>
+<p><strong>Step 1: Ensure User Eligibility</strong></p>
+<p>Create or ensure the user exists and is in a state eligible for bank linking</p>
+<p><strong>Step 2: Get Plaid Link URL</strong></p>
+<p>Call the link endpoint to receive a Plaid <code class="rdmd-code lang- theme-undefined" data-lang="">link_url</code> for the user</p>
+<p><strong>Step 3: User Completes Plaid Flow</strong></p>
+<p>Direct the user to the <code class="rdmd-code lang- theme-undefined" data-lang="">link_url</code> where they complete the Plaid authentication and select their bank account</p>
+<p><strong>Step 4: Verify the Link</strong></p>
+<p>After Plaid completion, verify the link status via the linked bank account endpoint</p>
+<p><strong>Step 5: Initiate ACH Pull</strong></p>
+<p>Once verified, initiate ACH Pulls to debit the linked external account</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-1--ensure-user-is-ready"></div><div class="heading-text">Step 1 — Ensure User is Ready</div><a aria-label="Skip link to Step 1 — Ensure User is Ready" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-1--ensure-user-is-ready"></a></h3>
+<p>Make sure the user is fully provisioned in your system. If your workflow requires any KYC or profile completion, complete that first.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="create-or-ensure-user-endpoint"></div><div class="heading-text">Create or Ensure User Endpoint</div><a aria-label="Skip link to Create or Ensure User Endpoint" class="heading-anchor-icon fa fa-regular fa-anchor" href="#create-or-ensure-user-endpoint"></a></h3>
+<p>Use this endpoint to create or verify the user profile before proceeding with bank linking.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-2--get-plaid-link-url"></div><div class="heading-text">Step 2 — Get Plaid Link URL</div><a aria-label="Skip link to Step 2 — Get Plaid Link URL" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-2--get-plaid-link-url"></a></h3>
+<p>Call the link endpoint to receive a Plaid <code class="rdmd-code lang- theme-undefined" data-lang="">link_url</code> that the user will use to complete the bank account linking process.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="link-bank-account"></div><div class="heading-text">Link Bank Account</div><a aria-label="Skip link to Link Bank Account" class="heading-anchor-icon fa fa-regular fa-anchor" href="#link-bank-account"></a></h3>
+<p>Use this endpoint to initiate the bank account linking process and receive a Plaid link URL.</p>
+<p><strong>Example Request</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">PUT /user/linked-bank-account/link</code></pre></div></div>
+<p><strong>Example Response</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;link_url&quot;: &quot;https://plaid.com/link?token=link-sandbox-abc123...&quot;,
+  &quot;status&quot;: &quot;pending&quot;
+}</code></pre></div></div>
+<blockquote>
+<p><strong>Info:</strong>
+The <code class="rdmd-code lang- theme-undefined" data-lang="">link_url</code> is a unique URL that directs the user to Plaid&#x27;s secure authentication flow.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-3--user-completes-plaid-flow"></div><div class="heading-text">Step 3 — User Completes Plaid Flow</div><a aria-label="Skip link to Step 3 — User Completes Plaid Flow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-3--user-completes-plaid-flow"></a></h3>
+<p>Direct the user to the <code class="rdmd-code lang- theme-undefined" data-lang="">link_url</code> received in Step 2. The user will:</p>
+<ol>
+<li><strong>Authenticate with Plaid</strong> - Securely log into their bank</li>
+<li><strong>Select their bank account</strong> - Choose the account for ACH Pulls</li>
+<li><strong>Grant permission</strong> - Authorize ACH debits from the selected account</li>
+</ol>
+<p><strong>What Happens During Plaid Flow</strong>:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-authentication"></div><div class="heading-text">Bank Authentication</div><a aria-label="Skip link to Bank Authentication" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-authentication"></a></h3>
+<p>User securely logs into their bank through Plaid&#x27;s interface</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-selection"></div><div class="heading-text">Account Selection</div><a aria-label="Skip link to Account Selection" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-selection"></a></h3>
+<p>User selects which checking or savings account to link</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="permission-grant"></div><div class="heading-text">Permission Grant</div><a aria-label="Skip link to Permission Grant" class="heading-anchor-icon fa fa-regular fa-anchor" href="#permission-grant"></a></h3>
+<p>User authorizes ACH debits from the selected account</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-verification"></div><div class="heading-text">Account Verification</div><a aria-label="Skip link to Account Verification" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-verification"></a></h3>
+<p>Plaid verifies the account details and ownership</p>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>User Action Required</strong>: The user must complete the entire Plaid flow for the account to be successfully linked. If they close the window or fail authentication, the link will not complete.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-4--verify-the-link--check-link-status"></div><div class="heading-text">Step 4 — Verify the Link / Check Link Status</div><a aria-label="Skip link to Step 4 — Verify the Link / Check Link Status" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-4--verify-the-link--check-link-status"></a></h3>
+<p>Use the linked bank account read endpoint to confirm the account is linked and active.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="read-linked-bank-account"></div><div class="heading-text">Read Linked Bank Account</div><a aria-label="Skip link to Read Linked Bank Account" class="heading-anchor-icon fa fa-regular fa-anchor" href="#read-linked-bank-account"></a></h3>
+<p>Check the status and details of the linked bank account.</p>
+<p><strong>What to Check</strong>:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-status"></div><div class="heading-text">Account Status</div><a aria-label="Skip link to Account Status" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-status"></a></h3>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">status</code>: should indicate linked/active<!-- -->
+<ul>
+<li>Verify the account is ready for ACH pulls</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="error-validation"></div><div class="heading-text">Error Validation</div><a aria-label="Skip link to Error Validation" class="heading-anchor-icon fa fa-regular fa-anchor" href="#error-validation"></a></h3>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">lastError</code>: should be empty or null<!-- -->
+<ul>
+<li>Check for any error messages if linking failed</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-details"></div><div class="heading-text">Account Details</div><a aria-label="Skip link to Account Details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-details"></a></h3>
+<ul>
+<li>Verify account details are present (last 4 digits of account, bank name, etc.)<!-- -->
+<ul>
+<li>Confirm the linked account is the one the user selected in Plaid</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>Single Account Limitation</strong>: Only one linked external bank account is supported per user at a time. If you need to change it, you must unlink the current account first.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="unlink-bank-account"></div><div class="heading-text">Unlink Bank Account</div><a aria-label="Skip link to Unlink Bank Account" class="heading-anchor-icon fa fa-regular fa-anchor" href="#unlink-bank-account"></a></h3>
+<p>Use this endpoint to unlink an external bank account before linking a new one.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-5--initiate-ach-pull"></div><div class="heading-text">Step 5 — Initiate ACH Pull</div><a aria-label="Skip link to Step 5 — Initiate ACH Pull" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-5--initiate-ach-pull"></a></h3>
+<p>Once the external account is linked and verified, create the ACH pull request.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="initiate-ach-pull"></div><div class="heading-text">Initiate ACH Pull</div><a aria-label="Skip link to Initiate ACH Pull" class="heading-anchor-icon fa fa-regular fa-anchor" href="#initiate-ach-pull"></a></h3>
+<p>Create an ACH pull request to debit the user&#x27;s external bank account.</p>
+<p><strong>Example Payload</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;amount&quot;: 25000  // currency is always USD 
+}</code></pre></div></div>
+<blockquote class="callout callout_info" theme="📘"><span class="callout-icon">📘</span><p><strong>Best Practice</strong>: Use a unique <code class="rdmd-code lang- theme-undefined" data-lang="">idempotencyKey</code> per attempt to prevent duplicate transfers in network or retry scenarios.</p></blockquote>
+<p><strong>Code Example</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Initiate ACH Pull
+const achPull = await bakkt.linkedBankAccount.createPull(sessionId, {
+  amount: 25000,
+  idempotencyKey: generateUniqueKey() // Generate unique key per request
+});
+
+console.log(&#x27;ACH Pull initiated:&#x27;, achPull.uuid);
+console.log(&#x27;Status:&#x27;, achPull.status);</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="webhooks-and-status-updates"></div><div class="heading-text">Webhooks and Status Updates</div><a aria-label="Skip link to Webhooks and Status Updates" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhooks-and-status-updates"></a></h3>
+<p>After initiating an ACH Pull, monitor payment and ACH transfer webhooks from the provider to track processing states.</p>
+<p><strong>Webhook Events to Monitor</strong>:</p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ach_pull.initiated</code> - ACH pull has been created</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ach_pull.pending</code> - ACH pull is being processed</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ach_pull.completed</code> - ACH pull has settled successfully</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ach_pull.failed</code> - ACH pull has failed</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ach_pull.returned</code> - ACH pull was returned by the bank</li>
+</ul>
+<blockquote>
+<p><strong>Info:</strong>
+Update your ledger or transaction store from these webhook events to maintain accurate records.</p>
+</blockquote>
+<p><strong>Typical Lifecycle</strong>:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="success-path"></div><div class="heading-text">Success Path</div><a aria-label="Skip link to Success Path" class="heading-anchor-icon fa fa-regular fa-anchor" href="#success-path"></a></h3>
+<pre><code class="rdmd-code lang- theme-undefined" data-lang="">    created → pending → settled</code></pre>
+<p>This is the normal flow when everything processes successfully. Funds typically arrive in 2-3 business days.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="failure-path"></div><div class="heading-text">Failure Path</div><a aria-label="Skip link to Failure Path" class="heading-anchor-icon fa fa-regular fa-anchor" href="#failure-path"></a></h3>
+<pre><code class="rdmd-code lang- theme-undefined" data-lang="">    created → pending → failed/returned</code></pre>
+<p>Failed or returned transactions include reason codes that indicate why the ACH pull was unsuccessful.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="error-handling-and-common-failure-reasons"></div><div class="heading-text">Error Handling and Common Failure Reasons</div><a aria-label="Skip link to Error Handling and Common Failure Reasons" class="heading-anchor-icon fa fa-regular fa-anchor" href="#error-handling-and-common-failure-reasons"></a></h3>
+<p><strong>Common Issues</strong>:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="plaid-flow-not-completed"></div><div class="heading-text">Plaid Flow Not Completed</div><a aria-label="Skip link to Plaid Flow Not Completed" class="heading-anchor-icon fa fa-regular fa-anchor" href="#plaid-flow-not-completed"></a></h3>
+<p><strong>Problem</strong>: The user closed the Plaid window, failed authentication, or didn&#x27;t complete the linking process.</p>
+<p><strong>Solution</strong>: Check the link status via the <a href="https://docs.dtr.org/reference/get_user-linked-bank-account#/">linked bank account endpoint</a>. If status is not <code class="rdmd-code lang- theme-undefined" data-lang="">ACTIVE</code>, generate a new link URL and have the user retry the Plaid flow.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-not-eligible"></div><div class="heading-text">Account Not Eligible</div><a aria-label="Skip link to Account Not Eligible" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-not-eligible"></a></h3>
+<p><strong>Problem</strong>: Some accounts may not accept ACH debits.</p>
+<p><strong>Solution</strong>: Verify with the user that their bank account supports ACH debits. Some accounts (like savings accounts) may have restrictions.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="insufficient-permissions"></div><div class="heading-text">Insufficient Permissions</div><a aria-label="Skip link to Insufficient Permissions" class="heading-anchor-icon fa fa-regular fa-anchor" href="#insufficient-permissions"></a></h3>
+<p><strong>Problem</strong>: Feature flag disabled or server configuration issues.</p>
+<p><strong>Solution</strong>: Ensure server configuration enables Plaid linking and ACH pulls. Check that all required environment variables are set.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="compliance-checks-failed"></div><div class="heading-text">Compliance Checks Failed</div><a aria-label="Skip link to Compliance Checks Failed" class="heading-anchor-icon fa fa-regular fa-anchor" href="#compliance-checks-failed"></a></h3>
+<p><strong>Problem</strong>: Pulls may be blocked if the user fails internal rules or KYC.</p>
+<p><strong>Solution</strong>: Verify user is in <code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code> status and has completed all required KYC checks. Review compliance rules that may be blocking the transaction.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="merchant-limit-exceeded"></div><div class="heading-text">Merchant Limit Exceeded</div><a aria-label="Skip link to Merchant Limit Exceeded" class="heading-anchor-icon fa fa-regular fa-anchor" href="#merchant-limit-exceeded"></a></h3>
+<p><strong>Problem</strong>: For unverified merchants, transaction limits may apply and be exceeded.</p>
+<p><strong>Solution</strong>: Complete merchant verification to increase limits, or ensure individual transactions stay within the allocated limits. Monitor your remaining transaction capacity.</p>
+<p><strong>Recommended Approach</strong>:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="always-verify"></div><div class="heading-text">Always Verify</div><a aria-label="Skip link to Always Verify" class="heading-anchor-icon fa fa-regular fa-anchor" href="#always-verify"></a></h3>
+<p>Always read back link status before initiating pulls to ensure the account is properly linked</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="clear-error-messages"></div><div class="heading-text">Clear Error Messages</div><a aria-label="Skip link to Clear Error Messages" class="heading-anchor-icon fa fa-regular fa-anchor" href="#clear-error-messages"></a></h3>
+<p>Surface clear errors to the client and offer unlink → relink flow when appropriate</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="constraints-and-limits"></div><div class="heading-text">Constraints and Limits</div><a aria-label="Skip link to Constraints and Limits" class="heading-anchor-icon fa fa-regular fa-anchor" href="#constraints-and-limits"></a></h3>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="single-account"></div><div class="heading-text">Single Account</div><a aria-label="Skip link to Single Account" class="heading-anchor-icon fa fa-regular fa-anchor" href="#single-account"></a></h3>
+<p>Only one linked external account per user. Linking a new account requires unlinking the current one first using the <a href="https://docs.dtr.org/reference/delete_user-linked-bank-account-unlink#/">unlink endpoint</a>.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="individual-users-only"></div><div class="heading-text">Individual Users Only</div><a aria-label="Skip link to Individual Users Only" class="heading-anchor-icon fa fa-regular fa-anchor" href="#individual-users-only"></a></h3>
+<p>Only supported for individual users. Joint or business users cannot use ACH Pull functionality.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="minimum-amount"></div><div class="heading-text">Minimum Amount</div><a aria-label="Skip link to Minimum Amount" class="heading-anchor-icon fa fa-regular fa-anchor" href="#minimum-amount"></a></h3>
+<p>ACH pulls must be at least <strong>$10.00 USD</strong>. Transfers below this minimum will be automatically rejected and refunded.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="currency"></div><div class="heading-text">Currency</div><a aria-label="Skip link to Currency" class="heading-anchor-icon fa fa-regular fa-anchor" href="#currency"></a></h3>
+<p>ACH Pulls are only available for USD transactions.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="crypto-address-required-onramp-only"></div><div class="heading-text">Crypto Address Required (Onramp Only)</div><a aria-label="Skip link to Crypto Address Required (Onramp Only)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#crypto-address-required-onramp-only"></a></h3>
+<p><strong>For onramp transactions only</strong>: Users must have a valid target crypto address configured before ACH pulls that convert to crypto can be processed. Set this up during onboarding.</p>
+<p><strong>For bank transfers</strong>: Crypto address is <strong>not required</strong> - funds remain in the user&#x27;s account.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="transaction-restrictions-onramp-only"></div><div class="heading-text">Transaction Restrictions (Onramp Only)</div><a aria-label="Skip link to Transaction Restrictions (Onramp Only)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#transaction-restrictions-onramp-only"></a></h3>
+<p>Certain transaction paths may be temporarily restricted due to maintenance or regulatory requirements. This applies <strong>only to onramp transactions</strong> (converting to crypto). Bank transfers are not affected.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="troubleshooting"></div><div class="heading-text">Troubleshooting</div><a aria-label="Skip link to Troubleshooting" class="heading-anchor-icon fa fa-regular fa-anchor" href="#troubleshooting"></a></h3>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Issue</th><th>Solution</th></tr></thead><tbody><tr><td><strong>Link says successful but pulls fail</strong></td><td>Verify the account supports ACH debits and that name matching or other compliance checks pass</td></tr><tr><td><strong>User didn&#x27;t complete Plaid flow</strong></td><td>Check link status. If not <code class="rdmd-code lang- theme-undefined" data-lang="">ACTIVE</code>, generate a new link URL and have the user retry</td></tr><tr><td><strong>Transfer rejected - below minimum</strong></td><td>Ensure transfer amount is at least $10.00 USD. Update your UI to prevent amounts below this limit</td></tr><tr><td><strong>Transfer rejected - missing crypto address (onramp only)</strong></td><td>For onramp transactions, configure user&#x27;s target crypto address via onboarding endpoints before initiating pulls. Bank transfers do not require crypto addresses</td></tr><tr><td><strong>Transfer rejected - path restricted</strong></td><td>Certain currency/token paths may be temporarily unavailable. Check system status or contact support</td></tr><tr><td><strong>409/duplicate on pull</strong></td><td>Reuse of <code class="rdmd-code lang- theme-undefined" data-lang="">idempotencyKey</code>. Generate a new key for a fresh attempt</td></tr><tr><td><strong>Need to switch accounts</strong></td><td>Call <a href="https://docs.dtr.org/reference/delete_user-linked-bank-account-unlink#/">unlink</a>, then repeat link flow with the new account</td></tr><tr><td><strong>Merchant limit exceeded</strong></td><td>Complete merchant verification or wait for limit reset. Monitor transaction capacity</td></tr></tbody></table></div></div>
+<br/>
+<blockquote class="callout callout_info" theme="📘"><span class="callout-icon">📘</span><p>When troubleshooting, always check the <code class="rdmd-code lang- theme-undefined" data-lang="">lastError</code> field in the linked bank account status response for detailed error information.</p></blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="sandbox-vs-production"></div><div class="heading-text">Sandbox vs. Production</div><a aria-label="Skip link to Sandbox vs. Production" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sandbox-vs-production"></a></h3>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="sandbox"></div><div class="heading-text">Sandbox</div><a aria-label="Skip link to Sandbox" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sandbox"></a></h3>
+<p><strong>Development Environment</strong></p>
+<ul>
+<li>Use sandbox credentials and test accounts for development</li>
+<li>Validate the full webhook lifecycle in sandbox before moving to production</li>
+<li>Test all error scenarios and edge cases</li>
+<li>ACH pulls typically complete instantly or within minutes in sandbox</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="production"></div><div class="heading-text">Production</div><a aria-label="Skip link to Production" class="heading-anchor-icon fa fa-regular fa-anchor" href="#production"></a></h3>
+<p><strong>Live Environment</strong></p>
+<ul>
+<li>Monitor webhook delivery and set alerts for failures and returns</li>
+<li>ACH pulls take 2-3 business days to settle</li>
+<li>Implement proper retry logic for failed webhooks</li>
+<li>Set up monitoring and alerting for all ACH operations</li>
+</ul>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>Always Test First</strong>: Thoroughly test your integration in the sandbox environment before deploying to production.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="security-considerations"></div><div class="heading-text">Security Considerations</div><a aria-label="Skip link to Security Considerations" class="heading-anchor-icon fa fa-regular fa-anchor" href="#security-considerations"></a></h3>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="sensitive-data"></div><div class="heading-text">Sensitive Data</div><a aria-label="Skip link to Sensitive Data" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sensitive-data"></a></h3>
+<p>Treat account and routing numbers as sensitive data. <strong>Do not log them in plaintext</strong>.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="encryption"></div><div class="heading-text">Encryption</div><a aria-label="Skip link to Encryption" class="heading-anchor-icon fa fa-regular fa-anchor" href="#encryption"></a></h3>
+<p>Use TLS everywhere, and store secrets in a secure vault (e.g., AWS Secrets Manager, HashiCorp Vault).</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="idempotency"></div><div class="heading-text">Idempotency</div><a aria-label="Skip link to Idempotency" class="heading-anchor-icon fa fa-regular fa-anchor" href="#idempotency"></a></h3>
+<p>Enforce idempotency for transfer creation to avoid duplicates. Always use unique idempotency keys.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="access-control"></div><div class="heading-text">Access Control</div><a aria-label="Skip link to Access Control" class="heading-anchor-icon fa fa-regular fa-anchor" href="#access-control"></a></h3>
+<p>Implement proper authentication and authorization for all API calls.</p>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>PCI DSS Compliance</strong>: If you&#x27;re handling financial data, ensure your infrastructure meets PCI DSS compliance requirements.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-integration-example"></div><div class="heading-text">Complete Integration Example</div><a aria-label="Skip link to Complete Integration Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-integration-example"></a></h3>
+<p>Here&#x27;s a complete example of the ACH Pull flow from start to finish with proper validation:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Step 1: Ensure user is ready (FULL_USER status)
+const user = await bakkt.getUser(userUuid);
+if (user.status !== &#x27;FULL_USER&#x27;) {
+  throw new Error(&#x27;User must complete KYC before linking bank account&#x27;);
+}
+
+// Step 1a: Verify user has crypto address configured (ONLY for onramp transactions)
+// Skip this step if you&#x27;re doing a bank transfer (keeping funds in account)
+const isOnrampTransaction = true; // Set to false for bank transfers
+
+if (isOnrampTransaction) {
+  const userCryptoAddress = await bakkt.getCryptoAddress(userUuid);
+  if (!userCryptoAddress || !userCryptoAddress.targetAddress) {
+    throw new Error(&#x27;User must configure crypto address before onramp ACH pulls. Complete onboarding first.&#x27;);
+  }
+  console.log(&#x27;User crypto address verified:&#x27;, userCryptoAddress.targetAddress);
+}
+
+// Step 2: Get Plaid link URL
+const linkResponse = await bakkt.linkedBankAccount.link(sessionId);
+
+console.log(&#x27;Plaid link URL:&#x27;, linkResponse.link_url);
+console.log(&#x27;Status:&#x27;, linkResponse.status); // &quot;pending&quot;
+
+// Step 3: Direct user to Plaid flow
+// In your frontend, redirect or open the link_url
+window.location.href = linkResponse.link_url;
+// OR use Plaid&#x27;s modal/iframe integration:
+// plaidHandler.open(linkResponse.link_url);
+
+// After user completes Plaid flow...
+// (You&#x27;ll receive a webhook or can poll the status)
+
+// Step 4: Verify the link
+const accountStatus = await bakkt.linkedBankAccount.get(sessionId);
+
+if (accountStatus.status !== &#x27;ACTIVE&#x27;) {
+  console.error(&#x27;Link failed:&#x27;, accountStatus.lastError);
+  throw new Error(&#x27;Bank account linking failed&#x27;);
+}
+
+console.log(&#x27;Link verified successfully&#x27;);
+console.log(&#x27;Account linked&#x27;);
+
+// Step 5: Validate amount against minimum requirements
+const MINIMUM_USD_AMOUNT = 10;
+const requestedAmount = 250; 
+
+if (requestedAmount = MINIMUM_USD;
+  
+  const allValid = Object.values(validations).every(v =&gt; v);
+  
+  if (!allValid) {
+    console.error(&#x27;Validation failed:&#x27;, validations);
+    const transactionType = isOnrampTransaction ? &#x27;onramp&#x27; : &#x27;bank transfer&#x27;;
+    throw new Error(`Pre-flight validation failed for ${transactionType}. Check user setup.`);
+  }
+  
+  return true;
+}
+
+// Use before initiating pull
+// For onramp transaction (converting to crypto):
+await validateBeforeACHPull(userUuid, 25000, true);
+
+// For bank transfer (keeping funds in account):
+await validateBeforeACHPull(userUuid, 25000, false);</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="quick-reference"></div><div class="heading-text">Quick Reference</div><a aria-label="Skip link to Quick Reference" class="heading-anchor-icon fa fa-regular fa-anchor" href="#quick-reference"></a></h3>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Action</th><th>Endpoint</th></tr></thead><tbody><tr><td>Create user profile</td><td><a href="https://docs.dtr.org/reference/post_user-linked-bank-account-profile#/">POST /user/linked-bank-account/profile</a></td></tr><tr><td>Link external bank account</td><td><a href="https://docs.dtr.org/reference/put_user-linked-bank-account-link#/">PUT /user/linked-bank-account/link</a></td></tr><tr><td>Read linked bank account</td><td><a href="https://docs.dtr.org/reference/get_user-linked-bank-account#/">GET /user/linked-bank-account</a></td></tr><tr><td>Unlink external bank account</td><td><a href="https://docs.dtr.org/reference/delete_user-linked-bank-account-unlink#/">DELETE /user/linked-bank-account/unlink</a></td></tr><tr><td>Create ACH Pull</td><td><a href="https://docs.dtr.org/reference/post_user-linked-bank-account-pull#/">POST /user/linked-bank-account/pull</a></td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="payment-rails-supported"></div><div class="heading-text">Payment Rails Supported</div><a aria-label="Skip link to Payment Rails Supported" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payment-rails-supported"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="united-states"></div><div class="heading-text">United States</div><a aria-label="Skip link to United States" class="heading-anchor-icon fa fa-regular fa-anchor" href="#united-states"></a></h3>
+<p><strong>Money IN</strong>:</p>
+<ul>
+<li>Bank transfers (wire)</li>
+<li>ACH pull (Plaid)</li>
+</ul>
+<p><strong>Money OUT</strong>:</p>
+<ul>
+<li>ACH push (2-3 days)</li>
+<li>Domestic wire (same day, higher fee)</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="europe"></div><div class="heading-text">Europe</div><a aria-label="Skip link to Europe" class="heading-anchor-icon fa fa-regular fa-anchor" href="#europe"></a></h3>
+<p><strong>Money IN</strong>:</p>
+<ul>
+<li>SEPA transfers</li>
+<li>Local bank transfers</li>
+</ul>
+<p><strong>Money OUT</strong>:</p>
+<ul>
+<li>SEPA (1-2 business days)</li>
+<li>SEPA Instant (minutes, where available)</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="united-kingdom"></div><div class="heading-text">United Kingdom</div><a aria-label="Skip link to United Kingdom" class="heading-anchor-icon fa fa-regular fa-anchor" href="#united-kingdom"></a></h3>
+<p><strong>Money IN</strong>:</p>
+<ul>
+<li>Faster Payments (FPS)</li>
+<li>BACS</li>
+<li>CHAPS</li>
+</ul>
+<p><strong>Money OUT</strong>:</p>
+<ul>
+<li>FPS (same day)</li>
+<li>BACS (3 business days)</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>International Transfers</strong>: For sending money to currencies beyond EUR/GBP/USD/NGN, use the <a href="/guides/stablecoin">Stablecoin API</a> for crypto-based cross-border transfers.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="transaction-monitoring"></div><div class="heading-text">Transaction Monitoring</div><a aria-label="Skip link to Transaction Monitoring" class="heading-anchor-icon fa fa-regular fa-anchor" href="#transaction-monitoring"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-payment-history"></div><div class="heading-text">Get Payment History</div><a aria-label="Skip link to Get Payment History" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-payment-history"></a></h3>
+<p>View all payment and transfer transactions:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Get user&#x27;s fiat transaction history (ledger)
+const response = await fetch(&#x27;https://api.bakkt.com/user/ledger/transactions&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;your_api_key&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId
+  }
+});
+
+const transactions = await response.json();
+
+transactions.forEach(txn =&gt; {
+  console.log(`${txn.type}: ${txn.amount} ${txn.currency}`);
+  console.log(`  Status: ${txn.status}`);
+  console.log(`  Date: ${txn.timestamp}`);
+});</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-transaction-history"></div><div class="heading-text">Get Transaction History</div><a aria-label="Skip link to Get Transaction History" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-transaction-history"></a></h3>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>TODO - New Feature</strong>: The <code class="rdmd-code lang- theme-undefined" data-lang="">/ledger/transactions</code> endpoint is currently under development. This section describes the planned functionality.</p>
+</blockquote>
+<p>Use the ledger endpoints to view deposits and withdrawals:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-userledgertransactions-todo"></div><div class="heading-text">GET /user/ledger/transactions [TODO]</div><a aria-label="Skip link to GET /user/ledger/transactions [TODO]" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-userledgertransactions-todo"></a></h3>
+<p>Get all fiat transactions for user&#x27;s Virtual IBANs</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-corporateuuidledgertransactions-todo"></div><div class="heading-text"><code class="rdmd-code lang- theme-undefined" data-lang="">GET /corporate/{uuid}/ledger/transactions [TODO]</code></div><a aria-label="Skip link to [object Object]" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-corporateuuidledgertransactions-todo"></a></h3>
+<p>Get all fiat transactions for corporate&#x27;s Virtual IBANs</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/ledger/transactions?limit=50&amp;offset=0</code></pre></div></div>
+<p><strong>Response</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">[
+  {
+    &quot;transaction_id&quot;: &quot;txn-123&quot;,
+    &quot;account_uuid&quot;: &quot;account-uuid&quot;,
+    &quot;type&quot;: &quot;CREDIT&quot;,
+    &quot;amount&quot;: 1000.00,
+    &quot;currency&quot;: &quot;EUR&quot;,
+    &quot;timestamp&quot;: &quot;2024-01-15T10:30:00Z&quot;,
+    &quot;status&quot;: &quot;COMPLETED&quot;,
+    &quot;description&quot;: &quot;Bank transfer from external account&quot;
+  }
+]</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="next-steps"></div><div class="heading-text">Next Steps</div><a aria-label="Skip link to Next Steps" class="heading-anchor-icon fa fa-regular fa-anchor" href="#next-steps"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-accounts"></div><div class="heading-text">Bank Accounts</div><a aria-label="Skip link to Bank Accounts" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-accounts"></a></h3>
+<p>Learn about creating Virtual IBANs and account management</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="advanced-features"></div><div class="heading-text">Advanced Features</div><a aria-label="Skip link to Advanced Features" class="heading-anchor-icon fa fa-regular fa-anchor" href="#advanced-features"></a></h3>
+<p>Exchange rates, webhooks, compliance, and testing</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="stablecoin-api"></div><div class="heading-text">Stablecoin API</div><a aria-label="Skip link to Stablecoin API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#stablecoin-api"></a></h3>
+<p>Link bank accounts to crypto for conversions</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="api-reference"></div><div class="heading-text">API Reference</div><a aria-label="Skip link to API Reference" class="heading-anchor-icon fa fa-regular fa-anchor" href="#api-reference"></a></h3>
+<p>Explore all endpoints with interactive examples</p>

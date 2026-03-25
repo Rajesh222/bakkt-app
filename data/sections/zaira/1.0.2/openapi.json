@@ -1,0 +1,1180 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Zaira - AI Agent API",
+    "description": "API for Zaira AI Agent.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/mock/zaira/1.0.2"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "User Management"
+    },
+    {
+      "name": "Messaging"
+    },
+    {
+      "name": "Client Management"
+    },
+    {
+      "name": "Health"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health check",
+        "description": "Returns the health status of the Zaira API.",
+        "operationId": "healthCheck",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "description": "Unix timestamp in milliseconds"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "tags": [
+          "Client Management"
+        ],
+        "summary": "Get client info",
+        "description": "Returns Zaira client (merchant) information for the authenticated API key.",
+        "operationId": "getClientInfo",
+        "responses": {
+          "200": {
+            "description": "Client info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Client identifier"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Client name"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks": {
+      "get": {
+        "tags": [
+          "Client Management"
+        ],
+        "summary": "List webhooks",
+        "description": "Returns all user-event webhooks for the authenticated client.",
+        "operationId": "listWebhooks",
+        "responses": {
+          "200": {
+            "description": "List of webhooks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Webhook identifier"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "Webhook URL"
+                      },
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Whether the webhook is enabled"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "description": "Creation timestamp"
+                      },
+                      "message_types": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "RESPONSE",
+                            "WEBHOOK",
+                            "ANNOUNCEMENT"
+                          ]
+                        },
+                        "description": "Event types this webhook receives: RESPONSE (responses to user messages), ANNOUNCEMENT (async notifications), WEBHOOK (external system notifications e.g. Unblock)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "x-readme-ref-name": "Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Client Management"
+        ],
+        "summary": "Add webhook",
+        "description": "Registers a new webhook for user events. The secret is returned only during registration and must be stored securely by the consumer to validate incoming webhook payloads. Message types: RESPONSE (all responses to user messages), ANNOUNCEMENT (asynchronous notifications and additional information), WEBHOOK (notifications from external systems like Unblock).",
+        "operationId": "addWebhook",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "webhook_url"
+                ],
+                "properties": {
+                  "webhook_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to receive webhook payloads"
+                  },
+                  "message_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "RESPONSE",
+                        "WEBHOOK",
+                        "ANNOUNCEMENT"
+                      ]
+                    },
+                    "description": "Event types to subscribe to: RESPONSE (responses to user messages), ANNOUNCEMENT (async notifications), WEBHOOK (external system notifications e.g. Unblock)"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable the webhook (default: false)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "message_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "secret": {
+                      "type": "string",
+                      "description": "Secret for signing payloads. Returned only during registration; store securely to validate incoming webhooks."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "x-readme-ref-name": "Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Client Management"
+        ],
+        "summary": "Update webhook",
+        "description": "Updates an existing webhook by ID.",
+        "operationId": "updateWebhook",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "Webhook identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhook_url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "message_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "RESPONSE",
+                        "WEBHOOK",
+                        "ANNOUNCEMENT"
+                      ]
+                    }
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "message_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook with specified ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "x-readme-ref-name": "Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Client Management"
+        ],
+        "summary": "Delete webhook",
+        "description": "Deletes a webhook by ID.",
+        "operationId": "deleteWebhook",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "Webhook identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Webhook deleted"
+          },
+          "404": {
+            "description": "Webhook with specified ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "x-readme-ref-name": "Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/initiate": {
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Initiate user",
+        "description": "Creates a user inside the Zaira system. Responds with the user UUID that must be used for all subsequent communication with Zaira (e.g. in ask and ask/stream).",
+        "operationId": "initiate",
+        "responses": {
+          "200": {
+            "description": "User initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "user_uuid"
+                  ],
+                  "properties": {
+                    "user_uuid": {
+                      "type": "string",
+                      "description": "User UUID to use for all communication with Zaira (e.g. x-user-uuid or body.user_uuid in ask/ask-stream)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User authorization failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "x-readme-ref-name": "Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ask": {
+      "post": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Ask",
+        "description": "Send a message to Zaira and immediately receive an execution ID. The answer can be polled manually using the execution UUID, or if configured, it will be delivered via webhooks.",
+        "operationId": "ask",
+        "parameters": [
+          {
+            "name": "x-user-uuid",
+            "in": "header",
+            "required": true,
+            "description": "User UUID returned from /initiate.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "session_id",
+                  "message"
+                ],
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "Session ID. Zaira supports multiple sessions per user without sharing context, so the user can manage their sessions."
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "User request for Zaira."
+                  },
+                  "imgBase64": {
+                    "type": "string",
+                    "format": "byte",
+                    "description": "Base64-encoded image so Zaira can OCR to extract details (e.g. transfer recipient account data)."
+                  }
+                },
+                "x-readme-ref-name": "AskRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "session_id"
+                ],
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "Session ID. Zaira supports multiple sessions per user without sharing context."
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "User request for Zaira (optional if sending a file)."
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Binary file (image or audio) sent instead of or in addition to message."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message accepted; execution and session identifiers returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userUuid": {
+                      "type": "string",
+                      "description": "User UUID"
+                    },
+                    "executionId": {
+                      "type": "string",
+                      "description": "Execution identifier"
+                    },
+                    "sessionId": {
+                      "type": "string",
+                      "description": "Session identifier"
+                    }
+                  },
+                  "x-readme-ref-name": "AskResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "errorCode": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ask/stream": {
+      "post": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Ask (stream)",
+        "description": "Send a message to Zaira and stream the AI response over HTTP. Same request as POST /ask. If configured, the response will also be sent via webhook.",
+        "operationId": "askStream",
+        "parameters": [
+          {
+            "name": "x-user-uuid",
+            "in": "header",
+            "required": true,
+            "description": "User UUID returned from /initiate.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "session_id",
+                  "message"
+                ],
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "Session ID. Zaira supports multiple sessions per user without sharing context, so the user can manage their sessions."
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "User request for Zaira."
+                  },
+                  "imgBase64": {
+                    "type": "string",
+                    "format": "byte",
+                    "description": "Base64-encoded image so Zaira can OCR to extract details (e.g. transfer recipient account data)."
+                  }
+                },
+                "x-readme-ref-name": "AskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Streams the response as newline-delimited JSON. Each line is a JSON object with type: \"begin\" (start of stream), \"item\" (content chunk; client should concatenate content from multiple items), or \"end\" (end of stream).",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "metadata"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "begin",
+                        "item",
+                        "end"
+                      ],
+                      "description": "\"begin\" = start of stream, \"item\" = content chunk (concatenate with other items), \"end\" = end of stream"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "Present only when type is \"item\". Content chunk; client should concatenate all item contents to form the full response."
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "description": "Node identifier"
+                        },
+                        "nodeName": {
+                          "type": "string",
+                          "description": "Node name (e.g. Zaira)"
+                        },
+                        "itemIndex": {
+                          "type": "integer",
+                          "description": "Item index"
+                        },
+                        "runIndex": {
+                          "type": "integer",
+                          "description": "Run index"
+                        },
+                        "timestamp": {
+                          "type": "integer",
+                          "description": "Unix timestamp in milliseconds"
+                        }
+                      },
+                      "x-readme-ref-name": "StreamEventMetadata"
+                    }
+                  },
+                  "x-readme-ref-name": "StreamEvent"
+                },
+                "example": "{\"type\":\"begin\",\"metadata\":{\"nodeId\":\"13594ef2-815e-4059-b804-aa2c4c7e0371\",\"nodeName\":\"Zaira\",\"itemIndex\":0,\"runIndex\":0,\"timestamp\":1769420596794}}\n{\"type\":\"item\",\"content\":\"Current balance: 1000.00\",\"metadata\":{\"nodeId\":\"13594ef2-815e-4059-b804-aa2c4c7e0371\",\"nodeName\":\"Zaira\",\"itemIndex\":0,\"runIndex\":0,\"timestamp\":1769420597503}}\n{\"type\":\"item\",\"content\":\" USD.\",\"metadata\":{\"nodeId\":\"13594ef2-815e-4059-b804-aa2c4c7e0371\",\"nodeName\":\"Zaira\",\"itemIndex\":0,\"runIndex\":0,\"timestamp\":1769420597522}}\n{\"type\":\"end\",\"metadata\":{\"nodeId\":\"13594ef2-815e-4059-b804-aa2c4c7e0371\",\"nodeName\":\"Zaira\",\"itemIndex\":0,\"runIndex\":0,\"timestamp\":1769420597526}}"
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/check-execution": {
+      "post": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Poll execution result",
+        "description": "Polls for the result of a message execution. Use this to check if a response is ready when not using webhooks or streaming.",
+        "operationId": "checkExecution",
+        "parameters": [
+          {
+            "name": "x-user-uuid",
+            "in": "header",
+            "required": true,
+            "description": "User UUID returned from /initiate.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "executionId"
+                ],
+                "properties": {
+                  "executionId": {
+                    "type": "string",
+                    "description": "Execution ID returned from /ask"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Execution status and result (if ready)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Execution status (e.g. PENDING, COMPLETED)"
+                    },
+                    "executionId": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "Zaira's response (present when status is COMPLETED)"
+                    },
+                    "attachments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "description": "Any attachments in the response"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing executionId in body"
+          },
+          "401": {
+            "description": "Missing x-api-key or x-user-uuid header"
+          },
+          "403": {
+            "description": "Forbidden - user does not have access to this execution"
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "get": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Fetch session messages",
+        "description": "Retrieves messages from a chat session. Supports pagination via skip/take query parameters.",
+        "operationId": "fetchSessionMessages",
+        "parameters": [
+          {
+            "name": "x-user-uuid",
+            "in": "header",
+            "required": true,
+            "description": "User UUID returned from /initiate.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": true,
+            "description": "Session ID to fetch messages from.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "description": "Number of messages to skip (for pagination). Default: 0.",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "required": false,
+            "description": "Number of messages to return (max 50). Default: 50.",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of session messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "execution_id": {
+                        "type": "string",
+                        "description": "Execution identifier"
+                      },
+                      "user_message": {
+                        "type": "string",
+                        "description": "User's message"
+                      },
+                      "answer": {
+                        "type": "string",
+                        "description": "Zaira's response"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Message status"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Message type"
+                      },
+                      "feedback": {
+                        "type": "string",
+                        "description": "User feedback (if any)"
+                      },
+                      "actions": {
+                        "type": "object",
+                        "description": "Actions associated with message (if any)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - authentication failed"
+          },
+          "404": {
+            "description": "User or session not found"
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "x-readme-ref-name": "Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Merchant API key for authentication. Required on all requests."
+      }
+    },
+    "schemas": {
+      "AskRequest": {
+        "type": "object",
+        "required": [
+          "session_id",
+          "message"
+        ],
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "description": "Session ID. Zaira supports multiple sessions per user without sharing context, so the user can manage their sessions."
+          },
+          "message": {
+            "type": "string",
+            "description": "User request for Zaira."
+          },
+          "imgBase64": {
+            "type": "string",
+            "format": "byte",
+            "description": "Base64-encoded image so Zaira can OCR to extract details (e.g. transfer recipient account data)."
+          }
+        },
+        "x-readme-ref-name": "AskRequest"
+      },
+      "AskResponse": {
+        "type": "object",
+        "properties": {
+          "userUuid": {
+            "type": "string",
+            "description": "User UUID"
+          },
+          "executionId": {
+            "type": "string",
+            "description": "Execution identifier"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Session identifier"
+          }
+        },
+        "x-readme-ref-name": "AskResponse"
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "x-readme-ref-name": "Error"
+      },
+      "StreamEventMetadata": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "description": "Node identifier"
+          },
+          "nodeName": {
+            "type": "string",
+            "description": "Node name (e.g. Zaira)"
+          },
+          "itemIndex": {
+            "type": "integer",
+            "description": "Item index"
+          },
+          "runIndex": {
+            "type": "integer",
+            "description": "Run index"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp in milliseconds"
+          }
+        },
+        "x-readme-ref-name": "StreamEventMetadata"
+      },
+      "StreamEvent": {
+        "type": "object",
+        "required": [
+          "type",
+          "metadata"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "begin",
+              "item",
+              "end"
+            ],
+            "description": "\"begin\" = start of stream, \"item\" = content chunk (concatenate with other items), \"end\" = end of stream"
+          },
+          "content": {
+            "type": "string",
+            "description": "Present only when type is \"item\". Content chunk; client should concatenate all item contents to form the full response."
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string",
+                "description": "Node identifier"
+              },
+              "nodeName": {
+                "type": "string",
+                "description": "Node name (e.g. Zaira)"
+              },
+              "itemIndex": {
+                "type": "integer",
+                "description": "Item index"
+              },
+              "runIndex": {
+                "type": "integer",
+                "description": "Run index"
+              },
+              "timestamp": {
+                "type": "integer",
+                "description": "Unix timestamp in milliseconds"
+              }
+            },
+            "x-readme-ref-name": "StreamEventMetadata"
+          }
+        },
+        "x-readme-ref-name": "StreamEvent"
+      }
+    }
+  }
+}

@@ -1,0 +1,4696 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Bakkt Onboarding API for user/corporate creation, authentication, KYC/KYB, and profile management. This is the foundational API for accessing other Bakkt services.",
+    "version": "2.1.7",
+    "title": "Onboarding API",
+    "contact": {
+      "name": "Bakkt",
+      "url": "https://bakkt.com",
+      "email": "sales@bakkt.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "/mock/onboarding/1.0.2"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Bakkt API key"
+      },
+      "unblockSessionId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "unblock-session-id",
+        "description": "Individual session_id (header name kept for backward compatibility)"
+      },
+      "unblockUserUuid": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "user-uuid",
+        "description": "Individual user_uuid"
+      }
+    },
+    "schemas": {
+      "unknown-error": {
+        "type": "object",
+        "properties": {
+          "error_id": {
+            "type": "string",
+            "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+          },
+          "message": {
+            "type": "string",
+            "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+          }
+        },
+        "x-readme-ref-name": "unknown-error"
+      },
+      "body-malformed-error": {
+        "type": "object",
+        "properties": {
+          "error_id": {
+            "type": "string",
+            "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+          },
+          "message": {
+            "type": "string",
+            "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+          }
+        },
+        "x-readme-ref-name": "body-malformed-error"
+      },
+      "unauthorized-error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Invalid session_id or api key"
+          }
+        },
+        "x-readme-ref-name": "unauthorized-error"
+      },
+      "parent-resource-not-found-error": {
+        "type": "object",
+        "properties": {
+          "error_id": {
+            "type": "string",
+            "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+          },
+          "message": {
+            "type": "string",
+            "example": "The parent resource of the entity being created cannot be found."
+          }
+        },
+        "x-readme-ref-name": "parent-resource-not-found-error"
+      },
+      "conflict-error": {
+        "type": "object",
+        "properties": {
+          "error_id": {
+            "type": "string",
+            "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+          },
+          "message": {
+            "type": "string",
+            "example": "The company with address ${address} already exists"
+          }
+        },
+        "x-readme-ref-name": "conflict-error"
+      },
+      "body-malformed-error-with-error-label": {
+        "type": "object",
+        "properties": {
+          "error_id": {
+            "type": "string",
+            "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+          },
+          "error": {
+            "type": "string",
+            "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+          }
+        },
+        "x-readme-ref-name": "body-malformed-error-with-error-label"
+      },
+      "address-fields": {
+        "type": "object",
+        "required": [
+          "address_line_1",
+          "post_code",
+          "city",
+          "country"
+        ],
+        "properties": {
+          "address_line_1": {
+            "type": "string",
+            "example": "",
+            "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+          },
+          "address_line_2": {
+            "type": "string",
+            "example": "",
+            "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+          },
+          "post_code": {
+            "type": "string",
+            "example": ""
+          },
+          "city": {
+            "type": "string",
+            "example": ""
+          },
+          "country": {
+            "type": "string",
+            "example": "GB",
+            "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+          }
+        },
+        "x-readme-ref-name": "address-fields"
+      },
+      "chain-list": {
+        "type": "string",
+        "enum": [
+          "polygon",
+          "celo",
+          "optimism",
+          "arbitrum",
+          "tron",
+          "mainnet",
+          "solana",
+          "base"
+        ],
+        "x-readme-ref-name": "chain-list"
+      },
+      "payout-fiat-list": {
+        "type": "string",
+        "enum": [
+          "EUR",
+          "GBP",
+          "USD",
+          "PKR",
+          "INR"
+        ],
+        "x-readme-ref-name": "payout-fiat-list"
+      },
+      "crypto-list": {
+        "type": "string",
+        "enum": [
+          "USDC",
+          "USDT",
+          "DAI",
+          "CEUR",
+          "CUSD"
+        ],
+        "x-readme-ref-name": "crypto-list"
+      },
+      "resource-not-found-error": {
+        "type": "object",
+        "properties": {
+          "error_id": {
+            "type": "string",
+            "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+          },
+          "message": {
+            "type": "string",
+            "example": "No merchant fee exists for merchant ${merchant_uuid} with params"
+          }
+        },
+        "x-readme-ref-name": "resource-not-found-error"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Login with SIWE (Sign in with Ethereum) or Email OTP"
+    },
+    {
+      "name": "User Management",
+      "description": "Create and manage individual user accounts"
+    },
+    {
+      "name": "Corporate Management",
+      "description": "Create and manage corporate entities"
+    },
+    {
+      "name": "Know your customer (KYC)",
+      "description": "Know Your Customer verification for individuals"
+    },
+    {
+      "name": "Know your business (KYB)",
+      "description": "Know Your Business verification for corporates"
+    },
+    {
+      "name": "Merchant",
+      "description": "Merchant configuration and analytics"
+    }
+  ],
+  "paths": {
+    "/onboarding/user": {
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Create a user",
+        "description": "Creating a user which is used as the base entity for all other requests",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "first_name",
+                  "last_name",
+                  "email",
+                  "country"
+                ],
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "John",
+                    "description": "Only letters (no accents), and spaces. No numbers or special characters."
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe",
+                    "description": "Only letters (no accents), and spaces. No numbers or special characters."
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john.doe@bakkt.com",
+                    "description": "Unique per merchant"
+                  },
+                  "sign_in_crypto_address": {
+                    "type": "string",
+                    "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                    "description": "Needs to be a valid ethereum address used for SIWE login purposes only. Initially defaults to target_address if no value is provided"
+                  },
+                  "target_address": {
+                    "type": "string",
+                    "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                    "description": "Needs to be a valid ethereum address. Normally unique per merchant, unless address is allowed to have duplicates"
+                  },
+                  "target_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the address is hosted by VASP or self hosted by the user"
+                  },
+                  "target_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for target address if the address is hosted"
+                  },
+                  "target_solana_address": {
+                    "type": "string",
+                    "example": "3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq",
+                    "description": "Needs to be an active and rent exempt solana account address"
+                  },
+                  "target_solana_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the solana address is hosted by VASP or self hosted by the user"
+                  },
+                  "target_solana_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for solana target address if the address is hosted"
+                  },
+                  "country": {
+                    "type": "string",
+                    "example": "GB",
+                    "description": "Country of residence of the Individual. Required a valid ISO 3166-1 alpha-2 country code"
+                  },
+                  "bvn": {
+                    "type": "string",
+                    "example": "98765432345",
+                    "description": "Bank verification number used for customers in Nigeria"
+                  },
+                  "accepted_terms_and_condition_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt's Terms & Conditions (https://api.bakkt.com/epmap-terms-of-service)"
+                  },
+                  "accepted_privacy_policy_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Privacy Policy (https://api.bakkt.com/ub-privacy-and-policy) "
+                  },
+                  "accepted_terms_of_service_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Terms of Service (https://api.bakkt.com/terms-of-service)"
+                  },
+                  "tokenPreferences": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "currency",
+                        "chain",
+                        "token"
+                      ],
+                      "properties": {
+                        "currency": {
+                          "type": "string",
+                          "enum": [
+                            "EUR",
+                            "GBP",
+                            "USD",
+                            "PKR",
+                            "INR"
+                          ],
+                          "x-readme-ref-name": "payout-fiat-list"
+                        },
+                        "chain": {
+                          "type": "string",
+                          "enum": [
+                            "polygon",
+                            "celo",
+                            "optimism",
+                            "arbitrum",
+                            "tron",
+                            "mainnet",
+                            "solana",
+                            "base"
+                          ],
+                          "x-readme-ref-name": "chain-list"
+                        },
+                        "token": {
+                          "type": "string",
+                          "enum": [
+                            "USDC",
+                            "USDT",
+                            "DAI",
+                            "CEUR",
+                            "CUSD"
+                          ],
+                          "x-readme-ref-name": "crypto-list"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful created a user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_uuid": {
+                      "type": "string",
+                      "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "KYC_NEEDED"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The company with address ${address} already exists"
+                    }
+                  },
+                  "x-readme-ref-name": "conflict-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Update a user",
+        "description": "Updating user details. Most of these fields are ONLY updatedable for users which do not have the status FULL_USER",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "John",
+                    "description": "Only letters (no accents), and spaces. No numbers or special characters."
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe",
+                    "description": "Only letters (no accents), and spaces. No numbers or special characters."
+                  },
+                  "date_of_birth": {
+                    "type": "string",
+                    "example": "1994-04-19",
+                    "description": "Date format should be YYYY-MM-DD"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john.doe@bakkt.com",
+                    "description": "Unique per merchant"
+                  },
+                  "sign_in_crypto_address": {
+                    "type": "string",
+                    "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                    "description": "Needs to be a valid ethereum address used for SIWE login purposes only"
+                  },
+                  "target_address": {
+                    "type": "string",
+                    "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                    "description": "Needs to be a valid ethereum address. Normally unique per merchant, unless address is allowed to have duplicates"
+                  },
+                  "target_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the address is hosted or self-hosted"
+                  },
+                  "target_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for target address if the address is hosted"
+                  },
+                  "target_solana_address": {
+                    "type": "string",
+                    "example": "3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq",
+                    "description": "Needs to be an active and rent exempt solana account address"
+                  },
+                  "target_solana_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the solana address is hosted or self-hosted"
+                  },
+                  "target_solana_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for solana target address if the address is hosted"
+                  },
+                  "address": {
+                    "type": "object",
+                    "required": [
+                      "address_line_1",
+                      "post_code",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "address_line_1": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "address_line_2": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "post_code": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "GB",
+                        "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                      }
+                    },
+                    "x-readme-ref-name": "address-fields"
+                  },
+                  "bvn": {
+                    "type": "string",
+                    "example": "98765432345",
+                    "description": "Bank verification number used for customers in Nigeria"
+                  },
+                  "accepted_terms_and_condition_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt's Terms & Conditions (https://api.bakkt.com/epmap-terms-of-service)"
+                  },
+                  "accepted_privacy_policy_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Privacy Policy (https://api.bakkt.com/ub-privacy-and-policy) "
+                  },
+                  "accepted_terms_of_service_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Terms of Service (https://api.bakkt.com/terms-of-service)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Action has been accepted"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error-with-error-label"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The company with address ${address} already exists"
+                    }
+                  },
+                  "x-readme-ref-name": "conflict-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Get user's details",
+        "description": "Returns all the details of a user including their status",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockUserUuid": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customFeeConfig": {
+                      "type": "object",
+                      "properties": {
+                        "input_currency": {
+                          "type": "string",
+                          "example": "USD"
+                        },
+                        "output_currency": {
+                          "type": "string",
+                          "example": "EUR"
+                        },
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "ONRAMP",
+                            "OFFRAMP"
+                          ]
+                        },
+                        "percentage_fee": {
+                          "type": "number",
+                          "format": "double",
+                          "example": "0.2"
+                        },
+                        "fixed_fee": {
+                          "type": "number",
+                          "format": "double",
+                          "example": "0.2"
+                        },
+                        "fee_op_type": {
+                          "type": "string",
+                          "enum": [
+                            "add",
+                            "subtract"
+                          ]
+                        },
+                        "fee_name": {
+                          "type": "string",
+                          "example": "MERCHANT"
+                        },
+                        "client_uuid": {
+                          "type": "string"
+                        },
+                        "client_type": {
+                          "type": "string",
+                          "example": "INDIVIDUAL"
+                        },
+                        "uuid": {
+                          "type": "string"
+                        },
+                        "minimum_fee": {
+                          "type": "number",
+                          "example": 1
+                        }
+                      }
+                    },
+                    "first_name": {
+                      "type": "string",
+                      "example": "John"
+                    },
+                    "last_name": {
+                      "type": "string",
+                      "example": "Doe"
+                    },
+                    "date_of_birth": {
+                      "type": "string",
+                      "example": "Doe"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "john.doe@bakkt.com"
+                    },
+                    "sign_in_crypto_address": {
+                      "type": "string",
+                      "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                      "description": "Needs to be a valid ethereum address, used for SIWE login purposes only"
+                    },
+                    "target_address": {
+                      "type": "string",
+                      "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                      "description": "Needs to be a valid ethereum address"
+                    },
+                    "target_solana_address": {
+                      "type": "string",
+                      "example": "3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq"
+                    },
+                    "bvn": {
+                      "type": "string",
+                      "example": "98765432345",
+                      "description": "Bank verification number used for customers in Nigeria"
+                    },
+                    "address": {
+                      "type": "object",
+                      "required": [
+                        "address_line_1",
+                        "post_code",
+                        "city",
+                        "country"
+                      ],
+                      "properties": {
+                        "address_line_1": {
+                          "type": "string",
+                          "example": "",
+                          "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                        },
+                        "address_line_2": {
+                          "type": "string",
+                          "example": "",
+                          "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                        },
+                        "post_code": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "city": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "country": {
+                          "type": "string",
+                          "example": "GB",
+                          "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                        }
+                      },
+                      "x-readme-ref-name": "address-fields"
+                    },
+                    "linked_corporates_uuid": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "KYC_NEEDED",
+                        "PENDING_KYC_DATA",
+                        "KYC_PENDING",
+                        "SOFT_KYC_FAILED",
+                        "HARD_KYC_FAILED",
+                        "FULL_USER",
+                        "SUSPENDED"
+                      ]
+                    },
+                    "last_kyc_successful_check": {
+                      "type": "string",
+                      "example": "2023-03-13T16:31:58.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/verification/phone/send": {
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Send OTP verification",
+        "description": "Send a one-time password (OTP) verification code to the user",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OTP sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/verification/phone/check": {
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Check OTP verification",
+        "description": "Verify the one-time password (OTP) code provided by the user",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "123456",
+                    "description": "6-digit numeric OTP code"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "approved",
+                      "enum": [
+                        "approved",
+                        "pending",
+                        "rejected"
+                      ]
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error message if failed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/corporate": {
+      "post": {
+        "tags": [
+          "Corporate Management"
+        ],
+        "summary": "Create a corporate",
+        "description": "Creating a corporate entity which is used as the base entity for all other requests",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "legal_name",
+                  "type",
+                  "contact_details",
+                  "address_line_1",
+                  "post_code",
+                  "country",
+                  "target_address",
+                  "registered_address"
+                ],
+                "properties": {
+                  "legal_name": {
+                    "type": "string",
+                    "example": "Bakkt Ltd"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "LIMITED_LIABILITY",
+                      "SOLE_TRADER",
+                      "PARTNERSHIP",
+                      "PUBLIC_LIMITED_COMPANY",
+                      "JOINT_STOCK_COMPANY",
+                      "CHARITY"
+                    ]
+                  },
+                  "registration_number": {
+                    "type": "string",
+                    "example": ""
+                  },
+                  "contact_details": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "John@company.com",
+                        "description": "Unique per merchant"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "+447871556837"
+                      }
+                    }
+                  },
+                  "registered_address": {
+                    "type": "object",
+                    "required": [
+                      "address_line_1",
+                      "post_code",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "address_line_1": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "address_line_2": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "post_code": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "GB",
+                        "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                      }
+                    },
+                    "x-readme-ref-name": "address-fields"
+                  },
+                  "trading_address": {
+                    "type": "object",
+                    "required": [
+                      "address_line_1",
+                      "post_code",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "address_line_1": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "address_line_2": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "post_code": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "GB",
+                        "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                      }
+                    },
+                    "x-readme-ref-name": "address-fields"
+                  },
+                  "bvn": {
+                    "type": "string",
+                    "example": "98765432345",
+                    "description": "Bank verification number used for customers in Nigeria"
+                  },
+                  "target_address": {
+                    "type": "string",
+                    "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                    "description": "Needs to be a valid ethereum address. Normally unique per merchant, unless address is allowed to have duplicates"
+                  },
+                  "target_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the address is hosted by VASP or self hosted by the user"
+                  },
+                  "target_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for target address if the address is hosted"
+                  },
+                  "target_solana_address": {
+                    "type": "string",
+                    "example": "3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq",
+                    "description": "Needs to be an active and rent exempt solana account address"
+                  },
+                  "target_solana_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the solana address is hosted by VASP or self hosted by the user"
+                  },
+                  "target_solana_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for solana target address if the address is hosted"
+                  },
+                  "accepted_terms_and_condition_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt's Terms & Conditions (https://api.bakkt.com/epmap-terms-of-service)"
+                  },
+                  "accepted_privacy_policy_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Privacy Policy (https://api.bakkt.com/ub-privacy-and-policy) "
+                  },
+                  "accepted_terms_of_service_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Terms of Service (https://api.bakkt.com/terms-of-service)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful created a corporate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "corporate_uuid": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "CREATED",
+                        "KYB_NEEDED",
+                        "PENDING_KYB_DATA",
+                        "KYB_PENDING",
+                        "SOFT_KYB_FAILED",
+                        "HARD_KYB_FAILED",
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The company with address ${address} already exists"
+                    }
+                  },
+                  "x-readme-ref-name": "conflict-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/corporate/{corporate_uuid}": {
+      "patch": {
+        "tags": [
+          "Corporate Management"
+        ],
+        "summary": "Update a corporate",
+        "description": "Update a corporate entity details.",
+        "parameters": [
+          {
+            "name": "corporate_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "6c0ace64-a187-4f46-bf53-069a4a178f00"
+          }
+        ],
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "legal_name": {
+                    "type": "string",
+                    "example": "Bakkt Ltd"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "LIMITED_LIABILITY",
+                      "SOLE_TRADER",
+                      "PARTNERSHIP",
+                      "PUBLIC_LIMITED_COMPANY",
+                      "JOINT_STOCK_COMPANY",
+                      "CHARITY"
+                    ]
+                  },
+                  "registration_number": {
+                    "type": "string",
+                    "example": ""
+                  },
+                  "contact_details": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "John@company.com",
+                        "description": "Unique per merchant"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "+447871556837"
+                      }
+                    }
+                  },
+                  "registered_address": {
+                    "type": "object",
+                    "required": [
+                      "address_line_1",
+                      "post_code",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "address_line_1": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "address_line_2": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "post_code": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "GB",
+                        "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                      }
+                    },
+                    "x-readme-ref-name": "address-fields"
+                  },
+                  "trading_address": {
+                    "type": "object",
+                    "required": [
+                      "address_line_1",
+                      "post_code",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "address_line_1": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "address_line_2": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "post_code": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "GB",
+                        "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                      }
+                    },
+                    "x-readme-ref-name": "address-fields"
+                  },
+                  "bvn": {
+                    "type": "string",
+                    "example": "98765432345",
+                    "description": "Bank verification number used for customers in Nigeria"
+                  },
+                  "target_address": {
+                    "type": "string",
+                    "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a",
+                    "description": "Needs to be a valid ethereum address. Normally unique per merchant, unless address is allowed to have duplicates"
+                  },
+                  "target_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the address is host or self-hosted"
+                  },
+                  "target_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for target address if the address is hosted"
+                  },
+                  "target_solana_address": {
+                    "type": "string",
+                    "example": "3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq",
+                    "description": "Needs to be an active and rent exempt solana account address"
+                  },
+                  "target_solana_address_type": {
+                    "type": "string",
+                    "enum": [
+                      "HOSTED",
+                      "SELF_HOSTED"
+                    ],
+                    "description": "Specifies whether the solana address is hosted or self -hosted"
+                  },
+                  "target_solana_address_vasp": {
+                    "type": "string",
+                    "example": "Coinbase",
+                    "description": "Optional parameter to specify the VASP for solana target address if the address is hosted"
+                  },
+                  "accepted_terms_and_condition_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt's Terms & Conditions (https://api.bakkt.com/epmap-terms-of-service)"
+                  },
+                  "accepted_privacy_policy_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Privacy Policy (https://api.bakkt.com/ub-privacy-and-policy) "
+                  },
+                  "accepted_terms_of_service_hash": {
+                    "type": "string",
+                    "description": "A base64 hash of the user-accepted Bakkt Terms of Service (https://api.bakkt.com/terms-of-service)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Action has been accepted"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The company with address ${address} already exists"
+                    }
+                  },
+                  "x-readme-ref-name": "conflict-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Corporate Management"
+        ],
+        "summary": "Get corporate's details",
+        "description": "Returns all the details of a corporate including their status",
+        "parameters": [
+          {
+            "name": "corporate_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "6c0ace64-a187-4f46-bf53-069a4a178f00"
+          }
+        ],
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockUserUuid": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "legal_name": {
+                      "type": "string",
+                      "example": "Bakkt Ltd"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "LIMITED_LIABILITY",
+                        "SOLE_TRADER",
+                        "PARTNERSHIP",
+                        "PUBLIC_LIMITED_COMPANY",
+                        "JOINT_STOCK_COMPANY",
+                        "CHARITY"
+                      ]
+                    },
+                    "registration_number": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "customFeeConfig": {
+                      "type": "object",
+                      "properties": {
+                        "input_currency": {
+                          "type": "string",
+                          "example": "USD"
+                        },
+                        "output_currency": {
+                          "type": "string",
+                          "example": "EUR"
+                        },
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "ONRAMP",
+                            "OFFRAMP"
+                          ]
+                        },
+                        "percentage_fee": {
+                          "type": "number",
+                          "format": "double",
+                          "example": "0.2"
+                        },
+                        "fee_op_type": {
+                          "type": "string",
+                          "enum": [
+                            "add",
+                            "subtract"
+                          ]
+                        },
+                        "fee_name": {
+                          "type": "string",
+                          "example": "MERCHANT"
+                        },
+                        "client_uuid": {
+                          "type": "string"
+                        },
+                        "client_type": {
+                          "type": "string",
+                          "example": "COMPANY"
+                        },
+                        "uuid": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "contact_details": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "John@company.com"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "+447871556837"
+                        }
+                      }
+                    },
+                    "registered_address": {
+                      "type": "object",
+                      "required": [
+                        "address_line_1",
+                        "post_code",
+                        "city",
+                        "country"
+                      ],
+                      "properties": {
+                        "address_line_1": {
+                          "type": "string",
+                          "example": "",
+                          "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                        },
+                        "address_line_2": {
+                          "type": "string",
+                          "example": "",
+                          "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                        },
+                        "post_code": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "city": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "country": {
+                          "type": "string",
+                          "example": "GB",
+                          "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                        }
+                      },
+                      "x-readme-ref-name": "address-fields"
+                    },
+                    "trading_address": {
+                      "type": "object",
+                      "required": [
+                        "address_line_1",
+                        "post_code",
+                        "city",
+                        "country"
+                      ],
+                      "properties": {
+                        "address_line_1": {
+                          "type": "string",
+                          "example": "",
+                          "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                        },
+                        "address_line_2": {
+                          "type": "string",
+                          "example": "",
+                          "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                        },
+                        "post_code": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "city": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "country": {
+                          "type": "string",
+                          "example": "GB",
+                          "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                        }
+                      },
+                      "x-readme-ref-name": "address-fields"
+                    },
+                    "bvn": {
+                      "type": "string",
+                      "example": "98765432345",
+                      "description": "Bank verification number used for customers in Nigeria"
+                    },
+                    "target_address": {
+                      "type": "string",
+                      "example": "0xFaFe15f71861609464a4ACada29a92c5bC01637a"
+                    },
+                    "target_solana_address": {
+                      "type": "string",
+                      "example": "3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "CREATED",
+                        "KYB_NEEDED",
+                        "PENDING_KYB_DATA",
+                        "KYB_PENDING",
+                        "SOFT_KYB_FAILED",
+                        "HARD_KYB_FAILED",
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/corporate/{corporate_uuid}/user": {
+      "post": {
+        "tags": [
+          "Corporate Management"
+        ],
+        "summary": "Add a user to a Corporate entity",
+        "description": "Add a user with a specific role to a corporate entity",
+        "parameters": [
+          {
+            "name": "corporate_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "6c0ace64-a187-4f46-bf53-069a4a178f00"
+          }
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "user_uuid",
+                  "role"
+                ],
+                "properties": {
+                  "user_uuid": {
+                    "type": "string",
+                    "description": "Bakkt Individual uuid",
+                    "format": "uuid",
+                    "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "Individual role",
+                    "enum": [
+                      "ADMINISTRATOR"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Update Successful",
+            "content": {}
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/corporate/{corporate_uuid}/user/{user_uuid}": {
+      "delete": {
+        "tags": [
+          "Corporate Management"
+        ],
+        "summary": "Unlink an Individual from a Corporate",
+        "description": "This will unlink a specific individual from a corporate, this can only be called with an Individual with the role `ADMINISTRATOR` in the specific corporate.",
+        "parameters": [
+          {
+            "name": "corporate_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "6c0ace64-a187-4f46-bf53-069a4a178f00"
+          },
+          {
+            "name": "user_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "9a9a7b16-848e-4221-82d0-a9fabec04e4c"
+          }
+        ],
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Update Successful",
+            "content": {}
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Start login process",
+        "description": "Authenticate a user using Sign in with Ethereum or via trigger the email OTP",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Two authentication methods are supported (use exactly one):\n\n**Option 1 - SIWE (Sign in with Ethereum)**: Provide `message` and `signature` from SIWE flow\n**Option 2 - OTP (One-Time Password)**: Provide `user_uuid` to trigger email OTP\n\nNote: You must provide either (message + signature) OR (user_uuid), but not both.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "SIWE message. Required for SIWE authentication. Must be provided together with `signature`. Do not use with `user_uuid`.",
+                    "example": "sandbox.bakkt.com wants you to sign in with your Ethereum account:\n0xCC0964076916291c8CBB198F350CcAaD941ABF00\n\nSign in with Ethereum\n\nURI: https://api.bakkt.com/auth/login\nVersion: 1\nChain ID: 80002\nNonce: qtm52ohggQTH1X6ZS\nIssued At: 2023-03-03T13:16:30.045Z\nExpiration Time: 2023-03-03T17:16:30.044Z"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "SIWE signature. Required for SIWE authentication. Must be provided together with `message`. Do not use with `user_uuid`.",
+                    "example": "0xfc719b677ad6bda30041c54b8bd5a2fff73cf7ded1e449e54ca22e9382be2b7d02b726c7a19222bd920abaf483261ebcc9ae675cf26ec202455c0d1eb29272c91b"
+                  },
+                  "user_uuid": {
+                    "type": "string",
+                    "description": "User UUID. Required for OTP authentication. Do not use with `message` or `signature`.",
+                    "example": "5ba8ffb5-f36d-4f78-b0b5-0bc5358d8723"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Login. Returns session and user UUID for SIWE login, or empty response for OTP login (OTP sent via email).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "unblock_session_id": {
+                      "type": "string",
+                      "description": "Session ID (only present for SIWE login)",
+                      "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                    },
+                    "user_uuid": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "User UUID (only present for SIWE login)",
+                      "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/auth/otp/": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Submit OTP",
+        "description": "Submit OTP sent to the user to get a session ID",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "one_time_password": {
+                    "type": "string",
+                    "example": "83286"
+                  },
+                  "user_uuid": {
+                    "type": "string",
+                    "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "unblock_session_id": {
+                      "type": "string",
+                      "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                    },
+                    "user_uuid": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "5594401c-0072-4df2-be9c-d491c0754c21"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/kyc/applicant": {
+      "post": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Create a KYC application for a user",
+        "description": "First step to start a KYC process for a user by creating an applicant, this is a one off call per user.",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "address",
+                  "date_of_birth",
+                  "source_of_funds"
+                ],
+                "properties": {
+                  "address": {
+                    "type": "object",
+                    "required": [
+                      "address_line_1",
+                      "post_code",
+                      "city",
+                      "country"
+                    ],
+                    "properties": {
+                      "address_line_1": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "address_line_2": {
+                        "type": "string",
+                        "example": "",
+                        "description": "Letters (no accents), numbers, spaces, and common symbols like `/`, `#`, `()`, `'`, `.`, and `,` are allowed."
+                      },
+                      "post_code": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "city": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "country": {
+                        "type": "string",
+                        "example": "GB",
+                        "description": "Country from which the corporate accessed. Required a valid ISO 3166-1 alpha-2 country code"
+                      }
+                    },
+                    "x-readme-ref-name": "address-fields"
+                  },
+                  "date_of_birth": {
+                    "type": "string",
+                    "example": "1994-10-04",
+                    "description": "Date format should be YYYY-MM-DD"
+                  },
+                  "source_of_funds": {
+                    "type": "string",
+                    "enum": [
+                      "SALARY",
+                      "BUSINESS_INCOME",
+                      "PENSION",
+                      "OTHER"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "KYC application created"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Get a KYC application details",
+        "description": "Get all the details of a KYC application, including missing documents.",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockUserUuid": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "KYC_NEEDED",
+                        "PENDING_KYC_DATA",
+                        "KYC_PENDING",
+                        "SOFT_KYC_FAILED",
+                        "HARD_KYC_FAILED"
+                      ]
+                    },
+                    "docs_missing": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "doc_type": {
+                            "type": "string",
+                            "enum": [
+                              "ID_CARD",
+                              "PASSPORT",
+                              "PASSPORT",
+                              "DRIVERS",
+                              "RESIDENCE_PERMIT",
+                              "UTILITY_BILL",
+                              "SELFIE",
+                              "VIDEO_SELFIE",
+                              "PROFILE_IMAGE",
+                              "ID_DOC_PHOTO",
+                              "AGREEMENT",
+                              "CONTRACT",
+                              "DRIVERS_TRANSLATION",
+                              "INVESTOR_DOC",
+                              "VEHICLE_REGISTRATION_CERTIFICATE",
+                              "INCOME_SOURCE",
+                              "PAYMENT_METHOD",
+                              "BANK_CARD",
+                              "COVID_VACCINATION_FORM",
+                              "OTHER"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "kyc_enduser_error_message": {
+                      "type": "string",
+                      "example": "Enter your date of birth exactly as it is on your identity document."
+                    },
+                    "kyc_reject_label": {
+                      "type": "array",
+                      "example": [
+                        "UNSATISFACTORY_PHOTOS",
+                        "GRAPHIC_EDITOR",
+                        "FORGERY"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/kyc/applicant/token": {
+      "get": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Get a Sumsub token for IDV collection",
+        "description": "This will returned a token that can be used to setup a Sumsub sdk session to gather the IDV documents of an Individual. For this endpoint sessionId is optional, but user_uuid needs to be provided instead of sessionId",
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockUserUuid": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_uuid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "_act-b8ebfb63-5f24-4b89-9c08-5bbabeec986e"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/kyc/applicant/url": {
+      "get": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Get a KYC applicant URL",
+        "description": "Returns a short-lived URL for the user to complete their KYC form. The authenticated user's UUID is used to generate the link.",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockUserUuid": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "KYC applicant URL generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "url",
+                    "ttl_in_seconds"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "description": "KYC form URL"
+                    },
+                    "ttl_in_seconds": {
+                      "type": "number",
+                      "description": "Time-to-live of the URL in seconds"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/kyc/applicant/share-token": {
+      "post": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Export an applicant",
+        "description": "Export a KYC applicant to Bakkt's system. Utilization of this feature requires previous contact with Bakkt support",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "share_token"
+                ],
+                "properties": {
+                  "share_token": {
+                    "type": "string",
+                    "description": "The share token you got from the KYC provider to export the applicant"
+                  },
+                  "source_of_funds": {
+                    "type": "string",
+                    "enum": [
+                      "SALARY",
+                      "BUSINESS_INCOME",
+                      "PENSION",
+                      "OTHER"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Applicant exported successfully"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/kyc/document": {
+      "put": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Upload a KYC document",
+        "description": "Please use Sumsub SDK for uploading a document to the applicant",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "content",
+                  "document_type",
+                  "country"
+                ],
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "Requires valid base64 image. Image with size > 500KB may cause instability"
+                  },
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "SELFIE",
+                      "PASSPORT",
+                      "DRIVERS",
+                      "ID_CARD",
+                      "RESIDENCE_PERMIT",
+                      "UTILITY_BILL",
+                      "OTHER_PROOF_OF_ADDRESS"
+                    ]
+                  },
+                  "document_subtype": {
+                    "type": "string",
+                    "enum": [
+                      "",
+                      "FRONT_SIDE",
+                      "BACK_SIDE"
+                    ],
+                    "description": "Optional field that is required if documentType is DRIVERS or ID_CARD"
+                  },
+                  "filename": {
+                    "type": "string",
+                    "example": "image.png"
+                  },
+                  "country": {
+                    "type": "string",
+                    "example": "GB"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "KYC document uploaded"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/user/kyc/verification": {
+      "post": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "Start a KYC verification",
+        "description": "Please use Sumsub SDK for starting a KYC verification",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "KYC verification started"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Know your customer (KYC)"
+        ],
+        "summary": "[SANDBOX] Patch the KYC verification status",
+        "description": "This endpoints allows merchants to make manually set the status of a user in SANDBOX",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "KYC_NEEDED",
+                      "PENDING_KYC_DATA",
+                      "KYC_PENDING",
+                      "SOFT_KYC_FAILED",
+                      "HARD_KYC_FAILED",
+                      "FULL_USER"
+                    ]
+                  },
+                  "rejection_reason": {
+                    "type": "string",
+                    "enum": [
+                      "",
+                      "PEP",
+                      "ADVERSE_MEDIA",
+                      "FORGERY",
+                      "DOCUMENT_TEMPLATE",
+                      "SPAM",
+                      "SELFIE_MISMATCH",
+                      "FOREIGNER",
+                      "DUPLICATE",
+                      "WRONG_USER_REGION",
+                      "BLACKLIST",
+                      "BLOCKLIST",
+                      "REGULATIONS_VIOLATIONS",
+                      "INCONSISTENT_PROFILE",
+                      "AGE_REQUIREMENT_MISMATCH",
+                      "EXPERIENCE_REQUIREMENT_MISMATCH",
+                      "CRIMINAL",
+                      "COMPROMISED_PERSONS",
+                      "FRAUDULENT_PATTERNS",
+                      "SANCTIONS",
+                      "FRAUDULENT_LIVENESS",
+                      "UNSUPPORTED_LANGUAGE",
+                      "THIRD_PARTY_INVOLVED",
+                      "LOW_QUALITY",
+                      "NOT_DOCUMENT",
+                      "ID_INVALID",
+                      "BAD_AVATAR",
+                      "INCOMPLETE_DOCUMENT",
+                      "UNSATISFACTORY_PHOTOS",
+                      "DOCUMENT_PAGE_MISSING",
+                      "DOCUMENT_DAMAGED",
+                      "PROBLEMATIC_APPLICANT_DATA",
+                      "ADDITIONAL_DOCUMENT_REQUIRED",
+                      "WRONG_ADDRESS",
+                      "GRAPHIC_EDITOR",
+                      "DOCUMENT_DEPRIVED",
+                      "NOT_ALL_CHECKS_COMPLETED",
+                      "FRONT_SIDE_MISSING",
+                      "BACK_SIDE_MISSING",
+                      "SCREENSHOTS",
+                      "BLACK_AND_WHITE",
+                      "INCOMPATIBLE_LANGUAGE",
+                      "EXPIRATION_DATE",
+                      "UNFILLED_ID",
+                      "BAD_SELFIE",
+                      "BAD_VIDEO_SELFIE",
+                      "BAD_FACE_MATCHING",
+                      "BAD_PROOF_OF_IDENTITY",
+                      "BAD_PROOF_OF_ADDRESS",
+                      "BAD_PROOF_OF_PAYMENT",
+                      "SELFIE_WITH_PAPER",
+                      "OTHER",
+                      "REQUESTED_DATA_MISMATCH",
+                      "DOCUMENT_MISSING",
+                      "CHECK_UNAVAILABLE"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "KYC status updated"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/corporate/{corporate_uuid}/kyb/applicant/url": {
+      "get": {
+        "tags": [
+          "Know your business (KYB)"
+        ],
+        "summary": "Get url for the Corporate to submit its KYB",
+        "description": "This will return a url to a form where the Individual will be able to submit all the KYB information",
+        "security": [
+          {
+            "apiKeyAuth": [],
+            "unblockSessionId": []
+          },
+          {
+            "apiKeyAuth": [],
+            "unblockUserUuid": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "corporate_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "6c0ace64-a187-4f46-bf53-069a4a178f00"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "https://form.typeform.com/to/QGjCZNZB#corporate_uuid=xxxxx"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/corporate/{corporate_uuid}/kyb/verification": {
+      "patch": {
+        "tags": [
+          "Know your business (KYB)"
+        ],
+        "summary": "[SANDBOX] Patch the KYB verification status",
+        "description": "This endpoint allows merchants to manually set the status of a corporate in SANDBOX",
+        "parameters": [
+          {
+            "name": "corporate_uuid",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "6c0ace64-a187-4f46-bf53-069a4a178f00"
+          }
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "CREATED",
+                      "KYB_PENDING",
+                      "ACTIVE",
+                      "REJECTED"
+                    ]
+                  },
+                  "rejection_reason": {
+                    "type": "string",
+                    "enum": [
+                      "",
+                      "PEP",
+                      "ADVERSE_MEDIA",
+                      "FORGERY",
+                      "DOCUMENT_TEMPLATE",
+                      "SPAM",
+                      "DUPLICATE",
+                      "WRONG_USER_REGION",
+                      "BLACKLIST",
+                      "BLOCKLIST",
+                      "REGULATIONS_VIOLATIONS",
+                      "INCONSISTENT_PROFILE",
+                      "CRIMINAL",
+                      "COMPROMISED_PERSONS",
+                      "FRAUDULENT_PATTERNS",
+                      "SANCTIONS",
+                      "LOW_QUALITY",
+                      "NOT_DOCUMENT",
+                      "INCOMPLETE_DOCUMENT",
+                      "UNSATISFACTORY_PHOTOS",
+                      "DOCUMENT_PAGE_MISSING",
+                      "DOCUMENT_DAMAGED",
+                      "PROBLEMATIC_APPLICANT_DATA",
+                      "ADDITIONAL_DOCUMENT_REQUIRED",
+                      "WRONG_ADDRESS",
+                      "GRAPHIC_EDITOR",
+                      "DOCUMENT_DEPRIVED",
+                      "NOT_ALL_CHECKS_COMPLETED",
+                      "EXPIRATION_DATE",
+                      "UNFILLED_ID",
+                      "OTHER",
+                      "REQUESTED_DATA_MISMATCH",
+                      "DOCUMENT_MISSING",
+                      "CHECK_UNAVAILABLE"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "KYB status updated"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The parent resource of the entity being created cannot be found."
+                    }
+                  },
+                  "x-readme-ref-name": "parent-resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/kyc-documents/": {
+      "get": {
+        "tags": [
+          "Informative"
+        ],
+        "summary": "Get information on supported documents for KYC with pages required",
+        "description": "This endpoint returns a list of supported KYC documents for each country with pages required to upload for each document.",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "country_code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "ISO 3166-1 alpha-2 (2 letter country code)"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of documents collected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "AZ": {
+                      "type": "object",
+                      "description": "Country of Azerbeijan in ISO 3166-1 alpha-3",
+                      "properties": {
+                        "passport": {
+                          "type": "string",
+                          "description": "Pages required for a passport",
+                          "example": "FRONT"
+                        },
+                        "id_card": {
+                          "type": "string",
+                          "description": "Pages required for an id card",
+                          "example": "FRONT_AND_BACK"
+                        },
+                        "driving_license": {
+                          "type": "string",
+                          "description": "Pages required for a driving license",
+                          "example": "FRONT_AND_BACK"
+                        },
+                        "residence_permit": {
+                          "type": "string",
+                          "description": "Pages required for a residence permit",
+                          "example": "NOT_SUPPORTED"
+                        }
+                      }
+                    },
+                    "BH": {
+                      "type": "object",
+                      "description": "Country of Bahrain in ISO 3166-1 alpha-3",
+                      "properties": {
+                        "passport": {
+                          "type": "string",
+                          "description": "Pages required for a passport",
+                          "example": "FRONT"
+                        },
+                        "id_card": {
+                          "type": "string",
+                          "description": "Pages required for an id card",
+                          "example": "FRONT_AND_BACK"
+                        },
+                        "driving_license": {
+                          "type": "string",
+                          "description": "Pages required for a driving license",
+                          "example": "FRONT_AND_BACK"
+                        },
+                        "residence_permit": {
+                          "type": "string",
+                          "description": "Pages required for a residence permit",
+                          "example": "FRONT_AND_BACK"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No KYC provider found for the merchant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "No KYC provider assigned"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/supported/countries": {
+      "get": {
+        "tags": [
+          "Informative"
+        ],
+        "summary": "Getting the list of supported countries",
+        "description": "Will a json with the full list of supported fiat and crypto currencies, regions of residency for individuals and corporates, and blockchains",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "country_code": {
+                        "type": "string",
+                        "example": "FR"
+                      },
+                      "country_name": {
+                        "type": "string",
+                        "example": "FR"
+                      },
+                      "is_individual_supported": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "is_corporate_supported": {
+                        "type": "boolean",
+                        "example": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/merchant": {
+      "patch": {
+        "tags": [
+          "Merchant"
+        ],
+        "summary": "Update merchant details",
+        "description": "Updates merchant details such as the **Webhook URL** and **Webhook Secret** for receiving real-time event notifications. Configure separately for Sandbox and Production environments using the appropriate API key.",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhook": {
+                    "type": "string",
+                    "example": "url"
+                  },
+                  "webhook_secret": {
+                    "type": "string",
+                    "example": "secret"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Action has been accepted"
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/merchant/fees/transactions": {
+      "get": {
+        "tags": [
+          "Merchant"
+        ],
+        "summary": "Get a merchant's list of transaction fees",
+        "description": "Returns the merchant's list of transaction fees",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "2024-06-01T00:00:00.0"
+            },
+            "required": true
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "2024-06-01T00:00:00.0"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "OFFRAMP",
+                          "ONRAMP"
+                        ]
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "example": "2023-02-27T16:37:26.982Z"
+                      },
+                      "amount": {
+                        "type": "number",
+                        "example": 10.23
+                      },
+                      "uuid": {
+                        "type": "string",
+                        "example": "f33e4cbd-61cb-49cb-aa6a"
+                      },
+                      "currency": {
+                        "type": "string",
+                        "description": "currency of amount",
+                        "enum": [
+                          "GBP",
+                          "EUR",
+                          "CEUR",
+                          "USDC",
+                          "USDCE",
+                          "USDT",
+                          "CUSD",
+                          "AGEUR"
+                        ]
+                      },
+                      "completed_date": {
+                        "type": "string",
+                        "example": "2023-02-27T16:37:26.982Z"
+                      },
+                      "fee_name": {
+                        "type": "string",
+                        "example": "merchant"
+                      },
+                      "fee_value": {
+                        "type": "number",
+                        "example": 0.065
+                      },
+                      "base_currency": {
+                        "type": "string",
+                        "description": "currency of fee_value",
+                        "enum": [
+                          "GBP",
+                          "EUR",
+                          "CEUR",
+                          "USDC",
+                          "USDCE",
+                          "USDT",
+                          "CUSD",
+                          "AGEUR"
+                        ]
+                      },
+                      "user_status": {
+                        "type": "string",
+                        "example": "FULL_USER"
+                      },
+                      "user_uuid": {
+                        "type": "string",
+                        "example": "ccb567b4-c483-4ba6-ab8c-9b7a471f11db"
+                      },
+                      "company_uuid": {
+                        "type": "string",
+                        "example": "ccb567b4-c483-4ba6-ab8c-9b7a471f11db",
+                        "description": "Present only if user_uuid is not present"
+                      },
+                      "company_status": {
+                        "type": "string",
+                        "example": "ccb567b4-c483-4ba6-ab8c-9b7a471f11db",
+                        "description": "Present only if user_status is not present"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No merchant fee exists for merchant ${merchant_uuid} with params"
+                    }
+                  },
+                  "x-readme-ref-name": "resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/onboarding/merchant/transaction": {
+      "get": {
+        "tags": [
+          "Merchant"
+        ],
+        "summary": "Get transaction details",
+        "description": "Returns the details of a transaction by hash",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transactionHash",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "uuid": {
+                      "type": "string",
+                      "example": "f33e4cbd-61cb-49cb-aa6a"
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": [
+                        "OFFRAMP",
+                        "ONRAMP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "PROCESS_COMPLETED"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "example": "2023-02-27T16:37:26.982Z"
+                    },
+                    "user_uuid": {
+                      "type": "string",
+                      "example": "f33e4cbd-61cb-49cb-aa6a"
+                    },
+                    "company_uuid": {
+                      "type": "string",
+                      "example": "f33e4cbd-61cb-49cb-aa6a"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Request body is malformed, please review the documentation: https://api.bakkt.com"
+                    }
+                  },
+                  "x-readme-ref-name": "body-malformed-error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid session_id or api key"
+                    }
+                  },
+                  "x-readme-ref-name": "unauthorized-error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006;Sampled=1"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No merchant fee exists for merchant ${merchant_uuid} with params"
+                    }
+                  },
+                  "x-readme-ref-name": "resource-not-found-error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_id": {
+                      "type": "string",
+                      "example": "Root=1-64118425-5b233dc94ac4727878b35611;Parent=7bd132fc7513d006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "An Unknown error has happened, please reach out to the dev support of Bakkt."
+                    }
+                  },
+                  "x-readme-ref-name": "unknown-error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

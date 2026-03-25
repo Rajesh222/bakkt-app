@@ -1,0 +1,326 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>Bakkt supports two authentication methods for user sessions:</p>
+<ol>
+<li><strong>SIWE (Sign In With Ethereum)</strong> - Web3-native authentication</li>
+<li><strong>Email OTP</strong> - Traditional one-time password via email</li>
+</ol>
+<p>Both methods return a <code class="rdmd-code lang- theme-undefined" data-lang="">session_id</code> that&#x27;s used for authenticated API requests.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="authentication-flow"></div><div class="heading-text">Authentication Flow</div><a aria-label="Skip link to Authentication Flow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#authentication-flow"></a></h2>
+<pre class="mermaid-render mermaid_single">sequenceDiagram
+    participant User
+    participant App
+    participant Bakkt
+
+    alt SIWE Authentication
+        App-&gt;&gt;Bakkt: POST /auth/login (message + signature)
+        Bakkt--&gt;&gt;App: session_id + user_uuid
+    else Email OTP
+        App-&gt;&gt;Bakkt: POST /auth/login (user_uuid)
+        Bakkt-&gt;&gt;User: Email with OTP
+        User-&gt;&gt;App: Enters OTP
+        App-&gt;&gt;Bakkt: POST /auth/otp (user_uuid + OTP)
+        Bakkt--&gt;&gt;App: session_id + user_uuid
+    end
+
+    App-&gt;&gt;Bakkt: Authenticated API requests (session_id)</pre>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="method-1-siwe"></div><div class="heading-text">Method 1: SIWE</div><a aria-label="Skip link to Method 1: SIWE" class="heading-anchor-icon fa fa-regular fa-anchor" href="#method-1-siwe"></a></h2>
+<p>Web3-native authentication using wallet signatures.</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="how-siwe-work"></div><div class="heading-text">How SIWE Work</div><a aria-label="Skip link to How SIWE Work" class="heading-anchor-icon fa fa-regular fa-anchor" href="#how-siwe-work"></a></h4>
+<ol>
+<li>User connects their wallet (MetaMask, WalletConnect, etc.)</li>
+<li>Your app generates a SIWE message</li>
+<li>User signs the message with their wallet</li>
+<li>Your app sends message + signature to Bakkt</li>
+<li>Bakkt verifies signature and returns session</li>
+</ol>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>How to generate SIWE message</summary><div class="Accordion-content"><h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="step-1-generate-siwe"></div><div class="heading-text">Step 1: Generate SIWE</div><a aria-label="Skip link to Step 1: Generate SIWE" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-1-generate-siwe"></a></h4><p>Use a library like <code class="rdmd-code lang- theme-undefined" data-lang="">siwe</code> to generate the message:</p><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">import { SiweMessage } from &#x27;siwe&#x27;;
+
+// Create SIWE message
+const message = new SiweMessage({
+  domain: &#x27;your-app.com&#x27;,
+  address: userWalletAddress, // User&#x27;s Ethereum address
+  statement: &#x27;Sign in to Bakkt&#x27;,
+  uri: &#x27;https://your-app.com/auth/login&#x27;,
+  version: &#x27;1&#x27;,
+  chainId: 1, // Ethereum mainnet
+  nonce: generateNonce(), // Random nonce for security
+  issuedAt: new Date().toISOString(),
+  expirationTime: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString() // 4 hours
+});
+
+const messageString = message.prepareMessage();</code></pre></div></div><h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="step-2-user-signs-message"></div><div class="heading-text">Step 2: User Signs Message</div><a aria-label="Skip link to Step 2: User Signs Message" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-2-user-signs-message"></a></h4><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Request signature from user&#x27;s wallet
+const signature = await window.ethereum.request({
+  method: &#x27;personal_sign&#x27;,
+  params: [messageString, userWalletAddress]
+});</code></pre></div></div><h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="step-3-authenticate-with-bakkt"></div><div class="heading-text">Step 3: Authenticate with Bakkt</div><a aria-label="Skip link to Step 3: Authenticate with Bakkt" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-3-authenticate-with-bakkt"></a></h4><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/auth/login&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    message: messageString,
+    signature: signature
+  })
+});
+
+const session = await response.json();
+console.log(&#x27;Session ID:&#x27;, session.bakkt_session_id);
+console.log(&#x27;User UUID:&#x27;, session.user_uuid);
+
+// Store session_id securely for future requests
+localStorage.setItem(&#x27;bakkt_session&#x27;, session.bakkt_session_id);</code></pre></div></div></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>SIWE Example</summary><div class="Accordion-content"><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">React</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">import { SiweMessage } from &#x27;siwe&#x27;;
+import { useAccount, useSignMessage } from &#x27;wagmi&#x27;;
+
+function SignInButton() {
+  const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+
+  const handleSignIn = async () =&gt; {
+    // 1. Create SIWE message
+    const message = new SiweMessage({
+      domain: window.location.host,
+      address,
+      statement: &#x27;Sign in to Bakkt&#x27;,
+      uri: window.location.origin,
+      version: &#x27;1&#x27;,
+      chainId: 1,
+      nonce: crypto.randomUUID()
+    });
+
+    // 2. Sign message
+    const signature = await signMessageAsync({
+      message: message.prepareMessage()
+    });
+
+    // 3. Authenticate
+    const session = await bakkt.siweLogin(message.prepareMessage(), signature);
+
+    // 4. Store session
+    setSession(session.bakkt_session_id);
+  };
+
+  return &lt;button onClick={handleSignIn}&gt;Sign In with Ethereum&lt;/button&gt;;
+}</code></pre></div></div><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">Plain JS</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Using ethers.js
+import { ethers } from &#x27;ethers&#x27;;
+
+async function signInWithEthereum() {
+  // Connect wallet
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send(&quot;eth_requestAccounts&quot;, []);
+  const signer = provider.getSigner();
+  const address = await signer.getAddress();
+
+  // Create message
+  const message = `api.bakkt.com wants you to sign in with your Ethereum account:
+${address}
+
+Sign in with Ethereum
+
+URI: https://api.bakkt.com/auth/login
+Version: 1
+Chain ID: 1
+Nonce: ${generateNonce()}
+Issued At: ${new Date().toISOString()}
+Expiration Time: ${new Date(Date.now() + 4*60*60*1000).toISOString()}`;
+
+  // Sign
+  const signature = await signer.signMessage(message);
+
+  // Authenticate
+  const response = await fetch(&#x27;https://api.bakkt.com/auth/login&#x27;, {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+      &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    body: JSON.stringify({ message, signature })
+  });
+
+  return await response.json();
+}</code></pre></div></div></div></details>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="method-2-email-otp"></div><div class="heading-text">Method 2: Email OTP</div><a aria-label="Skip link to Method 2: Email OTP" class="heading-anchor-icon fa fa-regular fa-anchor" href="#method-2-email-otp"></a></h2>
+<p>Traditional one-time password sent via email.</p>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>How to Generate an Email OTP</summary><div class="Accordion-content"><h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="step-1-trigger-otp"></div><div class="heading-text">Step 1: Trigger OTP</div><a aria-label="Skip link to Step 1: Trigger OTP" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-1-trigger-otp"></a></h4><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/auth/login&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    user_uuid: &#x27;user-uuid-here&#x27;
+  })
+});
+
+// OTP sent to user&#x27;s registered email
+console.log(&#x27;OTP sent to user email&#x27;);</code></pre></div></div><h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="step-2-submit-otp"></div><div class="heading-text">Step 2: Submit OTP</div><a aria-label="Skip link to Step 2: Submit OTP" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-2-submit-otp"></a></h4><p>User receives 6-digit code via email and submits it:</p><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/auth/otp/&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    user_uuid: &#x27;user-uuid-here&#x27;,
+    one_time_password: &#x27;123456&#x27;
+  })
+});
+
+const session = await response.json();
+console.log(&#x27;Session ID:&#x27;, session.bakkt_session_id);
+console.log(&#x27;User UUID:&#x27;, session.user_uuid);
+
+// Store session securely
+localStorage.setItem(&#x27;bakkt_session&#x27;, session.bakkt_session_id);</code></pre></div></div></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>OTP Example</summary><div class="Accordion-content"><div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">async function loginWithOTP(userUuid) {
+  // 1. Trigger OTP
+  await fetch(&#x27;https://api.bakkt.com/auth/login&#x27;, {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: API_KEY,
+      &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    body: JSON.stringify({ user_uuid: userUuid })
+  });
+
+  // 2. Show OTP input to user
+  const otp = await promptUser(&#x27;Enter OTP from email:&#x27;);
+
+  // 3. Submit OTP
+  const response = await fetch(&#x27;https://api.bakkt.com/auth/otp/&#x27;, {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: API_KEY,
+      &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    body: JSON.stringify({
+      user_uuid: userUuid,
+      one_time_password: otp
+    })
+  });
+
+  const session = await response.json();
+  return session.bakkt_session_id;
+}</code></pre></div></div></div></details>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="using-session-id"></div><div class="heading-text">Using Session ID</div><a aria-label="Skip link to Using Session ID" class="heading-anchor-icon fa fa-regular fa-anchor" href="#using-session-id"></a></h2>
+<p>Once authenticated, include the session ID in all requests:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Making authenticated requests
+const response = await fetch(&#x27;https://api.bakkt.com/user&#x27;, {
+  method: &#x27;GET&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;bakkt-session-id&#x27;: sessionId
+  }
+});</code></pre></div></div>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="session-headers"></div><div class="heading-text">Session Headers</div><a aria-label="Skip link to Session Headers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#session-headers"></a></h4>
+<p>Two ways to pass user identity:</p>
+<p><strong>For User-Initiated Actions</strong> (POST, PATCH, DELETE):</p>
+<pre><code class="rdmd-code lang- theme-undefined" data-lang="">Authorization: YOUR_API_KEY
+bakkt-session-id: SESSION_ID</code></pre>
+<p><strong>For Backend Queries</strong> (GET operations):</p>
+<pre><code class="rdmd-code lang- theme-undefined" data-lang="">Authorization: YOUR_API_KEY
+user-uuid: USER_UUID</code></pre>
+<blockquote class="callout callout_default" theme="💡"><span class="callout-icon">💡</span><p><strong>Backend Operations</strong>:</p><p>Use <code class="rdmd-code lang- theme-undefined" data-lang="">user-uuid</code> header for server-side queries when you don&#x27;t have a user session.<br/>
+<!-- -->Use <code class="rdmd-code lang- theme-undefined" data-lang="">bakkt-session-id</code> for user-initiated actions.</p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="session-management"></div><div class="heading-text">Session Management</div><a aria-label="Skip link to Session Management" class="heading-anchor-icon fa fa-regular fa-anchor" href="#session-management"></a></h2>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="session-expiration"></div><div class="heading-text">Session Expiration</div><a aria-label="Skip link to Session Expiration" class="heading-anchor-icon fa fa-regular fa-anchor" href="#session-expiration"></a></h4>
+<p>Sessions expire after:</p>
+<ul>
+<li><strong>Default</strong>: 7 days of inactivity</li>
+<li><strong>Maximum</strong>: 30 days from creation</li>
+</ul>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="handling-expiration"></div><div class="heading-text">Handling Expiration</div><a aria-label="Skip link to Handling Expiration" class="heading-anchor-icon fa fa-regular fa-anchor" href="#handling-expiration"></a></h4>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">async function makeAuthenticatedRequest(endpoint, options = {}) {
+  const sessionId = localStorage.getItem(&#x27;bakkt_session&#x27;);
+
+  const response = await fetch(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      &#x27;Authorization&#x27;: API_KEY,
+      &#x27;bakkt-session-id&#x27;: sessionId
+    }
+  });
+
+  // Handle session expiration
+  if (response.status === 401) {
+    // Session expired - trigger re-authentication
+    const newSessionId = await reAuthenticate();
+    localStorage.setItem(&#x27;bakkt_session&#x27;, newSessionId);
+
+    // Retry original request
+    return makeAuthenticatedRequest(endpoint, options);
+  }
+
+  return response;
+}</code></pre></div></div>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="session-refresh"></div><div class="heading-text">Session Refresh</div><a aria-label="Skip link to Session Refresh" class="heading-anchor-icon fa fa-regular fa-anchor" href="#session-refresh"></a></h4>
+<p>Currently, Bakkt doesn&#x27;t support session refresh tokens. When a session expires, users must re-authenticate using SIWE or OTP.</p>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>Best Practice</strong>: Implement automatic re-authentication flow before session expiry. Prompt users to re-authenticate proactively rather than waiting for 401 errors.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="security-best-practices"></div><div class="heading-text">Security Best Practices</div><a aria-label="Skip link to Security Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#security-best-practices"></a></h2>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="siwe-security"></div><div class="heading-text">SIWE Security</div><a aria-label="Skip link to SIWE Security" class="heading-anchor-icon fa fa-regular fa-anchor" href="#siwe-security"></a></h4>
+<ul>
+<li><strong>Verify Domain</strong>: Ensure SIWE message domain matches your app domain<!-- -->
+<ul>
+<li>
+<p><strong>Check Nonce</strong>: Use cryptographically secure random nonces</p>
+</li>
+<li>
+<p><strong>Validate Expiration</strong>: Set reasonable expiration times (2-4 hours)</p>
+</li>
+<li>
+<p><strong>Verify Signature</strong>: Let Bakkt verify the signature server-side</p>
+</li>
+<li>
+<p><strong>Address Matching</strong>: Ensure signed address matches user&#x27;s target_address</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="otp-security"></div><div class="heading-text">OTP Security</div><a aria-label="Skip link to OTP Security" class="heading-anchor-icon fa fa-regular fa-anchor" href="#otp-security"></a></h4>
+<ul>
+<li><strong>Rate Limiting</strong>: Limit OTP requests per user (e.g., 3 per 10 minutes)<!-- -->
+<ul>
+<li>
+<p><strong>Attempt Limits</strong>: Lock account after 5 failed OTP attempts</p>
+</li>
+<li>
+<p><strong>Expiration</strong>: OTPs expire after 10 minutes</p>
+</li>
+<li>
+<p><strong>No Storage</strong>: Never store OTPs in logs or databases</p>
+</li>
+<li>
+<p><strong>Secure Delivery</strong>: Ensure email channel is secure</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="session-security"></div><div class="heading-text">Session Security</div><a aria-label="Skip link to Session Security" class="heading-anchor-icon fa fa-regular fa-anchor" href="#session-security"></a></h4>
+<ul>
+<li><strong>Secure Storage</strong>: Use httpOnly cookies or secure storage (not localStorage for sensitive apps)<!-- -->
+<ul>
+<li><strong>HTTPS Only</strong>: Always use HTTPS for API requests</li>
+<li><strong>Short Expiry</strong>: Consider shorter session expiry for high-risk operations</li>
+<li><strong>Logout</strong>: Implement explicit logout to clear sessions</li>
+<li><strong>Monitor</strong>: Log authentication attempts and unusual patterns</li>
+</ul>
+</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="comparing-methods"></div><div class="heading-text">Comparing Methods</div><a aria-label="Skip link to Comparing Methods" class="heading-anchor-icon fa fa-regular fa-anchor" href="#comparing-methods"></a></h2>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Feature</th><th>SIWE</th><th>Email OTP</th></tr></thead><tbody><tr><td><strong>User Experience</strong></td><td>One-click (if wallet connected)</td><td>Multi-step (email → code → submit)</td></tr><tr><td><strong>Security</strong></td><td>Cryptographic signature</td><td>Time-limited code</td></tr><tr><td><strong>Dependencies</strong></td><td>Requires Web3 wallet</td><td>Just email</td></tr><tr><td><strong>Best For</strong></td><td>Crypto-native users</td><td>Mainstream users</td></tr><tr><td><strong>Mobile</strong></td><td>Works with mobile wallets</td><td>Works everywhere</td></tr><tr><td><strong>Corporate</strong></td><td>May not fit corporate workflows</td><td>Enterprise-friendly</td></tr></tbody></table></div></div>
+<blockquote class="callout callout_default" theme="💡"><span class="callout-icon">💡</span><p><strong>Recommendation</strong>: Implement both methods and let users choose. Crypto-native users prefer SIWE, while traditional users may be more comfortable with OTP.</p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="troubleshooting"></div><div class="heading-text">Troubleshooting</div><a aria-label="Skip link to Troubleshooting" class="heading-anchor-icon fa fa-regular fa-anchor" href="#troubleshooting"></a></h2>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="siwe-issues"></div><div class="heading-text">SIWE Issues</div><a aria-label="Skip link to SIWE Issues" class="heading-anchor-icon fa fa-regular fa-anchor" href="#siwe-issues"></a></h4>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Problem</th><th>Cause</th><th>Solution</th></tr></thead><tbody><tr><td>Signature verification failed</td><td>Message/signature mismatch</td><td>Ensure exact message string is signed</td></tr><tr><td>Invalid address</td><td>Address doesn&#x27;t match</td><td>Check user_uuid has correct target_address</td></tr><tr><td>Expired message</td><td>Expiration time passed</td><td>Generate fresh message before signing</td></tr><tr><td>Wrong chain ID</td><td>ChainId mismatch</td><td>Use appropriate chain ID for your network</td></tr></tbody></table></div></div>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="otp-issues"></div><div class="heading-text">OTP Issues</div><a aria-label="Skip link to OTP Issues" class="heading-anchor-icon fa fa-regular fa-anchor" href="#otp-issues"></a></h4>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Problem</th><th>Cause</th><th>Solution</th></tr></thead><tbody><tr><td>OTP not received</td><td>Email delivery issue</td><td>Check spam folder, verify email</td></tr><tr><td>Invalid OTP</td><td>Wrong code or expired</td><td>Request new OTP</td></tr><tr><td>Too many attempts</td><td>Rate limited</td><td>Wait before retrying</td></tr><tr><td>User not found</td><td>Invalid user_uuid</td><td>Verify user was created successfully</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="explore-more"></div><div class="heading-text">Explore more</div><a aria-label="Skip link to Explore more" class="heading-anchor-icon fa fa-regular fa-anchor" href="#explore-more"></a></h2>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:auto-fit"><a class="Card Card_card" href="https://docs.bakkt.com/reference/post_onboarding-auth-login" target="blank"><i class="Card-icon fa-duotone fa-solid fa-rocket"></i><div class="Card-content"><div class="Card-title">Authentication API Reference<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Full authentication API documentation</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/user-management" target="blank"><i class="Card-icon fa-duotone fa-solid fa-user-plus"></i><div class="Card-content"><div class="Card-title">User Management<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Create users before authentication</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/corporate-management" target="blank"><i class="Card-icon fa-duotone fa-solid fa-building"></i><div class="Card-content"><div class="Card-title">Corporate Management<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Authenticate corporate administrators</p></div></a></div>
+<br/>

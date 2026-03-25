@@ -1,0 +1,195 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="core-endpoints"></div><div class="heading-text">Core Endpoints</div><a aria-label="Skip link to Core Endpoints" class="heading-anchor-icon fa fa-regular fa-anchor" href="#core-endpoints"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-account-operations-custody"></div><div class="heading-text">Bank Account Operations (Custody)</div><a aria-label="Skip link to Bank Account Operations (Custody)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-account-operations-custody"></a></h3>
+<p>Create and manage Bakkt bank accounts where fiat is held:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="create-account"></div><div class="heading-text">Create Account</div><a aria-label="Skip link to Create Account" class="heading-anchor-icon fa fa-regular fa-anchor" href="#create-account"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/bank-account/bakkt</code></p>
+<p>Create a Bakkt bank account in EUR, GBP, or USD. Returns Virtual IBAN/account details.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="list-accounts"></div><div class="heading-text">List Accounts</div><a aria-label="Skip link to List Accounts" class="heading-anchor-icon fa fa-regular fa-anchor" href="#list-accounts"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/bank-account/bakkt</code></p>
+<p>View all Bakkt accounts for a user with balances and details.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-details"></div><div class="heading-text">Get Details</div><a aria-label="Skip link to Get Details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-details"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/bank-account/bakkt/{uuid}</code></p>
+<p>Get specific account with IBAN, BIC, account number, routing number.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-balance"></div><div class="heading-text">Get Balance</div><a aria-label="Skip link to Get Balance" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-balance"></a></h3>
+<p><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/bank-account/bakkt/{uuid}/balance</code></p>
+<p>View current balance and available funds for an account.</p>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>Account Statements</strong>: For PDF statements and conversion history, see the <a href="/guides/stablecoin">Stablecoin API</a>.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="supported-currencies--regions"></div><div class="heading-text">Supported Currencies &amp; Regions</div><a aria-label="Skip link to Supported Currencies &amp; Regions" class="heading-anchor-icon fa fa-regular fa-anchor" href="#supported-currencies--regions"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-creation-currencies"></div><div class="heading-text">Account Creation Currencies</div><a aria-label="Skip link to Account Creation Currencies" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-creation-currencies"></a></h3>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Currency</th><th>Virtual IBAN</th><th>Account Type</th><th>Use Cases</th></tr></thead><tbody><tr><td>EUR</td><td>✅ Yes</td><td>SEPA</td><td>Europe-wide deposits and payouts</td></tr><tr><td>GBP</td><td>✅ Yes</td><td>FPS</td><td>UK fast payments</td></tr><tr><td>USD</td><td>✅ Yes (Corporate)</td><td>ACH</td><td>US domestic payments</td></tr><tr><td>NGN</td><td>✅ Yes</td><td>Local</td><td>Nigeria operations</td></tr></tbody></table></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="payout-currencies-via-beneficiaries"></div><div class="heading-text">Payout Currencies (via Beneficiaries)</div><a aria-label="Skip link to Payout Currencies (via Beneficiaries)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payout-currencies-via-beneficiaries"></a></h3>
+<p><strong>Supported Currencies</strong>:</p>
+<ul>
+<li>EUR (SEPA - same day to 1 business day)</li>
+<li>GBP (FPS - same day)</li>
+<li>USD (ACH - 2-3 business days)</li>
+<li>NGN (Nigeria) - 1 business day</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>International Payouts</strong>: For sending to other currencies (PKR, INR, TRY, etc.), use the <a href="/guides/stablecoin">Stablecoin API</a> third-party off-ramp feature.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="money-in-deposits"></div><div class="heading-text">Money IN (Deposits)</div><a aria-label="Skip link to Money IN (Deposits)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#money-in-deposits"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-transfer"></div><div class="heading-text">Bank Transfer</div><a aria-label="Skip link to Bank Transfer" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-transfer"></a></h3>
+<p><strong>User deposits to their Bakkt account</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Create Bakkt bank account
+const account = await bakkt.createBankAccount(sessionId, {
+  currency: &#x27;EUR&#x27;
+});
+
+// 2. Display account details to user
+console.log(&#x27;Deposit to this account:&#x27;);
+console.log(&#x27;IBAN:&#x27;, account.iban);
+console.log(&#x27;BIC:&#x27;, account.bic);
+console.log(&#x27;Account Name:&#x27;, &#x27;Bakkt - User Name&#x27;);
+
+// 3. User transfers from their bank
+// (External - user does this in their banking app)
+
+// 4. Fiat appears in Bakkt account (custody)
+// Monitor via webhook: OUTSIDE_TRANSFER_RECEIVED</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="ach-pull-plaid"></div><div class="heading-text">ACH Pull (Plaid)</div><a aria-label="Skip link to ACH Pull (Plaid)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#ach-pull-plaid"></a></h3>
+<p><strong>Instant account linking and ACH debit</strong>:</p>
+<blockquote>
+<p><strong>Info:</strong>
+ACH Pull is only available for USD accounts.</p>
+</blockquote>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Initiate Plaid Link
+const payment = await bakkt.createOpenBankingPayment(sessionId, {
+  amount: 1000,
+  currency: &#x27;USD&#x27;
+});
+
+// 2. User completes Plaid flow
+// (Links their bank account securely)
+
+// 3. ACH debit initiated
+// Funds arrive in Bakkt account in 2-3 business days</code></pre></div></div>
+<blockquote>
+<p><strong>Info:</strong>
+For detailed ACH Pull via Plaid integration, see the <a href="/guides/accounts/payments#ach-pull-via-plaid">Payments &amp; Transfers</a> guide.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="bakkt-bank-account-details"></div><div class="heading-text">Bakkt Bank Account Details</div><a aria-label="Skip link to Bakkt Bank Account Details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bakkt-bank-account-details"></a></h2>
+<p>When you create a Bakkt bank account, users get real banking details:</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="eur-sepa"></div><div class="heading-text">EUR (SEPA)</div><a aria-label="Skip link to EUR (SEPA)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#eur-sepa"></a></h3>
+<p><strong>Virtual IBAN</strong> in Malta or Europe</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;uuid&quot;: &quot;account-uuid&quot;,
+  &quot;currency&quot;: &quot;EUR&quot;,
+  &quot;iban&quot;: &quot;MT84BAKK00000012345678901&quot;,
+  &quot;bic&quot;: &quot;BAKKMTMT&quot;,
+  &quot;bank_country&quot;: &quot;MT&quot;,
+  &quot;status&quot;: &quot;ACTIVE&quot;
+}</code></pre></div></div>
+<p>Users can receive SEPA transfers from any European bank.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="gbp-uk"></div><div class="heading-text">GBP (UK)</div><a aria-label="Skip link to GBP (UK)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#gbp-uk"></a></h3>
+<p><strong>UK Account Number + Sort Code</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;uuid&quot;: &quot;account-uuid&quot;,
+  &quot;currency&quot;: &quot;GBP&quot;,
+  &quot;account_number&quot;: &quot;12345678&quot;,
+  &quot;sort_code&quot;: &quot;040004&quot;,
+  &quot;bank_country&quot;: &quot;GB&quot;,
+  &quot;status&quot;: &quot;ACTIVE&quot;
+}</code></pre></div></div>
+<p>Users can receive FPS (Faster Payments) transfers.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="usd-us"></div><div class="heading-text">USD (US)</div><a aria-label="Skip link to USD (US)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#usd-us"></a></h3>
+<p><strong>Account Number + ABA Routing</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;uuid&quot;: &quot;account-uuid&quot;,
+  &quot;currency&quot;: &quot;USD&quot;,
+  &quot;account_number&quot;: &quot;123456789&quot;,
+  &quot;routing_number&quot;: &quot;026009593&quot;,
+  &quot;bank_country&quot;: &quot;US&quot;,
+  &quot;status&quot;: &quot;ACTIVE&quot;
+}</code></pre></div></div>
+<p>Receive ACH and wire transfers.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="ngn-nigeria"></div><div class="heading-text">NGN (Nigeria)</div><a aria-label="Skip link to NGN (Nigeria)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#ngn-nigeria"></a></h3>
+<p><strong>Nigerian Account Details</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;uuid&quot;: &quot;account-uuid&quot;,
+  &quot;currency&quot;: &quot;NGN&quot;,
+  &quot;account_number&quot;: &quot;1234567890&quot;,
+  &quot;bank_code&quot;: &quot;058&quot;,
+  &quot;bank_country&quot;: &quot;NG&quot;,
+  &quot;status&quot;: &quot;ACTIVE&quot;
+}</code></pre></div></div>
+<p>Receive local Nigerian bank transfers.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-example-operating-account"></div><div class="heading-text">Complete Example: Operating Account</div><a aria-label="Skip link to Complete Example: Operating Account" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-example-operating-account"></a></h2>
+<p>Set up a complete fiat operating account for a user:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// === SETUP (One-time) ===
+
+// 1. Create user (Onboarding API)
+const user = await bakkt.onboarding.createUser({
+  first_name: &#x27;Alice&#x27;,
+  last_name: &#x27;Smith&#x27;,
+  email: &#x27;alice@example.com&#x27;,
+  country: &#x27;US&#x27;,
+  target_address: &#x27;0x...&#x27;
+});
+
+const session = await bakkt.onboarding.authenticate(user.user_uuid);
+
+// 2. Create Bakkt USD account (Accounts API)
+const account = await bakkt.payments.createBankAccount(session.session_id, {
+  currency: &#x27;USD&#x27;
+});
+
+console.log(&#x27;User account created:&#x27;);
+console.log(&#x27;Account:&#x27;, account.account_number);
+console.log(&#x27;Routing:&#x27;, account.routing_number);
+
+// === MONEY IN ===
+
+// Option A: User deposits from their bank
+// (They transfer to account.account_number)
+
+// Option B: ACH pull via Plaid (USD accounts only)
+const achPull = await bakkt.payments.initiateACHPull(session.session_id, {
+  amount: 5000,
+  linked_account: &#x27;plaid-account-id&#x27;
+});
+
+// === MONEY OUT ===
+
+// 3. Add beneficiary for payouts
+const beneficiary = await bakkt.payments.createBeneficiary(session.session_id, {
+  first_name: &#x27;John&#x27;,
+  last_name: &#x27;Doe&#x27;,
+  beneficiary_country: &#x27;US&#x27;,
+  account_details: {
+    currency: &#x27;USD&#x27;,
+    account_number: &#x27;987654321&#x27;,
+    bank_code: &#x27;026009593&#x27;
+  }
+});
+
+// 4. User sends payment to beneficiary
+// (Via your UI - debits Bakkt account, credits beneficiary)
+</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="corporate-accounts"></div><div class="heading-text">Corporate Accounts</div><a aria-label="Skip link to Corporate Accounts" class="heading-anchor-icon fa fa-regular fa-anchor" href="#corporate-accounts"></a></h2>
+<p>All endpoints have corporate variants:</p>
+<pre><code class="rdmd-code lang- theme-undefined" data-lang="">/corporate/{corporate_uuid}/bank-account/bakkt/*
+/corporate/{corporate_uuid}/token-preferences</code></pre>
+<p><strong>Use Cases</strong>:</p>
+<ul>
+<li>Company treasury accounts</li>
+<li>Employee payout accounts</li>
+<li>Multi-currency operations</li>
+<li>Corporate expense management</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="next-steps"></div><div class="heading-text">Next Steps</div><a aria-label="Skip link to Next Steps" class="heading-anchor-icon fa fa-regular fa-anchor" href="#next-steps"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="payments--transfers"></div><div class="heading-text">Payments &amp; Transfers</div><a aria-label="Skip link to Payments &amp; Transfers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payments--transfers"></a></h3>
+<p>Learn about beneficiaries, money movement, and ACH operations</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="advanced-features"></div><div class="heading-text">Advanced Features</div><a aria-label="Skip link to Advanced Features" class="heading-anchor-icon fa fa-regular fa-anchor" href="#advanced-features"></a></h3>
+<p>Exchange rates, webhooks, compliance, and testing</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="api-reference"></div><div class="heading-text">API Reference</div><a aria-label="Skip link to API Reference" class="heading-anchor-icon fa fa-regular fa-anchor" href="#api-reference"></a></h3>
+<p>Explore all endpoints with interactive examples</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="stablecoin-api"></div><div class="heading-text">Stablecoin API</div><a aria-label="Skip link to Stablecoin API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#stablecoin-api"></a></h3>
+<p>Convert between fiat and stablecoins</p>

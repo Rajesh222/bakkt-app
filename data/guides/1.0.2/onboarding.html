@@ -1,0 +1,105 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>The Onboarding APIs are your entry point to the Bakkt platform. It handles individual user and corporate entity creation, authentication, identity verification, and merchant configuration.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="explore-core-features-and-endpoints"></div><div class="heading-text">Explore core features and endpoints</div><a aria-label="Skip link to Explore core features and endpoints" class="heading-anchor-icon fa fa-regular fa-anchor" href="#explore-core-features-and-endpoints"></a></h2>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>User Management</summary><div class="Accordion-content"><p>Create and manage individual user accounts with comprehensive profile data.</p><p><i class="fa fa-user-plus"></i> <a href="/docs/user-management">View Full User Management Guide →</a></p><p><strong>Core endpoints</strong></p><p><a href="/reference/post_onboarding-user">POST /user</a>
+Create a new user account with basic information and crypto addresses</p><p><a href="/reference/patch_onboarding-user">PATCH /user</a>
+Update user profile details, addresses, and preferences</p><p><a href="/reference/get_onboarding-user">GET /user</a>
+Retrieve complete user profile including status and verification level</p></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Corporate Management</summary><div class="Accordion-content"><p>Create and manage corporate entities with KYB verification support.</p><p><i class="fa fa-building"></i> <a href="/docs/corporate-management">View Full Corporate Management Guide →</a></p><p><strong>Core endpoints</strong></p><p><a href="/reference/post_onboarding-corporate">POST /corporate</a>
+Create a new corporate entity</p><p><a href="/reference/post_onboarding-corporate-corporate-uuid-user">POST /add a user to a corporate entity</a>
+Link user to corporate with specific role</p></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Authentication</summary><div class="Accordion-content"><p>Authenticate users via SIWE (Sign In With Ethereum) or Email OTP.</p><p><i class="fa fa-lock"></i> <a href="/docs/authentication">View Full Authentication Guide →</a></p><p><strong>Core endpoints</strong></p><p><a href="/reference/post_onboarding-auth-login">POST /auth/login/</a>
+Authenticate via SIWE or trigger Email OTP</p><p><a href="/reference/post_onboarding-auth-otp">POST /auth/otp/</a>
+Validate OTP and receive session ID</p></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>User (KYC) and Bussiness (KYB) Verification</summary><div class="Accordion-content"><p>Integrated identity verification with Sumsub for compliance.</p><p><i class="fa fa-user-check"></i> <a href="/docs/user-verification-kyc">View Full User Verification (KYC) Guide →</a></p><p><i class="fa fa-building"></i> <a href="/docs/business-verification-kyb">View Full Business Verification (KYB) Guide →</a></p><p><strong>Core endpoints</strong></p><p><a href="/reference/post_onboarding-user-kyc-applicant">POST /user/kyc/applicant</a>
+Create applicant and initialize KYC verification process for a user</p><p><a href="/reference/get_onboarding-user-kyc-applicant-token">GET /user/kyc/applicant/token</a>
+Get Sumsub token for IDV collection</p><p><a href="/reference/get_onboarding-user-kyc-applicant">GET /user/kyc/applicant</a>
+Retrieve KYC application status and details</p><p><a href="/reference/get_onboarding-corporate-corporate-uuid-kyb-applicant-url">GET /corporate/kyb/applicant/url</a>
+Get KYB verification form URL</p></div></details>
+<br/>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="common-use-cases"></div><div class="heading-text">Common Use Cases</div><a aria-label="Skip link to Common Use Cases" class="heading-anchor-icon fa fa-regular fa-anchor" href="#common-use-cases"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="create-and-authenticate-a-user"></div><div class="heading-text">Create and authenticate a user</div><a aria-label="Skip link to Create and authenticate a user" class="heading-anchor-icon fa fa-regular fa-anchor" href="#create-and-authenticate-a-user"></a></h3>
+<pre class="mermaid-render mermaid_single">sequenceDiagram
+participant App as Your App
+participant Bakkt as Bakkt API
+participant User as End User
+App-&gt;&gt;Bakkt: POST /user (create user)
+Bakkt--&gt;&gt;App: user_uuid
+App-&gt;&gt;Bakkt: POST /auth/login (trigger OTP)
+Bakkt-&gt;&gt;User: Email with OTP
+User-&gt;&gt;App: Enters OTP
+App-&gt;&gt;Bakkt: POST /auth/otp/ (submit OTP)
+Bakkt--&gt;&gt;App: session_id
+App-&gt;&gt;Bakkt: Authenticated requests with session_id</pre>
+<br/>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="corporate-onboarding"></div><div class="heading-text">Corporate Onboarding</div><a aria-label="Skip link to Corporate Onboarding" class="heading-anchor-icon fa fa-regular fa-anchor" href="#corporate-onboarding"></a></h3>
+<pre class="mermaid-render mermaid_single">sequenceDiagram
+participant App as Your App
+participant Bakkt as Bakkt API
+participant Admin as Corporate Admin
+App-&gt;&gt;Bakkt: POST /corporate (create entity)
+Bakkt--&gt;&gt;App: corporate_uuid
+App-&gt;&gt;Bakkt: POST /corporate/{uuid}/user (add admin)
+App-&gt;&gt;Bakkt: GET /corporate/{uuid}/kyb/applicant/url
+Bakkt--&gt;&gt;App: KYB form URL
+App-&gt;&gt;Admin: Send KYB form link
+Admin-&gt;&gt;Bakkt: Completes KYB (external form)
+Bakkt--&gt;&gt;App: Webhook: KYB approved</pre>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="quick-start"></div><div class="heading-text">Quick Start</div><a aria-label="Skip link to Quick Start" class="heading-anchor-icon fa fa-regular fa-anchor" href="#quick-start"></a></h2>
+<p>Get started with individual user onboarding in 3 steps</p>
+<p><strong>Step 1: Create a User</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">    POST /user
+    {
+      &quot;first_name&quot;: &quot;Alice&quot;,
+      &quot;last_name&quot;: &quot;Smith&quot;,
+      &quot;email&quot;: &quot;alice@example.com&quot;,
+      &quot;country&quot;: &quot;GB&quot;,
+      }</code></pre></div></div>
+<p><a href="https://docs.bakkt.com/docs/user-management">Learn more →</a></p>
+<p><strong>Step 2: Authenticate</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">    POST /auth/login
+    { &quot;user_uuid&quot;: &quot;user-uuid&quot; }
+
+    # Then submit OTP:
+    POST /auth/otp/
+    { &quot;user_uuid&quot;: &quot;...&quot;, &quot;one_time_password&quot;: &quot;123456&quot; }</code></pre></div></div>
+<p><a href="https://docs.bakkt.com/docs/authentication">Learn more →</a></p>
+<p><strong>Step 3: Complete KYC</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/kyc/applicant
+GET /user/kyc/applicant/token
+# Use token with Sumsub Web SDK</code></pre></div></div>
+<p><a href="https://docs.bakkt.com/docs/user-verification-kyc">Learn more →</a></p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="integration-example"></div><div class="heading-text">Integration Example</div><a aria-label="Skip link to Integration Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#integration-example"></a></h2>
+<p>Complete example of user onboarding flow:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Create user
+const user = await bakkt.createUser({
+  first_name: &#x27;Alicekkkk&#x27;,
+  last_name: &#x27;Smith&#x27;,
+  email: &#x27;alice@example.com&#x27;,
+  country: &#x27;GB&#x27;,
+  accepted_terms_of_service_hash: &#x27;base64_hash_here&#x27;
+});
+
+// 2. Authenticate
+await bakkt.triggerOTP(user.user_uuid);
+const session = await bakkt.submitOTP(user.user_uuid, &#x27;123456&#x27;);
+
+// 3. Initiate KYC
+await bakkt.createKYCApplication(session.session_id);
+const sumsubToken = await bakkt.getKYCToken(session.session_id);
+
+// 4. User completes KYC in your UI
+// (Using Sumsub Web SDK with the token)
+
+// 5. Monitor KYC status via webhook or polling
+const kycStatus = await bakkt.getKYCStatus(session.session_id);
+
+// 6. Once approved, user can transact
+if (kycStatus.status === &#x27;FULL_USER&#x27;) {
+  // User ready for payments!
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="explore-more"></div><div class="heading-text">Explore more</div><a aria-label="Skip link to Explore more" class="heading-anchor-icon fa fa-regular fa-anchor" href="#explore-more"></a></h2>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:auto-fit"><a class="Card Card_card" href="/reference/post_onboarding-auth-login" target="_blank"><i class="Card-icon fa-duotone fa-solid fa-rocket"></i><div class="Card-content"><div class="Card-title">Full API Documentation<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Check our full Onboarding API documentation</p></div></a><a class="Card Card_card" href="/docs/user-management" target="_blank"><i class="Card-icon fa-duotone fa-solid fa-user-plus"></i><div class="Card-content"><div class="Card-title">User Management<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Get to know more about the user lifecycle, country-specific requirements, and best practices</p></div></a><a class="Card Card_card" href="/docs/corporate-management" target="_blank"><i class="Card-icon fa-duotone fa-solid fa-building"></i><div class="Card-content"><div class="Card-title">Corporate Management<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Explore further about corporate entities creation, linking users, and managing business profiles</p></div></a></div>

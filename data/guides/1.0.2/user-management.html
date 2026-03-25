@@ -1,0 +1,195 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>User management is the foundation of onboarding individuals to the Bakkt platform. This guide covers the complete user lifecycle from creation and authentication and later through verification and profile updates.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="user-status-lifecycle"></div><div class="heading-text">User Status Lifecycle</div><a aria-label="Skip link to User Status Lifecycle" class="heading-anchor-icon fa fa-regular fa-anchor" href="#user-status-lifecycle"></a></h2>
+<p>Users progress through different statuses as they complete verification:</p>
+<pre class="mermaid-render mermaid_single">flowchart LR
+A[PHONE_VERIFICATION_NEEDED *US only] --&gt; B[KYC_NEEDED]
+B --&gt; C[PENDING_KYC_DATA]
+C --&gt; D[KYC_PENDING]
+D --&gt; E[FULL_USER]
+D --&gt; F[SOFT_KYC_FAILED]
+D --&gt; G[HARD_KYC_FAILED]</pre>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Status</th><th>Description</th><th>Next Steps / Considerations</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">PHONE_VERIFICATION_NEEDED</code><sup>*</sup></td><td>Phone verification required only for U.S. users</td><td>Send OTP to the user&#x27;s phone number</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC_NEEDED</code></td><td>User must complete KYC to transact</td><td>Prompt user to start KYC</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">PENDING_KYC_DATA</code></td><td>User started KYC, documents are missing</td><td>Remind user to submit documents. Check missing docs via <a href="/api-reference/onboarding/know-your-customer-kyc/get-a-kyc-application-details"><code class="rdmd-code lang- theme-undefined" data-lang="">GET /user/kyc/applicant</code></a></td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC_PENDING</code></td><td>KYC verification under review</td><td>Wait for the review to complete</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code></td><td>Full KYC approved; User fully verified</td><td><strong>Only with FULL_USER status user is allowed to transact</strong></td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">SOFT_KYC_FAILED</code></td><td>KYC failed; User can retry after correcting data</td><td>Check webhook data for reasons. Guide user to correct and retry</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">HARD_KYC_FAILED</code></td><td>KYC permanently failed; User cannot be served</td><td>Inform user of KYC failure. No retry possible</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">SUSPENDED</code></td><td>User suspended, based on the compliance decision. User cannot take any action in the system</td><td>For further clarity contact our support</td></tr></tbody></table></div></div>
+<blockquote class="callout callout_default" theme="💡"><span class="callout-icon">💡</span><p>Read more about <a href="https://docs.bakkt.com/docs/user-verification-kyc#kyc-best-practices">KYC Best Practices</a></p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="required-fields-by-country"></div><div class="heading-text">Required Fields by Country</div><a aria-label="Skip link to Required Fields by Country" class="heading-anchor-icon fa fa-regular fa-anchor" href="#required-fields-by-country"></a></h2>
+<p>Verify which parameters are required when onboarding clients from all different  parts of the world:</p>
+<div class="TabGroup"><header><nav class="TabGroup-nav"><button class="TabGroup-tab_active">Europe</button><button class="TabGroup-tab"> U.S.</button><button class="TabGroup-tab">Nigeria</button><button class="TabGroup-tab">India &amp; Pakistan</button></nav></header><section><div class="TabContent"><p><strong>Required</strong>: <code class="rdmd-code lang- theme-undefined" data-lang="">first_name</code>, <code class="rdmd-code lang- theme-undefined" data-lang="">last_name</code>, <code class="rdmd-code lang- theme-undefined" data-lang="">email</code>, <code class="rdmd-code lang- theme-undefined" data-lang="">country</code></p></div></section></div>
+<blockquote class="callout callout_info" theme="📘"><span class="callout-icon">📘</span><p>Bakkt requires from  users to accept the latest Terms and Conditions, Privacy Policy, and Terms of Service to ensure compliance.
+Read more how to ensure <a href="/docs/ensuring-legal-agreements-integrity">Legal Agreements Integrity</a></p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="core-user-operations"></div><div class="heading-text">Core user operations</div><a aria-label="Skip link to Core user operations" class="heading-anchor-icon fa fa-regular fa-anchor" href="#core-user-operations"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="create-a-user"></div><div class="heading-text">Create a user</div><a aria-label="Skip link to Create a user" class="heading-anchor-icon fa fa-regular fa-anchor" href="#create-a-user"></a></h3>
+<ul>
+<li>Create a new user account with required per country inputs</li>
+<li>Endpoint <code class="rdmd-code lang- theme-undefined" data-lang="">POST /user</code></li>
+<li>Request Example:</li>
+</ul>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/user&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    first_name: &#x27;Alice&#x27;,
+    last_name: &#x27;Smith&#x27;,
+    email: &#x27;alice@example.com&#x27;,
+    country: &#x27;GB&#x27;,
+    target_address: &#x27;0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&#x27;,
+    accepted_terms_of_service_hash: &#x27;base64_hash_here&#x27;
+  })
+});
+
+const user = await response.json();
+console.log(&#x27;User UUID:&#x27;, user.user_uuid);
+console.log(&#x27;Status:&#x27;, user.status); // &#x27;KYC_NEEDED&#x27;</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="update-user-profile"></div><div class="heading-text">Update user profile</div><a aria-label="Skip link to Update user profile" class="heading-anchor-icon fa fa-regular fa-anchor" href="#update-user-profile"></a></h3>
+<ul>
+<li>
+<p>Update user profile details, addresses, and preferences</p>
+</li>
+<li>
+<p>Most fields are updatable for users who <strong>do not</strong> have <code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code> status. Once KYC is complete, only limited fields can be changed. If update required on restricted parameters, please contact our support team</p>
+<p><strong>Parameters restricted after KYC:</strong> <code class="rdmd-code lang- theme-undefined" data-lang="">first_name</code>, <code class="rdmd-code lang- theme-undefined" data-lang="">last_name</code> , <code class="rdmd-code lang- theme-undefined" data-lang="">date_of_birth</code> , <code class="rdmd-code lang- theme-undefined" data-lang="">email</code> , <code class="rdmd-code lang- theme-undefined" data-lang="">phone number</code>, <code class="rdmd-code lang- theme-undefined" data-lang="">SSN</code> , <code class="rdmd-code lang- theme-undefined" data-lang="">BVN</code></p>
+</li>
+<li>
+<p>Endpoint <code class="rdmd-code lang- theme-undefined" data-lang="">PATCH /user</code></p>
+</li>
+<li>
+<p>Request Example:</p>
+</li>
+</ul>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;[https://api.bakkt.com/user](https://api.bakkt.com/user)&#x27;, {
+method: &#x27;PATCH&#x27;,
+headers: {
+&#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+&#x27;unblock-session-id&#x27;: sessionId,
+&#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+},
+body: JSON.stringify({
+target_address: &#x27;0x_NEW_ADDRESS&#x27;,
+target_solana_address: &#x27;NEW_SOLANA_ADDRESS&#x27;
+})
+});</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="target-address"></div><div class="heading-text">Target Address</div><a aria-label="Skip link to Target Address" class="heading-anchor-icon fa fa-regular fa-anchor" href="#target-address"></a></h3>
+<blockquote class="callout callout_info" theme="📘"><span class="callout-icon">📘</span><p><strong>Target Address</strong>: This is the user&#x27;s EXTERNAL wallet (MetaMask, Coinbase, hardware wallet, etc.) where on-ramp conversions will be sent by default. This is different from Bakkt custody addresses.</p></blockquote>
+<ul>
+<li>For EVM chains: Set <code class="rdmd-code lang- theme-undefined" data-lang="">target_address</code> (Ethereum address format: 0x...)</li>
+<li>For Solana: Set <code class="rdmd-code lang- theme-undefined" data-lang="">target_solana_address</code> (Solana address format)</li>
+<li>For multi-chain support: Set both addresses</li>
+</ul>
+<p><strong>Target Address Types</strong></p>
+<p>Specify whether the user&#x27;s wallet is self-hosted or hosted by a VASP:</p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">SELF_HOSTED</code>: User controls their own private keys (MetaMask, hardware wallet)</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">HOSTED</code>: Hosted by exchange or custodian (Coinbase, Binance, etc.)</li>
+</ul>
+<p>If hosted, provide the VASP name using <code class="rdmd-code lang- theme-undefined" data-lang="">target_address_vasp</code> field.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="get-user-details"></div><div class="heading-text">Get user details</div><a aria-label="Skip link to Get user details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-user-details"></a></h3>
+<ul>
+<li>Retrieve complete user profile including status and verification level</li>
+<li>Endpoint <code class="rdmd-code lang- theme-undefined" data-lang="">GET /user</code></li>
+<li>Request Example:</li>
+</ul>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;first_name&quot;: &quot;Alice&quot;,
+  &quot;last_name&quot;: &quot;Smith&quot;,
+  &quot;email&quot;: &quot;alice@example.com&quot;,
+  &quot;target_address&quot;: &quot;0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&quot;,
+  &quot;target_solana_address&quot;: &quot;3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq&quot;,
+  &quot;status&quot;: &quot;FULL_USER&quot;,
+  &quot;last_kyc_successful_check&quot;: &quot;2024-01-15T10:30:00Z&quot;,
+  &quot;linked_corporates_uuid&quot;: [&quot;corp-uuid-1&quot;, &quot;corp-uuid-2&quot;]
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="phone-verification"></div><div class="heading-text">Phone Verification</div><a aria-label="Skip link to Phone Verification" class="heading-anchor-icon fa fa-regular fa-anchor" href="#phone-verification"></a></h3>
+<blockquote class="callout callout_default" theme="🇺🇸"><span class="callout-icon">🇺🇸</span><p><strong>This step is required for US users only</strong></p></blockquote>
+<p><strong>Send OTP</strong></p>
+<ul>
+<li>Send OTP (one-time password) verification code to the user</li>
+<li>Endpoint <code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/verification/phone/send</code></li>
+<li>Request Example:</li>
+</ul>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">await fetch(&#x27;https://api.bakkt.com/user/verification/phone/send&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId
+  }
+});
+// OTP sent to user&#x27;s registered phone/email</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="verify-otp"></div><div class="heading-text">Verify OTP</div><a aria-label="Skip link to Verify OTP" class="heading-anchor-icon fa fa-regular fa-anchor" href="#verify-otp"></a></h3>
+<p><strong>Verify OTP</strong></p>
+<ul>
+<li>Verify OTP code provided by the user</li>
+<li>Endpoint <code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/verification/phone/check</code></li>
+<li>Request Example:</li>
+</ul>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/user/verification/phone/check&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    code: &#x27;123456&#x27;
+  })
+});
+
+const result = await response.json();
+console.log(&#x27;Status:&#x27;, result.status); // &#x27;approved&#x27;, &#x27;pending&#x27;, or &#x27;rejected&#x27;</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="sandbox-tests"></div><div class="heading-text">Sandbox tests</div><a aria-label="Skip link to Sandbox tests" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sandbox-tests"></a></h3>
+<p>For SANDBOX tests is allowed to use <code class="rdmd-code lang- theme-undefined" data-lang="">999999</code> code to bypass phone verification.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="best-practices"></div><div class="heading-text">Best Practices</div><a aria-label="Skip link to Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#best-practices"></a></h2>
+<blockquote class="callout callout_default" theme="💪"><span class="callout-icon">💪</span><p><strong>Frequent user creation issues &amp; how to prevent them</strong></p><ul>
+<li><strong>Email or phone number are not unique</strong></li>
+</ul><p>Each account must have a <strong>unique email address</strong></p><p>For <strong>US users</strong>, both the <strong>email address and phone number</strong> must be unique before creating a user</p><ul>
+<li><strong>Required target addresses are missing</strong></li>
+</ul><p>Always set <code class="rdmd-code lang- theme-undefined" data-lang="">target_address</code> during user creation (required for crypto flows)</p><p>For <strong>Solana support</strong>, also provide <code class="rdmd-code lang- theme-undefined" data-lang="">target_solana_address</code></p><ul>
+<li><strong>Terms and Conditions Hashes are missing</strong></li>
+</ul><p>Collect and store: <strong>Terms and Conditions, Terms of Service and Privacy Policy hashes</strong> during user creation to meet compliance requirements.</p></blockquote>
+<blockquote class="callout callout_default" theme="🏦"><span class="callout-icon">🏦</span><p><strong>Account Status Management</strong></p><ul>
+<li><strong>Account Suspended</strong></li>
+</ul><p>The account is restricted following a compliance review. <strong>The user cannot transact or update data.</strong> If the restriction is lifted, <strong>re-KYC is not required</strong>.</p><p>A webhook is sent to the merchant upon status change.</p><p>Contact support for clarification or appeal.</p><ul>
+<li><strong>Account Deactivated (vIBAN)</strong></li>
+</ul><p>User IBANs may be deactivated after <strong>12 months of inactivity</strong>.</p><p>Merchants are notified in advance and receive a list of affected vIBANs.</p><p>Account deactivation is final; reopening requires a <strong>new KYC process completed by the user.</strong></p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-user-onboarding-workflow"></div><div class="heading-text">Complete User Onboarding Workflow</div><a aria-label="Skip link to Complete User Onboarding Workflow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-user-onboarding-workflow"></a></h2>
+<p>End-to-end example:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Create user
+const user = await bakkt.createUser({
+  first_name: &#x27;Alice&#x27;,
+  last_name: &#x27;Smith&#x27;,
+  email: &#x27;alice@example.com&#x27;,
+  country: &#x27;GB&#x27;,
+  accepted_terms_of_service_hash: &#x27;base64_hash_here&#x27;
+});
+
+console.log(&#x27;User created:&#x27;, user.user_uuid);
+
+// 2. Authenticate (see Authentication guide)
+await bakkt.triggerOTP(user.user_uuid);
+const session = await bakkt.submitOTP(user.user_uuid, &#x27;123456&#x27;);
+
+console.log(&#x27;Authenticated:&#x27;, session.session_id);
+
+// 3. Initiate KYC (see KYC/KYB guide)
+await bakkt.createKYCApplication(session.session_id);
+const sumsubToken = await bakkt.getKYCToken(session.session_id);
+
+// 4. User completes KYC
+// (Using Sumsub Web SDK with the token)
+
+// 5. Monitor status
+const status = await bakkt.getUser(session.session_id);
+console.log(&#x27;Current status:&#x27;, status.status);
+
+// 6. Once FULL_USER, can use other APIs
+if (status.status === &#x27;FULL_USER&#x27;) {
+  // Ready for Accounts API, Stablecoin API, etc.
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="explore-more"></div><div class="heading-text">Explore more</div><a aria-label="Skip link to Explore more" class="heading-anchor-icon fa fa-regular fa-anchor" href="#explore-more"></a></h2>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:4"><a class="Card Card_card" href="https://docs.bakkt.com/reference/post_onboarding-user" target="blank"><i class="Card-icon fa-duotone fa-solid fa-code"></i><div class="Card-content"><div class="Card-title">User Management API Reference<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Full user onboarding API documentation</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/user-verification-kyc" target="blank"><i class="Card-icon fa-duotone fa-solid fa-user-check"></i><div class="Card-content"><div class="Card-title">User Verification (KYC)<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Complete guide to identity verification</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/ensuring-legal-agreements-integrity" target="blank"><i class="Card-icon fa-duotone fa-solid fa-hashtag"></i><div class="Card-content"><div class="Card-title">Ensuring Legal Agreements Integrity<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Ensure the integrity for Bakkt Terms and Conditions, Privacy Policy, and Terms of Service</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/webhooks" target="blank"><i class="Card-icon fa-duotone fa-solid fa-webhook"></i><div class="Card-content"><div class="Card-title">Webhooks<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Set up real-time status notifications</p></div></a></div>
+<br/>
+<br/>

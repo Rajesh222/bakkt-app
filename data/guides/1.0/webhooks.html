@@ -1,0 +1,522 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>Bakkt uses webhooks to provide real-time, asynchronous updates on KYC/KYB verification status and other onboarding events.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="setup"></div><div class="heading-text">Setup</div><a aria-label="Skip link to Setup" class="heading-anchor-icon fa fa-regular fa-anchor" href="#setup"></a></h2>
+<p>Configure your webhook endpoint using the <code class="rdmd-code lang- theme-undefined" data-lang="">PATCH /merchant</code> endpoint:</p>
+<ul>
+<li><strong>Webhook URL</strong>: Your server endpoint where Bakkt will send notifications</li>
+<li><strong>Webhook Secret</strong>: Shared secret for verifying webhook authenticity</li>
+<li><strong>Environment</strong>: Configure separately for Sandbox and Production</li>
+</ul>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">cURL</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X PATCH https://api.bakkt.com/merchant \
+  -H &quot;Authorization: YOUR_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;webhook&quot;: &quot;https://your-domain.com/webhooks&quot;,
+    &quot;webhook_secret&quot;: &quot;your_secure_secret&quot;
+  }&#x27;</code></pre></div></div>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">Node.js</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/merchant&#x27;, {
+  method: &#x27;PATCH&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    webhook: &#x27;https://your-domain.com/webhooks&#x27;,
+    webhook_secret: &#x27;your_secure_secret&#x27;
+  })
+});</code></pre></div></div>
+<blockquote class="callout callout_error" theme="❗️"><span class="callout-icon">❗️</span><p><strong>Production vs Sandbox</strong>: Configure webhook URL separately for each environment. Use different secrets for each environment for security.</p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="verifying-webhook-authenticity"></div><div class="heading-text">Verifying Webhook Authenticity</div><a aria-label="Skip link to Verifying Webhook Authenticity" class="heading-anchor-icon fa fa-regular fa-anchor" href="#verifying-webhook-authenticity"></a></h2>
+<p>Every webhook includes an <code class="rdmd-code lang- theme-undefined" data-lang="">Authorization</code> header with your webhook secret. Always verify this before processing:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">function verifyWebhook(req, expectedSecret) {
+  const authHeader = req.headers[&#x27;authorization&#x27;];
+  const receivedSecret = authHeader?.replace(&#x27;API-Key &#x27;, &#x27;&#x27;);
+
+  if (receivedSecret !== expectedSecret) {
+    throw new Error(&#x27;Invalid webhook signature&#x27;);
+  }
+}</code></pre></div></div>
+<p><strong>Complete Express.js Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const express = require(&#x27;express&#x27;);
+const app = express();
+
+app.post(&#x27;/webhooks&#x27;, express.json(), (req, res) =&gt; {
+  try {
+    // 1. Verify authenticity
+    verifyWebhook(req, process.env.BAKKT_WEBHOOK_SECRET);
+
+    // 2. Process webhook
+    const { type, subType, uuid, data } = req.body;
+
+    console.log(`Received ${type} webhook with subType: ${subType}`);
+    console.log(&#x27;User/Corporate UUID:&#x27;, uuid);
+
+    // Handle different webhook types
+    switch(type) {
+      case &#x27;KYC&#x27;:
+        handleKYCWebhook(subType, uuid, data);
+        break;
+      case &#x27;KYB&#x27;:
+        handleKYBWebhook(subType, uuid, data);
+        break;
+      default:
+        console.log(&#x27;Unknown webhook type:&#x27;, type);
+    }
+
+    // 3. Respond with 200 to acknowledge receipt
+    res.status(200).send(&#x27;OK&#x27;);
+  } catch (error) {
+    console.error(&#x27;Webhook error:&#x27;, error);
+    res.status(400).send(&#x27;Bad Request&#x27;);
+  }
+});</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="retry-logic"></div><div class="heading-text">Retry Logic</div><a aria-label="Skip link to Retry Logic" class="heading-anchor-icon fa fa-regular fa-anchor" href="#retry-logic"></a></h2>
+<p>Bakkt will retry failed webhook deliveries up to <strong>7 times</strong> with exponential backoff:</p>
+<ul>
+<li>After 1st failure: 3 seconds</li>
+<li>After 2nd failure: ~1 minute</li>
+<li>After 3rd failure: ~12 minutes</li>
+<li>After 4th failure: ~1 hour</li>
+<li>After 5th failure: ~4 hours</li>
+<li>After 6th failure: ~12 hours</li>
+<li>After 7th failure: ~33 hours</li>
+</ul>
+<p>Ensure your endpoint responds with 2xx status codes to avoid unnecessary retries.</p>
+<blockquote class="callout callout_error" theme="❗️"><span class="callout-icon">❗️</span><p><strong>Important</strong>: If a webhook for a status update is not received and a newer status is reached later, the older status will not be sent again. Webhooks always reflect the latest state only</p></blockquote>
+<blockquote class="callout callout_info" theme="📘"><span class="callout-icon">📘</span><p><strong>Idempotency</strong>: Design your webhook handler to be idempotent. Bakkt may send the same webhook multiple times if there are delivery issues.</p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="kyc-webhooks"></div><div class="heading-text">KYC Webhooks</div><a aria-label="Skip link to KYC Webhooks" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyc-webhooks"></a></h2>
+<p>KYC verification status updates for individual users:</p>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Event Type</th><th>subType</th><th>Description</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC_NEEDED</code></td><td>User needs to complete KYC</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">PENDING_KYC_DATA</code></td><td>User started KYC but missing documents</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC_PENDING</code></td><td>Documents submitted, verification in progress</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">SOFT_KYC_FAILED</code></td><td>Verification failed, user may retry with corrections</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">HARD_KYC_FAILED</code></td><td>Verification permanently failed</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYC</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code></td><td>KYC verification successful</td></tr></tbody></table></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="example-kyc-webhook-payload"></div><div class="heading-text">Example KYC Webhook Payload</div><a aria-label="Skip link to Example KYC Webhook Payload" class="heading-anchor-icon fa fa-regular fa-anchor" href="#example-kyc-webhook-payload"></a></h3>
+<p><strong>When KYC is approved:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYC&quot;,
+  &quot;subType&quot;: &quot;FULL_USER&quot;,
+  &quot;uuid&quot;: &quot;user-uuid-here&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;FULL_USER&quot;,
+    &quot;verificationDate&quot;: &quot;2024-01-15T10:30:00Z&quot;
+  }
+}</code></pre></div></div>
+<p><strong>When KYC fails:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYC&quot;,
+  &quot;subType&quot;: &quot;SOFT_KYC_FAILED&quot;,
+  &quot;uuid&quot;: &quot;user-uuid-here&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;SOFT_KYC_FAILED&quot;,
+    &quot;rejectionReason&quot;: &quot;UNSATISFACTORY_PHOTOS&quot;,
+    &quot;rejectionMessage&quot;: &quot;Please provide clearer photos of your ID document&quot;,
+    &quot;canRetry&quot;: true
+  }
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="kyc-webhook-handler"></div><div class="heading-text">KYC Webhook Handler</div><a aria-label="Skip link to KYC Webhook Handler" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyc-webhook-handler"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">function handleKYCWebhook(subType, userUuid, data) {
+  switch(subType) {
+    case &#x27;FULL_USER&#x27;:
+      // KYC approved
+      console.log(`User ${userUuid} KYC approved`);
+      // Update user status in your database
+      db.users.update(userUuid, { kyc_status: &#x27;approved&#x27;, can_transact: true });
+      // Send notification to user
+      sendEmail(userUuid, &#x27;KYC Approved&#x27;, &#x27;You can now start transacting!&#x27;);
+      break;
+
+    case &#x27;SOFT_KYC_FAILED&#x27;:
+      // User can retry
+      console.log(`User ${userUuid} KYC failed (can retry)`);
+      console.log(&#x27;Rejection reason:&#x27;, data.rejectionReason);
+      // Notify user with guidance
+      sendEmail(userUuid, &#x27;KYC Needs Correction&#x27;, data.rejectionMessage);
+      break;
+
+    case &#x27;HARD_KYC_FAILED&#x27;:
+      // Permanent failure
+      console.log(`User ${userUuid} KYC permanently failed`);
+      // Contact support flow
+      notifySupport(userUuid);
+      break;
+
+    case &#x27;KYC_PENDING&#x27;:
+      // Under review
+      console.log(`User ${userUuid} KYC under review`);
+      // Update UI to show &quot;Verification in progress&quot;
+      break;
+
+    default:
+      console.log(`Unknown KYC subType: ${subType}`);
+  }
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="kyb-webhooks"></div><div class="heading-text">KYB Webhooks</div><a aria-label="Skip link to KYB Webhooks" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyb-webhooks"></a></h2>
+<p>KYB verification status updates for corporate entities:</p>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Event Type</th><th>subType</th><th>Description</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYB</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">CREATED</code></td><td>Corporate entity created</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYB</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYB_PENDING</code></td><td>KYB verification in progress</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYB</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">ACTIVE</code></td><td>KYB verification successful, corporate fully active</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYB</code></td><td><code class="rdmd-code lang- theme-undefined" data-lang="">REJECTED</code></td><td>KYB verification rejected by compliance</td></tr></tbody></table></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="example-kyb-webhook-payload"></div><div class="heading-text">Example KYB Webhook Payload</div><a aria-label="Skip link to Example KYB Webhook Payload" class="heading-anchor-icon fa fa-regular fa-anchor" href="#example-kyb-webhook-payload"></a></h3>
+<p><strong>When KYB is approved:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYB&quot;,
+  &quot;subType&quot;: &quot;ACTIVE&quot;,
+  &quot;uuid&quot;: &quot;corporate-uuid-here&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;ACTIVE&quot;,
+    &quot;approvalDate&quot;: &quot;2024-01-15T14:20:00Z&quot;
+  }
+}</code></pre></div></div>
+<p><strong>When KYB is rejected:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYB&quot;,
+  &quot;subType&quot;: &quot;REJECTED&quot;,
+  &quot;uuid&quot;: &quot;corporate-uuid-here&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;REJECTED&quot;,
+    &quot;rejectionReason&quot;: &quot;INCOMPLETE_DOCUMENT&quot;,
+    &quot;rejectionMessage&quot;: &quot;Please provide complete company registration documents&quot;
+  }
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="kyb-webhook-handler"></div><div class="heading-text">KYB Webhook Handler</div><a aria-label="Skip link to KYB Webhook Handler" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyb-webhook-handler"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">function handleKYBWebhook(subType, corporateUuid, data) {
+  switch(subType) {
+    case &#x27;ACTIVE&#x27;:
+      // KYB approved
+      console.log(`Corporate ${corporateUuid} KYB approved`);
+      // Update corporate status
+      db.corporates.update(corporateUuid, {
+        kyb_status: &#x27;approved&#x27;,
+        can_transact: true
+      });
+      // Notify corporate admin
+      notifyCorporateAdmin(corporateUuid, &#x27;KYB Approved&#x27;);
+      break;
+
+    case &#x27;REJECTED&#x27;:
+      // KYB rejected
+      console.log(`Corporate ${corporateUuid} KYB rejected`);
+      console.log(&#x27;Reason:&#x27;, data.rejectionReason);
+      // Notify admin with next steps
+      notifyCorporateAdmin(corporateUuid, &#x27;KYB Rejected&#x27;, {
+        reason: data.rejectionMessage,
+        action: &#x27;Contact support at sales@bakkt.com&#x27;
+      });
+      break;
+
+    case &#x27;KYB_PENDING&#x27;:
+      // Under review
+      console.log(`Corporate ${corporateUuid} KYB under review`);
+      // Update UI
+      break;
+
+    default:
+      console.log(`Unknown KYB subType: ${subType}`);
+  }
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-webhook-handler"></div><div class="heading-text">Complete Webhook Handler</div><a aria-label="Skip link to Complete Webhook Handler" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-webhook-handler"></a></h2>
+<p>Full implementation with all webhook types:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const express = require(&#x27;express&#x27;);
+const crypto = require(&#x27;crypto&#x27;);
+const app = express();
+
+// Middleware to verify webhook signature
+function verifyWebhookSignature(req, res, next) {
+  const receivedSecret = req.headers[&#x27;authorization&#x27;]?.replace(&#x27;API-Key &#x27;, &#x27;&#x27;);
+  const expectedSecret = process.env.BAKKT_WEBHOOK_SECRET;
+
+  if (receivedSecret !== expectedSecret) {
+    return res.status(401).json({ error: &#x27;Invalid signature&#x27; });
+  }
+
+  next();
+}
+
+// Webhook endpoint
+app.post(&#x27;/webhooks/bakkt&#x27;,
+  express.json(),
+  verifyWebhookSignature,
+  async (req, res) =&gt; {
+    const { type, subType, uuid, data } = req.body;
+
+    console.log(`[Webhook] ${type} - ${subType} for ${uuid}`);
+
+    try {
+      // Route to appropriate handler
+      switch(type) {
+        case &#x27;KYC&#x27;:
+          await handleKYC(subType, uuid, data);
+          break;
+        case &#x27;KYB&#x27;:
+          await handleKYB(subType, uuid, data);
+          break;
+        case &#x27;fiatToCrypto&#x27;:
+        case &#x27;cryptoToFiat&#x27;:
+          // Transaction webhooks (see Stablecoin API guide)
+          await handleTransaction(type, subType, uuid, data);
+          break;
+        default:
+          console.log(&#x27;Unknown webhook type:&#x27;, type);
+      }
+
+      // Acknowledge receipt
+      res.status(200).send(&#x27;OK&#x27;);
+    } catch (error) {
+      console.error(&#x27;Error processing webhook:&#x27;, error);
+      // Still return 200 to prevent retries for processing errors
+      res.status(200).send(&#x27;OK&#x27;);
+    }
+  }
+);
+
+async function handleKYC(subType, userUuid, data) {
+  // Update user in database
+  await db.users.update(userUuid, {
+    kyc_status: subType,
+    kyc_updated_at: new Date()
+  });
+
+  // Notify user based on status
+  if (subType === &#x27;FULL_USER&#x27;) {
+    await sendUserNotification(userUuid, {
+      title: &#x27;Verification Complete&#x27;,
+      body: &#x27;Your account is now fully verified!&#x27;
+    });
+  } else if (subType.includes(&#x27;FAILED&#x27;)) {
+    await sendUserNotification(userUuid, {
+      title: &#x27;Verification Failed&#x27;,
+      body: data.rejectionMessage || &#x27;Please contact support&#x27;
+    });
+  }
+}
+
+async function handleKYB(subType, corporateUuid, data) {
+  // Update corporate in database
+  await db.corporates.update(corporateUuid, {
+    kyb_status: subType,
+    kyb_updated_at: new Date()
+  });
+
+  // Notify corporate admin
+  if (subType === &#x27;ACTIVE&#x27;) {
+    await sendCorporateNotification(corporateUuid, {
+      title: &#x27;Business Verification Complete&#x27;,
+      body: &#x27;Your company can now start using Bakkt services!&#x27;
+    });
+  }
+}
+
+app.listen(3000, () =&gt; console.log(&#x27;Webhook server running on port 3000&#x27;));</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="testing-webhooks"></div><div class="heading-text">Testing Webhooks</div><a aria-label="Skip link to Testing Webhooks" class="heading-anchor-icon fa fa-regular fa-anchor" href="#testing-webhooks"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="local-testing-with-ngrok"></div><div class="heading-text">Local Testing with ngrok</div><a aria-label="Skip link to Local Testing with ngrok" class="heading-anchor-icon fa fa-regular fa-anchor" href="#local-testing-with-ngrok"></a></h3>
+<p>Use ngrok to expose your local server for webhook testing:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang=""># Start your local server
+node webhook-server.js
+
+# In another terminal, start ngrok
+ngrok http 3000
+
+# Copy the ngrok URL and configure in Bakkt
+# Example: https://abc123.ngrok.io/webhooks/bakkt</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="using-webhooksite"></div><div class="heading-text">Using webhook.site</div><a aria-label="Skip link to Using webhook.site" class="heading-anchor-icon fa fa-regular fa-anchor" href="#using-webhooksite"></a></h3>
+<p>For quick testing without code:</p>
+<ol>
+<li>Visit <a href="https://webhook.site">webhook.site</a></li>
+<li>Copy the unique URL</li>
+<li>Configure in Bakkt using <code class="rdmd-code lang- theme-undefined" data-lang="">PATCH /merchant</code></li>
+<li>Trigger events in Sandbox</li>
+<li>View webhook payloads in webhook.site UI</li>
+</ol>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="webhook-security-best-practices"></div><div class="heading-text">Webhook Security Best Practices</div><a aria-label="Skip link to Webhook Security Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhook-security-best-practices"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="signature-verification"></div><div class="heading-text">Signature Verification</div><a aria-label="Skip link to Signature Verification" class="heading-anchor-icon fa fa-regular fa-anchor" href="#signature-verification"></a></h3>
+<p><strong>Always verify webhook signatures</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// GOOD
+function handleWebhook(req, res) {
+  if (!verifySignature(req)) {
+    return res.status(401).send(&#x27;Unauthorized&#x27;);
+  }
+  // Process webhook...
+}
+
+// BAD - Never do this
+function handleWebhook(req, res) {
+  // Process without verification - INSECURE!
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="idempotency"></div><div class="heading-text">Idempotency</div><a aria-label="Skip link to Idempotency" class="heading-anchor-icon fa fa-regular fa-anchor" href="#idempotency"></a></h3>
+<p><strong>Handle duplicate webhooks gracefully</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const processedWebhooks = new Set();
+
+function handleWebhook(webhookId, data) {
+  // Check if already processed
+  if (processedWebhooks.has(webhookId)) {
+    console.log(&#x27;Duplicate webhook, skipping&#x27;);
+    return;
+  }
+
+  // Process webhook
+  processWebhookData(data);
+
+  // Mark as processed
+  processedWebhooks.add(webhookId);
+}</code></pre></div></div>
+<p>Use webhook ID or combination of (type + subType + uuid + timestamp) as idempotency key.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="error-handling"></div><div class="heading-text">Error Handling</div><a aria-label="Skip link to Error Handling" class="heading-anchor-icon fa fa-regular fa-anchor" href="#error-handling"></a></h3>
+<p><strong>Respond with 2xx even if processing fails</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">app.post(&#x27;/webhooks&#x27;, async (req, res) =&gt; {
+  try {
+    // Verify signature first
+    verifyWebhook(req, WEBHOOK_SECRET);
+
+    // Acknowledge immediately
+    res.status(200).send(&#x27;OK&#x27;);
+
+    // Process asynchronously (don&#x27;t block response)
+    processWebhookAsync(req.body).catch(error =&gt; {
+      console.error(&#x27;Async processing error:&#x27;, error);
+      // Handle error internally, don&#x27;t fail webhook
+    });
+  } catch (error) {
+    // Only reject if signature invalid
+    if (error.message.includes(&#x27;signature&#x27;)) {
+      res.status(401).send(&#x27;Unauthorized&#x27;);
+    } else {
+      // Accept webhook but log error
+      console.error(&#x27;Webhook error:&#x27;, error);
+      res.status(200).send(&#x27;OK&#x27;);
+    }
+  }
+});</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="rate-limiting"></div><div class="heading-text">Rate Limiting</div><a aria-label="Skip link to Rate Limiting" class="heading-anchor-icon fa fa-regular fa-anchor" href="#rate-limiting"></a></h3>
+<p><strong>Protect your webhook endpoint</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const rateLimit = require(&#x27;express-rate-limit&#x27;);
+
+const webhookLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute
+  message: &#x27;Too many webhook requests&#x27;
+});
+
+app.post(&#x27;/webhooks&#x27;, webhookLimiter, handleWebhook);</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="logging--monitoring"></div><div class="heading-text">Logging &amp; Monitoring</div><a aria-label="Skip link to Logging &amp; Monitoring" class="heading-anchor-icon fa fa-regular fa-anchor" href="#logging--monitoring"></a></h3>
+<p><strong>Log all webhook events</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">function handleWebhook(req, res) {
+  const webhookId = generateId();
+
+  // Log incoming webhook
+  logger.info(&#x27;Webhook received&#x27;, {
+    id: webhookId,
+    type: req.body.type,
+    subType: req.body.subType,
+    uuid: req.body.uuid,
+    timestamp: new Date().toISOString()
+  });
+
+  // Process...
+
+  // Log result
+  logger.info(&#x27;Webhook processed&#x27;, {
+    id: webhookId,
+    result: &#x27;success&#x27;
+  });
+}</code></pre></div></div>
+<p><strong>Monitor for:</strong></p>
+<ul>
+<li>Failed signature verifications (potential attacks)</li>
+<li>Processing errors</li>
+<li>Unusual webhook volumes</li>
+<li>Delayed webhook deliveries</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="webhook-payload-structure"></div><div class="heading-text">Webhook Payload Structure</div><a aria-label="Skip link to Webhook Payload Structure" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhook-payload-structure"></a></h2>
+<p>All webhooks follow this structure:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYC | KYB | fiatToCrypto | cryptoToFiat | unblockBankAccount&quot;,
+  &quot;subType&quot;: &quot;Specific status or event&quot;,
+  &quot;uuid&quot;: &quot;user-uuid or corporate-uuid&quot;,
+  &quot;data&quot;: {
+    // Event-specific data
+  }
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-webhook-examples"></div><div class="heading-text">Complete Webhook Examples</div><a aria-label="Skip link to Complete Webhook Examples" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-webhook-examples"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="kyc-success"></div><div class="heading-text">KYC Success</div><a aria-label="Skip link to KYC Success" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyc-success"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYC&quot;,
+  &quot;subType&quot;: &quot;FULL_USER&quot;,
+  &quot;uuid&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;FULL_USER&quot;,
+    &quot;user_uuid&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+    &quot;verification_completed_at&quot;: &quot;2024-01-15T10:30:00Z&quot;,
+    &quot;documents_verified&quot;: [&quot;PASSPORT&quot;, &quot;SELFIE&quot;, &quot;UTILITY_BILL&quot;]
+  }
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="kyc-failure-with-retry"></div><div class="heading-text">KYC Failure with Retry</div><a aria-label="Skip link to KYC Failure with Retry" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyc-failure-with-retry"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYC&quot;,
+  &quot;subType&quot;: &quot;SOFT_KYC_FAILED&quot;,
+  &quot;uuid&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;SOFT_KYC_FAILED&quot;,
+    &quot;rejection_reason&quot;: [&quot;UNSATISFACTORY_PHOTOS&quot;, &quot;LOW_QUALITY&quot;],
+    &quot;rejection_message&quot;: &quot;Please provide clearer photos of your identity document. Ensure good lighting and all corners are visible.&quot;,
+    &quot;can_retry&quot;: true,
+    &quot;missing_documents&quot;: [&quot;ID_CARD&quot;]
+  }
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="kyb-success"></div><div class="heading-text">KYB Success</div><a aria-label="Skip link to KYB Success" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyb-success"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;type&quot;: &quot;KYB&quot;,
+  &quot;subType&quot;: &quot;ACTIVE&quot;,
+  &quot;uuid&quot;: &quot;650e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;ACTIVE&quot;,
+    &quot;corporate_uuid&quot;: &quot;650e8400-e29b-41d4-a716-446655440001&quot;,
+    &quot;approval_date&quot;: &quot;2024-01-15T14:20:00Z&quot;,
+    &quot;legal_name&quot;: &quot;Acme Corporation Ltd&quot;,
+    &quot;business_type&quot;: &quot;LIMITED_LIABILITY&quot;
+  }
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="testing-webhooks-1"></div><div class="heading-text">Testing Webhooks</div><a aria-label="Skip link to Testing Webhooks" class="heading-anchor-icon fa fa-regular fa-anchor" href="#testing-webhooks-1"></a></h2>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>Testing Tools</strong>: Use tools like <a href="https://webhook.site">webhook.site</a> or <a href="https://ngrok.com">ngrok</a> to test webhook delivery during development.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="sandbox-webhook-testing"></div><div class="heading-text">Sandbox Webhook Testing</div><a aria-label="Skip link to Sandbox Webhook Testing" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sandbox-webhook-testing"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang=""># Configure webhook in Sandbox
+curl -X PATCH https://sandbox.bakkt.com/merchant \
+  -H &quot;Authorization: SANDBOX_API_KEY&quot; \
+  -d &#x27;{&quot;webhook&quot;: &quot;https://your-ngrok-url.ngrok.io/webhooks&quot;}&#x27;
+
+# Trigger KYC update manually
+curl -X PATCH https://sandbox.bakkt.com/user/kyc/verification \
+  -H &quot;Authorization: SANDBOX_API_KEY&quot; \
+  -H &quot;unblock-session-id: SESSION_ID&quot; \
+  -d &#x27;{&quot;status&quot;: &quot;FULL_USER&quot;}&#x27;
+
+# Check your webhook endpoint for the notification</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="webhook-debugging-checklist"></div><div class="heading-text">Webhook Debugging Checklist</div><a aria-label="Skip link to Webhook Debugging Checklist" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhook-debugging-checklist"></a></h2>
+<p>When webhooks aren&#x27;t being received:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Is webhook URL configured? (Check with <code class="rdmd-code lang- theme-undefined" data-lang="">GET /merchant</code>)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Is webhook URL publicly accessible? (Test with curl)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Is endpoint returning 2xx status codes? (Check logs)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Is signature verification passing? (Log auth header)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Is firewall/WAF blocking requests? (Check network logs)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Is SSL certificate valid? (Bakkt requires valid HTTPS)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""/> <!-- -->Are you checking the right environment? (Sandbox vs Production)</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="webhook-simulation"></div><div class="heading-text">Webhook Simulation</div><a aria-label="Skip link to Webhook Simulation" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhook-simulation"></a></h2>
+<p>Manually test your webhook handler:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang=""># Send test webhook
+curl -X POST https://your-domain.com/webhooks \
+  -H &quot;Authorization: API-Key your_webhook_secret&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;type&quot;: &quot;KYC&quot;,
+    &quot;subType&quot;: &quot;FULL_USER&quot;,
+    &quot;uuid&quot;: &quot;test-user-uuid&quot;,
+    &quot;data&quot;: {
+      &quot;status&quot;: &quot;FULL_USER&quot;,
+      &quot;verificationDate&quot;: &quot;2024-01-15T10:30:00Z&quot;
+    }
+  }&#x27;</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="see-also"></div><div class="heading-text">See Also</div><a aria-label="Skip link to See Also" class="heading-anchor-icon fa fa-regular fa-anchor" href="#see-also"></a></h2>
+<br/>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:auto-fit"><a class="Card Card_card" href="https://docs.bakkt.com/docs/integration#webhooks" target="blank"><i class="Card-icon fa-duotone fa-solid fa-webhook"></i><div class="Card-content"><div class="Card-title">Stablecoin Webhooks<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Transaction webhooks for conversions</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/payments#webhooks-and-status-updates" target="blank"><i class="Card-icon fa-duotone fa-solid fa-webhooks"></i><div class="Card-content"><div class="Card-title">Accounts Webhooks<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Virtual IBAN status webhooks</p></div></a></div>
+<br/>

@@ -1,0 +1,204 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="coming-soon-credit-cards-"></div><div class="heading-text">Coming Soon: Credit Cards 💳</div><a aria-label="Skip link to Coming Soon: Credit Cards 💳" class="heading-anchor-icon fa fa-regular fa-anchor" href="#coming-soon-credit-cards-"></a></h2>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>Preview</strong>: The Accounts API will soon enable credit card issuance backed by Bakkt accounts. Stay tuned!</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="future-endpoints-in-development"></div><div class="heading-text">Future Endpoints (In Development)</div><a aria-label="Skip link to Future Endpoints (In Development)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#future-endpoints-in-development"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Issue virtual or physical card
+POST /user/card
+{
+  &quot;linked_account_uuid&quot;: &quot;bakkt-account-uuid&quot;,
+  &quot;card_type&quot;: &quot;VIRTUAL&quot;,
+  &quot;spending_limit&quot;: 5000,
+  &quot;currency&quot;: &quot;USD&quot;
+}
+
+// Get card details
+GET /user/card/{card_uuid}
+
+// View card transactions
+GET /user/card/{card_uuid}/transactions
+
+// Freeze/unfreeze card
+PATCH /user/card/{card_uuid}/status</code></pre></div></div>
+<p><strong>Use Cases</strong>:</p>
+<ul>
+<li>Virtual cards for online shopping</li>
+<li>Physical cards for everyday spending</li>
+<li>Employee expense cards backed by company accounts</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="coming-soon-high-yield-savings-accounts-"></div><div class="heading-text">Coming Soon: High-Yield Savings Accounts 💰</div><a aria-label="Skip link to Coming Soon: High-Yield Savings Accounts 💰" class="heading-anchor-icon fa fa-regular fa-anchor" href="#coming-soon-high-yield-savings-accounts-"></a></h2>
+<blockquote>
+<p><strong>Note:</strong>
+<strong>Preview</strong>: The Accounts API will soon enable high-yield savings accounts with competitive interest rates. Earn passive income on USD balances!</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="future-endpoints-in-development-1"></div><div class="heading-text">Future Endpoints (In Development)</div><a aria-label="Skip link to Future Endpoints (In Development)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#future-endpoints-in-development-1"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Create savings account
+POST /user/savings-account
+{
+  &quot;linked_account_uuid&quot;: &quot;bakkt-account-uuid&quot;,
+  &quot;currency&quot;: &quot;USD&quot;,
+  &quot;initial_deposit&quot;: 1000
+}
+
+// Get account details and accrued interest
+GET /user/savings-account/{account_uuid}
+
+// View transaction history
+GET /user/savings-account/{account_uuid}/transactions
+
+// View interest payment history
+GET /user/savings-account/{account_uuid}/interest-history</code></pre></div></div>
+<p><strong>Key Features</strong>:</p>
+<ul>
+<li><strong>Interest Rate</strong>: Up to 3.08% APY on USD deposits<!-- -->
+<ul>
+<li><em>Note: Rates are merchant-specific and defined in your contractual relationship</em></li>
+</ul>
+</li>
+<li><strong>Eligibility</strong>: USD only, available exclusively to US residents</li>
+<li><strong>Account Opening</strong>: Same simple process as standard Bakkt account creation</li>
+<li><strong>No Hidden Fees</strong>: Transparent pricing with no account maintenance fees</li>
+</ul>
+<p><strong>Use Cases</strong>:</p>
+<ul>
+<li>Emergency fund savings with competitive returns</li>
+<li>Short-term and long-term savings goals</li>
+<li>Cash reserves earning passive income</li>
+<li>High-yield alternative to traditional checking accounts</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="sandbox-testing"></div><div class="heading-text">Sandbox Testing</div><a aria-label="Skip link to Sandbox Testing" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sandbox-testing"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="simulate-deposits"></div><div class="heading-text">Simulate Deposits</div><a aria-label="Skip link to Simulate Deposits" class="heading-anchor-icon fa fa-regular fa-anchor" href="#simulate-deposits"></a></h3>
+<p>Test money IN flows without real bank transfers:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">POST /user/bank-account/bakkt/{account_uuid}/simulate
+{
+  &quot;value&quot;: 1000
+}</code></pre></div></div>
+<p>Instantly credits €1000 (or account currency) to the Bakkt account.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="test-beneficiary-creation"></div><div class="heading-text">Test Beneficiary Creation</div><a aria-label="Skip link to Test Beneficiary Creation" class="heading-anchor-icon fa fa-regular fa-anchor" href="#test-beneficiary-creation"></a></h3>
+<p>In Sandbox, any valid-format bank details work for supported currencies:</p>
+<ul>
+<li><strong>EUR</strong>: Use any valid IBAN</li>
+<li><strong>GBP</strong>: Use account &quot;12345678&quot;, sort code &quot;123456&quot;</li>
+<li><strong>USD</strong>: Use any valid routing number + account number</li>
+<li><strong>NGN</strong>: Use any valid account number + bank code</li>
+</ul>
+<p>Transactions complete instantly for testing (no real banking delays).</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="best-practices"></div><div class="heading-text">Best Practices</div><a aria-label="Skip link to Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#best-practices"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-setup"></div><div class="heading-text">Account Setup</div><a aria-label="Skip link to Account Setup" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-setup"></a></h3>
+<ul>
+<li>Create accounts in currencies you&#x27;ll operate in<!-- -->
+<ul>
+<li>
+<p>Display account details clearly (IBAN, routing, etc.)</p>
+</li>
+<li>
+<p>Implement balance tracking</p>
+</li>
+<li>
+<p>Generate statements regularly for accounting</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="beneficiary-management"></div><div class="heading-text">Beneficiary Management</div><a aria-label="Skip link to Beneficiary Management" class="heading-anchor-icon fa fa-regular fa-anchor" href="#beneficiary-management"></a></h3>
+<ul>
+<li>Validate bank details before saving (use <code class="rdmd-code lang- theme-undefined" data-lang="">/banks/</code> endpoint)<!-- -->
+<ul>
+<li>
+<p>Save beneficiaries for recurring payments</p>
+</li>
+<li>
+<p>Support all account currencies: EUR, GBP, USD, NGN</p>
+</li>
+<li>
+<p>Double-check account numbers (typos cause payment failures)</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-operations"></div><div class="heading-text">Account Operations</div><a aria-label="Skip link to Account Operations" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-operations"></a></h3>
+<ul>
+<li>Show exchange rates between supported currencies<!-- -->
+<ul>
+<li>
+<p>Display account balances (coming soon)</p>
+</li>
+<li>
+<p>Track transaction history</p>
+</li>
+<li>
+<p>Generate statements for accounting</p>
+</li>
+<li>
+<p>Implement webhooks for real-time updates</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="compliance"></div><div class="heading-text">Compliance</div><a aria-label="Skip link to Compliance" class="heading-anchor-icon fa fa-regular fa-anchor" href="#compliance"></a></h3>
+<ul>
+<li>KYC required for all payment operations<!-- -->
+<ul>
+<li>Enhanced KYC for high-value transactions</li>
+<li>Monitor AML hold status</li>
+<li>Maintain transaction records for auditing</li>
+</ul>
+</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="webhooks"></div><div class="heading-text">Webhooks</div><a aria-label="Skip link to Webhooks" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhooks"></a></h2>
+<p>Subscribe to payment events:</p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">bank_account.created</code> - Account created</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">bank_account.credited</code> - Deposit received</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">bank_account.debited</code> - Payment sent</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">payment.initiated</code> - Outbound payment started</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">payment.completed</code> - Payment settled</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">payment.failed</code> - Payment failed</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">beneficiary.created</code> - New beneficiary added</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="compliance--limits"></div><div class="heading-text">Compliance &amp; Limits</div><a aria-label="Skip link to Compliance &amp; Limits" class="heading-anchor-icon fa fa-regular fa-anchor" href="#compliance--limits"></a></h2>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>KYC Required</strong>: Users must complete KYC before making payments. International transfers require enhanced verification.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="transaction-limits"></div><div class="heading-text">Transaction Limits</div><a aria-label="Skip link to Transaction Limits" class="heading-anchor-icon fa fa-regular fa-anchor" href="#transaction-limits"></a></h3>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>User Status</th><th>Can Transact?</th><th>Limits</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code></td><td>✅ Yes</td><td>Unlimited</td></tr><tr><td>Not <code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code></td><td>❌ No</td><td>KYC required before any transactions</td></tr><tr><td>Corporate</td><td>✅ Yes</td><td>Custom limits (contact sales)</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>KYC is mandatory</strong>: Users must reach <code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code> status (complete KYC verification) before they can make any payments or transfers. There are no transaction limits for verified users.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="holds--review"></div><div class="heading-text">Holds &amp; Review</div><a aria-label="Skip link to Holds &amp; Review" class="heading-anchor-icon fa fa-regular fa-anchor" href="#holds--review"></a></h3>
+<p>Transactions may be held for:</p>
+<ul>
+<li>First-time beneficiary (15-30 min review)</li>
+<li>Large amounts (manual review)</li>
+<li>AML screening triggers</li>
+<li>Unusual patterns</li>
+</ul>
+<p><strong>Status</strong>: <code class="rdmd-code lang- theme-undefined" data-lang="">ON_HOLD_REVIEW</code> - typically resolved within 1-24 hours</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="api-summary"></div><div class="heading-text">API Summary</div><a aria-label="Skip link to API Summary" class="heading-anchor-icon fa fa-regular fa-anchor" href="#api-summary"></a></h2>
+<p><strong>Total Endpoints</strong>: 11 (Virtual IBANs, statements, ACH pull)</p>
+<p><strong>Capabilities</strong>:</p>
+<ul>
+<li>✅ Create Virtual IBANs (EUR, GBP, USD, NGN)</li>
+<li>✅ Custody fiat funds</li>
+<li>✅ Accept deposits (bank transfer, ACH pull via Plaid)</li>
+<li>✅ View transaction history</li>
+<li>✅ Generate account statements</li>
+<li>✅ Send to beneficiaries</li>
+<li>🔜 High-yield savings accounts (coming soon!)</li>
+<li>🔜 Issue credit cards (coming soon!)</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="next-steps"></div><div class="heading-text">Next Steps</div><a aria-label="Skip link to Next Steps" class="heading-anchor-icon fa fa-regular fa-anchor" href="#next-steps"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="bank-accounts"></div><div class="heading-text">Bank Accounts</div><a aria-label="Skip link to Bank Accounts" class="heading-anchor-icon fa fa-regular fa-anchor" href="#bank-accounts"></a></h3>
+<p>Create Virtual IBANs and manage fiat custody</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="payments--transfers"></div><div class="heading-text">Payments &amp; Transfers</div><a aria-label="Skip link to Payments &amp; Transfers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#payments--transfers"></a></h3>
+<p>Manage beneficiaries and money movement</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="view-full-api-reference"></div><div class="heading-text">View Full API Reference</div><a aria-label="Skip link to View Full API Reference" class="heading-anchor-icon fa fa-regular fa-anchor" href="#view-full-api-reference"></a></h3>
+<p>Explore all endpoints with interactive examples</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="stablecoin-api"></div><div class="heading-text">Stablecoin API</div><a aria-label="Skip link to Stablecoin API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#stablecoin-api"></a></h3>
+<p>Convert between fiat and stablecoins</p>

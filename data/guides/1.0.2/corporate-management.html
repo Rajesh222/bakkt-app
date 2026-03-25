@@ -1,0 +1,224 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>Corporate management enables businesses to onboard as entities on the Bakkt platform. This guide covers corporate creation, user management, and KYB (Know Your Business) verification.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="corporate-status-lifecycle"></div><div class="heading-text">Corporate Status Lifecycle</div><a aria-label="Skip link to Corporate Status Lifecycle" class="heading-anchor-icon fa fa-regular fa-anchor" href="#corporate-status-lifecycle"></a></h2>
+<p>Corporate entities progress through KYB (Know Your Business) verification:</p>
+<br/>
+<pre class="mermaid-render mermaid_single">flowchart LR
+    CREATED --&gt; KYB_PENDING --&gt; ACTIVE
+    KYB_PENDING --&gt; REJECTED</pre>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Status</th><th>Description</th><th>Next Steps / Considerations</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">CREATED</code></td><td>Corporate entity successfully created in system</td><td>Obtain the SumSub URL to complete the verification via<code class="rdmd-code lang- theme-undefined" data-lang="">GET /corporate/{corporate_uuid}/kyb/applicant/url</code>) and share it with the Corporate Administrator</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">KYB_PENDING</code></td><td>KYB verification in progress</td><td>KYB verification process may take some time. Keep the Corporate Administrator informed of the pending status</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">ACTIVE</code></td><td>KYB verification successful, fully active</td><td><strong>Only with ACTIVE status entity is allowed to transact</strong></td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">REJECTED</code></td><td>KYB verification rejected by compliance</td><td>Such decisions are generally final, you’re welcome to reach out to our compliance team if you wish to request further clarification or raise an appeal</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="create-corporate-entity"></div><div class="heading-text">Create Corporate Entity</div><a aria-label="Skip link to Create Corporate Entity" class="heading-anchor-icon fa fa-regular fa-anchor" href="#create-corporate-entity"></a></h2>
+<p>Create a new corporate entity on the platform</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="endpoint"></div><div class="heading-text">Endpoint</div><a aria-label="Skip link to Endpoint" class="heading-anchor-icon fa fa-regular fa-anchor" href="#endpoint"></a></h4>
+<a label="POST /corporate" href="https://docs.bakkt.com/reference/post_onboarding-corporate" target="_blank" title="">POST /corporate</a>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="required-fields"></div><div class="heading-text">Required Fields</div><a aria-label="Skip link to Required Fields" class="heading-anchor-icon fa fa-regular fa-anchor" href="#required-fields"></a></h3>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">legal_name</code> Official registered business name</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">type</code> Business structure type</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">contact_details</code> Primary contact information</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">registered_address</code> Legal registered address</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">target_address</code> Ethereum address for crypto operations</li>
+</ul>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="request-example"></div><div class="heading-text">Request Example</div><a aria-label="Skip link to Request Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#request-example"></a></h4>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/corporate&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    legal_name: &#x27;Acme Corporation Ltd&#x27;,
+    type: &#x27;LIMITED_LIABILITY&#x27;,
+    contact_details: {
+      name: &#x27;John Doe&#x27;,
+      email: &#x27;john@acme.com&#x27;,
+      phone: &#x27;+447871556837&#x27;
+    },
+    registered_address: {
+      address_line_1: &#x27;123 Business Street&#x27;,
+      post_code: &#x27;SW1A 1AA&#x27;,
+      city: &#x27;London&#x27;,
+      country: &#x27;GB&#x27;
+    },
+    target_address: &#x27;0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&#x27;,
+    accepted_terms_of_service_hash: &#x27;base64_hash_here&#x27;
+  })
+});
+
+const corporate = await response.json();
+console.log(&#x27;Corporate UUID:&#x27;, corporate.corporate_uuid);
+console.log(&#x27;Status:&#x27;, corporate.status); // &#x27;CREATED&#x27;</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="business-types"></div><div class="heading-text">Business Types</div><a aria-label="Skip link to Business Types" class="heading-anchor-icon fa fa-regular fa-anchor" href="#business-types"></a></h3>
+<p>Supported corporate types:</p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">LIMITED_LIABILITY</code> Limited Liability Company</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">SOLE_TRADER</code> Sole Proprietorship</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PARTNERSHIP</code> Partnership</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PUBLIC_LIMITED_COMPANY</code> Public Limited Company</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">JOINT_STOCK_COMPANY</code> Joint Stock Company</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">CHARITY</code> Charitable Organization</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="update-corporate-details"></div><div class="heading-text">Update Corporate Details</div><a aria-label="Skip link to Update Corporate Details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#update-corporate-details"></a></h2>
+<p>Update corporate entity information and configuration</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="endpoint-1"></div><div class="heading-text">Endpoint</div><a aria-label="Skip link to Endpoint" class="heading-anchor-icon fa fa-regular fa-anchor" href="#endpoint-1"></a></h4>
+<a label="PATCH /corporate" href="https://docs.bakkt.com/reference/patch_onboarding-corporate-corporate-uuid" target="_blank" title="">PATCH /corporate</a>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="request-example-1"></div><div class="heading-text">Request Example</div><a aria-label="Skip link to Request Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#request-example-1"></a></h4>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(`https://api.bakkt.com/corporate/${corporateUuid}`, {
+  method: &#x27;PATCH&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    trading_address: {
+      address_line_1: &#x27;456 Trading Street&#x27;,
+      post_code: &#x27;SW1A 2BB&#x27;,
+      city: &#x27;London&#x27;,
+      country: &#x27;GB&#x27;
+    },
+    target_solana_address: &#x27;3KWxkxHLnxTqg1PMXUljpeFffzYxS7dziqWvJgQNg8dq&#x27;
+  })
+});</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="get-corporate-details"></div><div class="heading-text">Get Corporate Details</div><a aria-label="Skip link to Get Corporate Details" class="heading-anchor-icon fa fa-regular fa-anchor" href="#get-corporate-details"></a></h2>
+<p>Retrieve complete corporate profile and status</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="endpoint-2"></div><div class="heading-text">Endpoint</div><a aria-label="Skip link to Endpoint" class="heading-anchor-icon fa fa-regular fa-anchor" href="#endpoint-2"></a></h4>
+<a label="GET /corporate" href="https://docs.bakkt.com/reference/get_onboarding-corporate-corporate-uuid" target="_blank" title="">GET /corporate</a>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="response-example"></div><div class="heading-text">Response Example</div><a aria-label="Skip link to Response Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#response-example"></a></h4>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;legal_name&quot;: &quot;Acme Corporation Ltd&quot;,
+  &quot;type&quot;: &quot;LIMITED_LIABILITY&quot;,
+  &quot;registration_number&quot;: &quot;12345678&quot;,
+  &quot;contact_details&quot;: {
+    &quot;name&quot;: &quot;John Doe&quot;,
+    &quot;email&quot;: &quot;john@acme.com&quot;,
+    &quot;phone&quot;: &quot;+447871556837&quot;
+  },
+  &quot;registered_address&quot;: { ... },
+  &quot;trading_address&quot;: { ... },
+  &quot;target_address&quot;: &quot;0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&quot;,
+  &quot;status&quot;: &quot;ACTIVE&quot;
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="add-user-to-corporate"></div><div class="heading-text">Add User to Corporate</div><a aria-label="Skip link to Add User to Corporate" class="heading-anchor-icon fa fa-regular fa-anchor" href="#add-user-to-corporate"></a></h2>
+<p>Link an individual user to a corporate entity with a specific role</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="endpoint-3"></div><div class="heading-text">Endpoint</div><a aria-label="Skip link to Endpoint" class="heading-anchor-icon fa fa-regular fa-anchor" href="#endpoint-3"></a></h4>
+<a label="POST /corporate/user" href="https://docs.bakkt.com/reference/post_onboarding-corporate-corporate-uuid-user" target="_blank" title="">POST /corporate/user</a>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="request-example-2"></div><div class="heading-text">Request Example</div><a aria-label="Skip link to Request Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#request-example-2"></a></h4>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(`https://api.bakkt.com/corporate/${corporateUuid}/user`, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    user_uuid: &#x27;user-uuid-here&#x27;,
+    role: &#x27;ADMINISTRATOR&#x27;
+  })
+});</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="available-roles"></div><div class="heading-text">Available Roles</div><a aria-label="Skip link to Available Roles" class="heading-anchor-icon fa fa-regular fa-anchor" href="#available-roles"></a></h3>
+<p>Currently supported role:</p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ADMINISTRATOR</code> Full access to corporate operations</li>
+</ul>
+<blockquote class="callout callout_default" theme="default"><p><strong>Future Roles</strong><br/>
+<!-- -->Additional roles (VIEWER, OPERATOR, etc.) may be added. Check the API reference for the latest supported roles</p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="unlink-user-from-corporate"></div><div class="heading-text">Unlink User from Corporate</div><a aria-label="Skip link to Unlink User from Corporate" class="heading-anchor-icon fa fa-regular fa-anchor" href="#unlink-user-from-corporate"></a></h2>
+<p>Remove a user&#x27;s association with a corporate entity.</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="endpoint-4"></div><div class="heading-text">Endpoint</div><a aria-label="Skip link to Endpoint" class="heading-anchor-icon fa fa-regular fa-anchor" href="#endpoint-4"></a></h4>
+<a label="DELETE /corporate/user" href="https://docs.bakkt.com/reference/delete_onboarding-corporate-corporate-uuid-user-user-uuid" target="_blank" title="">DELETE /corporate/user</a>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="request-example-3"></div><div class="heading-text">Request Example</div><a aria-label="Skip link to Request Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#request-example-3"></a></h4>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(
+  `https://api.bakkt.com/corporate/${corporateUuid}/user/${userUuid}`,
+  {
+    method: &#x27;DELETE&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+      &#x27;unblock-session-id&#x27;: sessionId
+    }
+  }
+);
+
+// Returns 204 No Content on success</code></pre></div></div>
+<blockquote class="callout callout_error" theme="❗️"><span class="callout-icon">❗️</span><p><strong>Admin Required</strong><br/>
+<!-- -->This endpoint can only be called by a user with the <code class="rdmd-code lang- theme-undefined" data-lang="">ADMINISTRATOR</code> role in the specific corporate entity</p></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-corporate-onboarding-workflow"></div><div class="heading-text">Complete Corporate Onboarding Workflow</div><a aria-label="Skip link to Complete Corporate Onboarding Workflow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-corporate-onboarding-workflow"></a></h2>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Step 1: Create corporate entity
+const corporate = await bakkt.createCorporate({
+  legal_name: &#x27;Acme Corporation Ltd&#x27;,
+  type: &#x27;LIMITED_LIABILITY&#x27;,
+  contact_details: {
+    name: &#x27;John Doe&#x27;,
+    email: &#x27;john@acme.com&#x27;,
+    phone: &#x27;+447871556837&#x27;
+  },
+  registered_address: {
+    address_line_1: &#x27;123 Business Street&#x27;,
+    post_code: &#x27;SW1A 1AA&#x27;,
+    city: &#x27;London&#x27;,
+    country: &#x27;GB&#x27;
+  },
+  target_address: &#x27;0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb&#x27;
+});
+
+console.log(&#x27;Corporate created:&#x27;, corporate.corporate_uuid);
+
+// Step 2: Create admin user (if doesn&#x27;t exist)
+const adminUser = await bakkt.createUser({
+  first_name: &#x27;John&#x27;,
+  last_name: &#x27;Doe&#x27;,
+  email: &#x27;john@acme.com&#x27;,
+  country: &#x27;GB&#x27;,
+  target_address: &#x27;0x...&#x27;
+});
+
+// Step 3: Link admin to corporate
+await bakkt.addUserToCorporate(corporate.corporate_uuid, {
+  user_uuid: adminUser.user_uuid,
+  role: &#x27;ADMINISTRATOR&#x27;
+});
+
+// Step 4: Get KYB form URL
+const kybUrl = await bakkt.getKYBFormUrl(corporate.corporate_uuid);
+console.log(&#x27;Send this URL to admin:&#x27;, kybUrl.url);
+
+// Step 5: Admin completes KYB form externally
+// Bakkt sends webhook when KYB is approved
+
+// Step 6: Monitor KYB status via webhook or polling
+webhook.on(&#x27;KYB ACTIVE&#x27;, (data) =&gt; {
+  console.log(&#x27;Corporate is now active!&#x27;);
+  // Corporate can now use all Bakkt services
+});</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="best-practices"></div><div class="heading-text">Best Practices</div><a aria-label="Skip link to Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#best-practices"></a></h2>
+<blockquote class="callout callout_default" theme="🏢"><span class="callout-icon">🏢</span><p>Follow guideline to ensure a smooth corporate creation process.</p><ul>
+<li><strong>Corporate Setup: Require admin user creation first</strong></li>
+</ul><p>Clearly communicate KYB requirements upfront</p><p>Set both registered and trading addresses if different</p><p>Link all relevant users to corporate entity</p><ul>
+<li>
+<p><strong>User Management: Create individual users before linking to corporate</strong></p>
+<p>Assign appropriate roles based on responsibilities</p>
+<p>Document who has admin access for compliance</p>
+<p>Review and audit user access regularly</p>
+</li>
+<li>
+<p><strong>Address Management</strong></p>
+<p><strong>Registered Address:</strong> Legal address on company documents</p>
+<p><strong>Trading Address:</strong> Day-to-day operations address (can be different)</p>
+<p>Both addresses should be complete and accurate for KYB</p>
+</li>
+</ul></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="use-case-multi-corporate-user"></div><div class="heading-text">Use Case: Multi-Corporate User</div><a aria-label="Skip link to Use Case: Multi-Corporate User" class="heading-anchor-icon fa fa-regular fa-anchor" href="#use-case-multi-corporate-user"></a></h2>
+<p>A single user can be linked to multiple corporate entities:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// User is admin for multiple companies
+const user = await bakkt.getUser(sessionId);
+
+console.log(&#x27;Linked corporates:&#x27;, user.linked_corporates_uuid);
+// [&#x27;corp-1-uuid&#x27;, &#x27;corp-2-uuid&#x27;, &#x27;corp-3-uuid&#x27;]
+
+// Switch context by using different corporate_uuid in API calls
+await bakkt.getCorporateDetails(&#x27;corp-1-uuid&#x27;);
+await bakkt.getCorporateDetails(&#x27;corp-2-uuid&#x27;);</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="explore-more"></div><div class="heading-text">Explore More</div><a aria-label="Skip link to Explore More" class="heading-anchor-icon fa fa-regular fa-anchor" href="#explore-more"></a></h2>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:4"><a class="Card Card_card" href="https://docs.bakkt.com/reference/post_onboarding-corporate" target="blank"><i class="Card-icon fa-duotone fa-solid fa-code"></i><div class="Card-content"><div class="Card-title">Corporate Management API Reference<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Full corporate onboarding API documentation</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/business-verification-kyb" target="blank"><i class="Card-icon fa-duotone fa-solid fa-building-circle-check"></i><div class="Card-content"><div class="Card-title">Business Verification (KYB)<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Complete guide to business verification</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/ensuring-legal-agreements-integrity" target="blank"><i class="Card-icon fa-duotone fa-solid fa-hashtag"></i><div class="Card-content"><div class="Card-title">Ensuring Legal Agreements Integrity<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Ensure the integrity for Bakkt Terms and Conditions, Privacy Policy, and Terms of Service</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/webhooks" target="blank"><i class="Card-icon fa-duotone fa-solid fa-webhook"></i><div class="Card-content"><div class="Card-title">Webhooks<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Set up real-time status notifications</p></div></a></div>

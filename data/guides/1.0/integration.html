@@ -1,0 +1,469 @@
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-features"></div><div class="heading-text"><div id="section-supported-features" class="heading-anchor_backwardsCompatibility"></div>Supported Features</div><a aria-label="Skip link to Supported Features" class="heading-anchor-icon fa fa-anchor" href="#supported-features"></a></h2>
+<p>Check available options for crypto operations:</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-countries"></div><div class="heading-text"><div id="section-supported-countries" class="heading-anchor_backwardsCompatibility"></div>Supported Countries</div><a aria-label="Skip link to Supported Countries" class="heading-anchor-icon fa fa-anchor" href="#supported-countries"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">`GET /supported/countries`
+
+List all countries where users can onboard and use crypto services.
+
+**Response includes**:
+- Country code and name
+- Individual support (true/false)
+- Corporate support (true/false)
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-chains"></div><div class="heading-text"><div id="section-supported-chains" class="heading-anchor_backwardsCompatibility"></div>Supported Chains</div><a aria-label="Skip link to Supported Chains" class="heading-anchor-icon fa fa-anchor" href="#supported-chains"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">`GET /supported/chains`
+
+List all blockchain networks available for crypto operations.
+
+**Returns**: `[&quot;polygon&quot;, &quot;ethereum&quot;, &quot;solana&quot;, &quot;base&quot;, &quot;arbitrum&quot;, &quot;optimism&quot;, &quot;celo&quot;, &quot;tron&quot;, &quot;bsc&quot;, &quot;avalanche&quot;]`
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-currencies"></div><div class="heading-text"><div id="section-supported-currencies" class="heading-anchor_backwardsCompatibility"></div>Supported Currencies</div><a aria-label="Skip link to Supported Currencies" class="heading-anchor-icon fa fa-anchor" href="#supported-currencies"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">`GET /supported/currencies`
+
+List all fiat and crypto currencies supported.
+
+**Includes**: Currency name and label for both fiat (EUR, GBP, USD) and crypto (USDC, USDT, etc.)
+</code></pre>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="supported-banks"></div><div class="heading-text"><div id="section-supported-banks" class="heading-anchor_backwardsCompatibility"></div>Supported Banks</div><a aria-label="Skip link to Supported Banks" class="heading-anchor-icon fa fa-anchor" href="#supported-banks"></a></h2>
+<p>Get the list of supported banks for remittance destinations by currency:</p>
+<p><strong>Endpoint:</strong> <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">GET /banks/?currency={currency}</code></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">Bash</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-bash theme-light" data-lang="bash" name="" tabindex="0">GET /banks/?currency=PKR
+</code></pre></div></div>
+<p><strong>Response:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">[
+  {
+    &quot;name&quot;: &quot;Easypaisa&quot;,
+    &quot;code&quot;: &quot;EASYPAISA&quot;,
+    &quot;accountType&quot;: &quot;DW&quot;
+  },
+  {
+    &quot;name&quot;: &quot;National Bank of Pakistan&quot;,
+    &quot;code&quot;: &quot;NBP&quot;,
+    &quot;accountType&quot;: &quot;BA&quot;
+  }
+]
+</code></pre></div></div>
+<p><strong>Account Types:</strong></p>
+<ul>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">BA</code>: Bank Account</li>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">DW</code>: Digital Wallet (e.g., mobile wallets)</li>
+</ul>
+<p><strong>Usage Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// User selects Pakistan as destination
+const banks = await bakkt.getBanks(&#x27;PKR&#x27;);
+
+// Display dropdown of available banks
+banks.forEach(bank =&gt; {
+  console.log(`${bank.name} (${bank.code}) - ${bank.accountType === &#x27;DW&#x27; ? &#x27;Mobile Wallet&#x27; : &#x27;Bank Account&#x27;}`);
+});
+
+// User selects bank
+const selectedBank = banks.find(b =&gt; b.code === &#x27;EASYPAISA&#x27;);
+// Use this bank_code when creating beneficiary
+</code></pre></div></div>
+<!-- -->
+  **Cache bank lists** for 24+ hours - they&#x27;re stable reference data and rarely change.
+<!-- -->
+<p><strong>Use these to</strong>:</p>
+<ul>
+<li>Build dynamic UI showing available options</li>
+<li>Validate user selections before API calls</li>
+<li>Display supported chains/currencies to users</li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Check if user&#x27;s country is supported
+const countries = await bakkt.onofframp.getSupportedCountries();
+const userCountry = countries.find(c =&gt; c.country_code === &#x27;NG&#x27;);
+
+if (userCountry.is_individual_supported) {
+  console.log(&#x27;Nigeria is supported for individuals ✓&#x27;);
+}
+
+// Get available chains for wallet creation
+const chains = await bakkt.onofframp.getSupportedChains();
+console.log(&#x27;Available chains:&#x27;, chains);
+// [&quot;polygon&quot;, &quot;ethereum&quot;, &quot;solana&quot;, ...]
+</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="transaction-monitoring"></div><div class="heading-text"><div id="section-transaction-monitoring" class="heading-anchor_backwardsCompatibility"></div>Transaction Monitoring</div><a aria-label="Skip link to Transaction Monitoring" class="heading-anchor-icon fa fa-anchor" href="#transaction-monitoring"></a></h2>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="get-transaction-history"></div><div class="heading-text"><div id="section-get-transaction-history" class="heading-anchor_backwardsCompatibility"></div>Get Transaction History</div><a aria-label="Skip link to Get Transaction History" class="heading-anchor-icon fa fa-anchor" href="#get-transaction-history"></a></h3>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="get-usertransactions"></div><div class="heading-text"><div id="section-get-user-transactions" class="heading-anchor_backwardsCompatibility"></div>GET /user/transactions</div><a aria-label="Skip link to GET /user/transactions" class="heading-anchor-icon fa fa-anchor" href="#get-usertransactions"></a></h3>
+<p>  <strong>View all user transactions</strong></p>
+<p>  Returns complete history of conversions with status, amounts, and transaction IDs.</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="get-detailed-transaction-status"></div><div class="heading-text"><div id="section-get-detailed-transaction-status" class="heading-anchor_backwardsCompatibility"></div>Get Detailed Transaction Status</div><a aria-label="Skip link to Get Detailed Transaction Status" class="heading-anchor-icon fa fa-anchor" href="#get-detailed-transaction-status"></a></h3>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="get-process"></div><div class="heading-text"><div id="section-get-process" class="heading-anchor_backwardsCompatibility"></div>GET /process/</div><a aria-label="Skip link to GET /process/" class="heading-anchor-icon fa fa-anchor" href="#get-process"></a></h3>
+<p>  <strong>Look up transaction details by process UUID</strong></p>
+<p>  Get complete status information for any crypto conversion transaction.</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">Bash</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-bash theme-light" data-lang="bash" name="" tabindex="0">GET /process/?process_uuid=5594401c-0072-4df2-be9c-d491c0754c21
+</code></pre></div></div>
+<p>  <strong>Response</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;status&quot;: &quot;PROCESS_COMPLETED&quot;,
+  &quot;direction&quot;: &quot;cryptoToFiat&quot;,
+  &quot;input&quot;: {
+    &quot;amount&quot;: 1000,
+    &quot;currency&quot;: &quot;USDC&quot;,
+    &quot;transaction_id&quot;: &quot;0xabc...&quot;
+  },
+  &quot;output&quot;: {
+    &quot;amount&quot;: 950,
+    &quot;currency&quot;: &quot;EUR&quot;,
+    &quot;transaction_id&quot;: &quot;iban-transfer-uuid&quot;
+  }
+}
+</code></pre></div></div>
+<p>Use process UUID from webhooks to query detailed transaction information.</p>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="transaction-statuses"></div><div class="heading-text"><div id="section-transaction-statuses" class="heading-anchor_backwardsCompatibility"></div>Transaction Statuses</div><a aria-label="Skip link to Transaction Statuses" class="heading-anchor-icon fa fa-anchor" href="#transaction-statuses"></a></h2>
+<p>Track your conversion transactions through these statuses:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Status</th><th>Meaning</th><th>Next Step</th></tr></thead><tbody><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">CRYPTO_TRANSFER_ISSUED</code></td><td>Crypto deposit detected</td><td>Wait for confirmations</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">CRYPTO_TRANSFER_COMPLETED</code></td><td>Crypto confirmed on-chain</td><td>Conversion starting</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">WAITING_FOR_FINALITY</code></td><td>Waiting for block finality</td><td>Automatic</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">FINALITY_REACHED</code></td><td>Safe to convert</td><td>Conversion in progress</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">IBAN_TRANSFER_ISSUED</code></td><td>Fiat transfer initiated</td><td>Wait for bank</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">PROCESS_COMPLETED</code></td><td>✅ Complete</td><td>Fiat in bank account</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ON_HOLD_KYC</code></td><td>KYC required</td><td>Complete KYC</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">PROCESS_BLOCKED</code></td><td>Manual review needed</td><td>Contact support</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Warning:</strong><br/>
+Transactions can be held if KYC is incomplete or if they trigger AML checks. Ensure users complete KYC before transacting.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="webhooks"></div><div class="heading-text"><div id="section-webhooks" class="heading-anchor_backwardsCompatibility"></div>Webhooks</div><a aria-label="Skip link to Webhooks" class="heading-anchor-icon fa fa-anchor" href="#webhooks"></a></h2>
+<p>Receive real-time updates on crypto-fiat conversion transactions and bank account statuses.</p>
+<blockquote>
+<p><strong>Note:</strong><br/>
+<strong>Webhook Setup</strong>: Configure your webhook URL and secret using the <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">PATCH /merchant</code> endpoint. See the <a href="/guides/onboarding#webhooks" target="" title="">Onboarding guide</a> for setup instructions.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="fiat-to-crypto-webhooks"></div><div class="heading-text"><div id="section-fiat-to-crypto-webhooks" class="heading-anchor_backwardsCompatibility"></div>Fiat-to-Crypto Webhooks</div><a aria-label="Skip link to Fiat-to-Crypto Webhooks" class="heading-anchor-icon fa fa-anchor" href="#fiat-to-crypto-webhooks"></a></h3>
+<p>Receive updates when users convert fiat to crypto:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Event Type</th><th>subType</th><th>Description</th></tr></thead><tbody><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">PENDING</code></td><td>Transaction created, awaiting processing</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">IN_PROGRESS</code></td><td>Fiat received, processing crypto transfer</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">CRYPTO_TRANSFER_ISSUED</code></td><td>Crypto sent to network (includes <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">transactionHash</code>)</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">SUCCESS</code></td><td>Transaction complete</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ON_HOLD</code></td><td>Held for KYC or AML review</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">FAILED</code></td><td>Transaction failed</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">fiatToCrypto</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">REFUNDED</code></td><td>Transaction refunded to customer</td></tr></tbody></table></div></div>
+<p><strong>Example Payload:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;type&quot;: &quot;fiatToCrypto&quot;,
+  &quot;subType&quot;: &quot;SUCCESS&quot;,
+  &quot;uuid&quot;: &quot;user-uuid&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;SUCCESS&quot;,
+    &quot;transactionUuid&quot;: &quot;txn-uuid&quot;,
+    &quot;direction&quot;: &quot;fiatToCrypto&quot;,
+    &quot;amountFiat&quot;: 100.00,
+    &quot;amountCrypto&quot;: 100.5,
+    &quot;currencyFiat&quot;: &quot;EUR&quot;,
+    &quot;currencyCrypto&quot;: &quot;USDC&quot;,
+    &quot;walletAddress&quot;: &quot;0x...&quot;,
+    &quot;transactionHash&quot;: &quot;0x...&quot;,
+    &quot;fees&quot;: 1.5
+  }
+}
+</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="crypto-to-fiat-webhooks"></div><div class="heading-text"><div id="section-crypto-to-fiat-webhooks" class="heading-anchor_backwardsCompatibility"></div>Crypto-to-Fiat Webhooks</div><a aria-label="Skip link to Crypto-to-Fiat Webhooks" class="heading-anchor-icon fa fa-anchor" href="#crypto-to-fiat-webhooks"></a></h3>
+<p>Receive updates when users convert crypto to fiat:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Event Type</th><th>subType</th><th>Description</th></tr></thead><tbody><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">PENDING</code></td><td>Transaction created</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">IN_PROGRESS</code></td><td>Crypto received, processing fiat transfer</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">FIAT_TRANSFER_ISSUED</code></td><td>Fiat transfer initiated (includes <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">amountFiat</code>)</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">SUCCESS</code></td><td>Fiat delivered to bank account</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ON_HOLD</code></td><td>Held for KYC or AML review</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">FAILED</code></td><td>Transaction failed</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">LIMIT_BREACHED</code></td><td>Amount below minimum (no transaction created)</td></tr><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">cryptoToFiat</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">REFUNDED</code></td><td>Transaction refunded to customer</td></tr></tbody></table></div></div>
+<p><strong>Example Payload:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;type&quot;: &quot;cryptoToFiat&quot;,
+  &quot;subType&quot;: &quot;SUCCESS&quot;,
+  &quot;uuid&quot;: &quot;user-uuid&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;SUCCESS&quot;,
+    &quot;transactionUuid&quot;: &quot;txn-uuid&quot;,
+    &quot;direction&quot;: &quot;cryptoToFiat&quot;,
+    &quot;amountCrypto&quot;: 100.5,
+    &quot;amountFiat&quot;: 98.00,
+    &quot;currencyCrypto&quot;: &quot;USDC&quot;,
+    &quot;currencyFiat&quot;: &quot;EUR&quot;,
+    &quot;transactionHash&quot;: &quot;0x...&quot;,
+    &quot;remoteBankAccountUuid&quot;: &quot;bank-uuid&quot;,
+    &quot;chain&quot;: &quot;Polygon&quot;,
+    &quot;fees&quot;: 2.5,
+    &quot;beneficiaryDetails&quot;: {
+      &quot;receiverName&quot;: &quot;John Doe&quot;,
+      &quot;accountDetails&quot;: {
+        &quot;iban&quot;: &quot;DE89...&quot;,
+        &quot;bic&quot;: &quot;DEUTDEFF&quot;,
+        &quot;account_name&quot;: &quot;ALIAS&quot;
+      }
+    }
+  }
+}
+</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="bank-account-status-webhooks"></div><div class="heading-text"><div id="section-bank-account-status-webhooks" class="heading-anchor_backwardsCompatibility"></div>Bank Account Status Webhooks</div><a aria-label="Skip link to Bank Account Status Webhooks" class="heading-anchor-icon fa fa-anchor" href="#bank-account-status-webhooks"></a></h3>
+<p>Receive updates on Bakkt-managed bank account (ledger) creation:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Event Type</th><th>subType</th><th>Description</th></tr></thead><tbody><tr><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">unblockBankAccount</code></td><td><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">statusUpdate</code></td><td>Ledger status changed (check <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">data.status</code>)</td></tr></tbody></table></div></div>
+<p><strong>Possible ledger statuses:</strong></p>
+<ul>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">WAITING_CREATION</code> - Ledger creation in progress</li>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ACTIVE</code> - Ledger ready to receive deposits</li>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">FAILED_CREATION</code> - Ledger creation failed (check <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">error</code>)</li>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">DISABLED</code> - Ledger disabled</li>
+</ul>
+<p><strong>Example Payload:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;type&quot;: &quot;unblockBankAccount&quot;,
+  &quot;subType&quot;: &quot;statusUpdate&quot;,
+  &quot;uuid&quot;: &quot;user-uuid&quot;,
+  &quot;data&quot;: {
+    &quot;uuid&quot;: &quot;ledger-uuid&quot;,
+    &quot;currency&quot;: &quot;EUR&quot;,
+    &quot;bank_country&quot;: &quot;DE&quot;,
+    &quot;iban&quot;: &quot;DE89...&quot;,
+    &quot;bic&quot;: &quot;DEUTDEFF&quot;,
+    &quot;status&quot;: &quot;ACTIVE&quot;
+  }
+}
+</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="transaction-hold-reasons"></div><div class="heading-text"><div id="section-transaction-hold-reasons" class="heading-anchor_backwardsCompatibility"></div>Transaction Hold Reasons</div><a aria-label="Skip link to Transaction Hold Reasons" class="heading-anchor-icon fa fa-anchor" href="#transaction-hold-reasons"></a></h3>
+<p>When <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">subType</code> is <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ON_HOLD</code>, check <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">data.status</code> for the specific reason:</p>
+<ul>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ON_HOLD_KYC</code> - User needs to complete KYC verification</li>
+<li><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">ON_HOLD_PROCESS</code> - Transaction under AML review (typically 1-24 hours)</li>
+</ul>
+<p>Once the hold is cleared, the transaction will automatically resume processing.</p>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="query-parameters"></div><div class="heading-text"><div id="section-query-parameters" class="heading-anchor_backwardsCompatibility"></div>Query Parameters</div><a aria-label="Skip link to Query Parameters" class="heading-anchor-icon fa fa-anchor" href="#query-parameters"></a></h2>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="wallet-endpoint-query-params"></div><div class="heading-text"><div id="section-wallet-endpoint-query-params" class="heading-anchor_backwardsCompatibility"></div>Wallet Endpoint Query Params</div><a aria-label="Skip link to Wallet Endpoint Query Params" class="heading-anchor-icon fa fa-anchor" href="#wallet-endpoint-query-params"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">Bash</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-bash theme-light" data-lang="bash" name="" tabindex="0">GET /user/wallet/polygon?remote_bank_account_uuid=abc-123
+</code></pre></div></div>
+<p><strong><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">remote_bank_account_uuid</code></strong> (optional): Link wallet to specific destination account for automatic routing.</p>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="fee-calculator"></div><div class="heading-text"><div id="section-fee-calculator" class="heading-anchor_backwardsCompatibility"></div>Fee Calculator</div><a aria-label="Skip link to Fee Calculator" class="heading-anchor-icon fa fa-anchor" href="#fee-calculator"></a></h2>
+<p>Calculate exact fees for crypto conversion operations:</p>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="get-fees"></div><div class="heading-text"><div id="section-get-fees" class="heading-anchor_backwardsCompatibility"></div>GET /fees/</div><a aria-label="Skip link to GET /fees/" class="heading-anchor-icon fa fa-anchor" href="#get-fees"></a></h3>
+<p>  <strong>Calculate conversion fees</strong></p>
+<p>  Get detailed fee breakdown for any crypto-to-fiat or fiat-to-crypto conversion.</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">Bash</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-bash theme-light" data-lang="bash" name="" tabindex="0">GET /fees/?payment_method=bank_transfer&amp;direction=cryptoToFiat&amp;input_currency=USDC&amp;output_currency=EUR&amp;amount=1000
+</code></pre></div></div>
+<p>  <strong>Response</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JSON</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-json theme-light" data-lang="json" name="" tabindex="0">{
+  &quot;unblock_fee&quot;: 0.005,
+  &quot;merchant_fee&quot;: {
+    &quot;type&quot;: &quot;add&quot;,
+    &quot;amount&quot;: 0.002
+  },
+  &quot;total_fee_percentage&quot;: 0.007
+}
+</code></pre></div></div>
+<p><strong>Example Usage</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">JavaScript</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-javascript theme-light" data-lang="javascript" name="" tabindex="0">// Calculate fees before conversion
+const fees = await bakkt.onofframp.calculateFees({
+  payment_method: &#x27;bank_transfer&#x27;,
+  direction: &#x27;cryptoToFiat&#x27;,
+  input_currency: &#x27;USDC&#x27;,
+  output_currency: &#x27;EUR&#x27;,
+  amount: 1000
+});
+
+const outputAmount = 1000 * (1 - fees.total_fee_percentage);
+console.log(`Convert 1000 USDC → Receive ${outputAmount.toFixed(2)} EUR after fees`);
+</code></pre></div></div>
+<!-- -->
+  Use `GET /fees/` endpoint to calculate exact fees for specific amounts before initiating transfers.
+<!-- -->
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="best-practices"></div><div class="heading-text"><div id="section-best-practices" class="heading-anchor_backwardsCompatibility"></div>Best Practices</div><a aria-label="Skip link to Best Practices" class="heading-anchor-icon fa fa-anchor" href="#best-practices"></a></h2>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="destination-account-setup"></div><div class="heading-text"><div id="section-destination-account-setup" class="heading-anchor_backwardsCompatibility"></div>Destination Account Setup</div><a aria-label="Skip link to Destination Account Setup" class="heading-anchor-icon fa fa-anchor" href="#destination-account-setup"></a></h3>
+<ul>
+<li>Add destination account before user sends crypto
+<ul>
+<li>Verify bank details are correct (typos cause payment failures)</li>
+<li>Set <button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">main_beneficiary: true</code> for primary account</li>
+<li>For INR/PKR, customer_details are mandatory</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="wallet-address-management"></div><div class="heading-text"><div id="section-wallet-address-management" class="heading-anchor_backwardsCompatibility"></div>Wallet Address Management</div><a aria-label="Skip link to Wallet Address Management" class="heading-anchor-icon fa fa-anchor" href="#wallet-address-management"></a></h3>
+<ul>
+<li>Display clear instructions on which tokens are supported
+<ul>
+<li>Show minimum deposit amounts</li>
+<li>For Solana, warn about rent-exempt requirement</li>
+<li>Provide transaction hash for user tracking</li>
+</ul>
+</li>
+</ul>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="transaction-monitoring-1"></div><div class="heading-text"><div id="section-transaction-monitoring" class="heading-anchor_backwardsCompatibility"></div>Transaction Monitoring</div><a aria-label="Skip link to Transaction Monitoring" class="heading-anchor-icon fa fa-anchor" href="#transaction-monitoring-1"></a></h3>
+<ul>
+<li>Implement webhook handlers for all transaction statuses
+<ul>
+<li>Show real-time status updates to users</li>
+<li>Provide estimated settlement times</li>
+<li>Handle edge cases (holds, failures, refunds)</li>
+</ul>
+</li>
+</ul>
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="sandbox-testing"></div><div class="heading-text"><div id="section-sandbox-testing" class="heading-anchor_backwardsCompatibility"></div>Sandbox Testing</div><a aria-label="Skip link to Sandbox Testing" class="heading-anchor-icon fa fa-anchor" href="#sandbox-testing"></a></h2>
+<div class="CodeTabs CodeTabs_initial theme-light"><div class="CodeTabs-toolbar" role="tablist"><button aria-selected="true" class="CodeTabs_active" role="tab" type="button">Bash</button></div><div class="CodeTabs-inner" role="tabpanel"><pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang-bash theme-light" data-lang="bash" name="" tabindex="0"># Test wallet creation (all chains available)
+GET /user/wallet/polygon
+GET /user/wallet/solana
+GET /user/wallet/base
+
+# Test destination account creation
+POST /user/bank-account/remote
+# Returns immediately with receiving_address
+
+# Simulate crypto deposit (contact support for testnet tokens)
+</code></pre></div></div>
+<!-- -->
+  In Sandbox, you can request testnet tokens from support to fully test the offramp flow.
+<!-- -->
+<h2 class="heading heading-2 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="next-steps"></div><div class="heading-text"><div id="section-next-steps" class="heading-anchor_backwardsCompatibility"></div>Next Steps</div><a aria-label="Skip link to Next Steps" class="heading-anchor-icon fa fa-anchor" href="#next-steps"></a></h2>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="view-full-api-reference"></div><div class="heading-text"><div id="section-view-full-api-reference" class="heading-anchor_backwardsCompatibility"></div>View Full API Reference</div><a aria-label="Skip link to View Full API Reference" class="heading-anchor-icon fa fa-anchor" href="#view-full-api-reference"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Explore all 9 endpoints with interactive examples
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="accounts-api"></div><div class="heading-text"><div id="section-accounts-api" class="heading-anchor_backwardsCompatibility"></div>Accounts API</div><a aria-label="Skip link to Accounts API" class="heading-anchor-icon fa fa-anchor" href="#accounts-api"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Send money to third-party beneficiaries internationally
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="transaction-status-guide"></div><div class="heading-text"><div id="section-transaction-status-guide" class="heading-anchor_backwardsCompatibility"></div>Transaction Status Guide</div><a aria-label="Skip link to Transaction Status Guide" class="heading-anchor-icon fa fa-anchor" href="#transaction-status-guide"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Understand all possible transaction statuses (coming soon)
+</code></pre>
+<h3 class="heading heading-3 header-scroll" align=""><div class="heading-anchor anchor waypoint" id="webhook-integration"></div><div class="heading-text"><div id="section-webhook-integration" class="heading-anchor_backwardsCompatibility"></div>Webhook Integration</div><a aria-label="Skip link to Webhook Integration" class="heading-anchor-icon fa fa-anchor" href="#webhook-integration"></a></h3>
+<pre><button aria-label="Copy Code" class="rdmd-code-copy fa"></button><code class="rdmd-code lang- theme-light" data-lang="" name="" tabindex="0">Set up real-time transaction notifications (coming soon)
+</code></pre>

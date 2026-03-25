@@ -1,0 +1,166 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="-feature-2-off-ramp-stablecoin-to-fiat"></div><div class="heading-text">💰 Feature 2: Off-Ramp (Stablecoin to Fiat)</div><a aria-label="Skip link to 💰 Feature 2: Off-Ramp (Stablecoin to Fiat)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#-feature-2-off-ramp-stablecoin-to-fiat"></a></h2>
+<p>Send stablecoin and receive fiat in a bank account. Two approaches: First Party or Third Party.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="first-party-off-ramp-receive-in-own-va"></div><div class="heading-text">First Party Off-Ramp (Receive in Own VA)</div><a aria-label="Skip link to First Party Off-Ramp (Receive in Own VA)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#first-party-off-ramp-receive-in-own-va"></a></h3>
+<p>User receives fiat in their <strong>own Accounts API Virtual IBAN</strong>.</p>
+<p><strong>Why use this:</strong></p>
+<ul>
+<li>User wants fiat in Bakkt custody</li>
+<li>Compliance - fiat in user&#x27;s own name</li>
+<li>Can use fiat for other Bakkt services</li>
+</ul>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>✅ Accounts API Virtual IBAN in user&#x27;s name</li>
+<li>✅ Link VA as beneficiary in On/Off Ramp</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> This section includes a sequence diagram showing the workflow. Refer to the original documentation for the visual diagram.</p>
+</blockquote>
+<p><strong>User Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Prerequisites: User has Accounts API Virtual IBAN
+
+// 1. Add own VA as beneficiary in On/Off Ramp
+const beneficiary = await fetch(&#x27;https://api.bakkt.com/user/bank-account/remote&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;unblock-session-id&#x27;: sessionId
+  },
+  body: JSON.stringify({
+    account_name: &#x27;My Bakkt Account&#x27;,
+    main_beneficiary: true,
+    account_details: {
+      currency: &#x27;EUR&#x27;,
+      iban: paymentsVA.iban  // IBAN from Accounts API
+    }
+  })
+});
+
+// 2. Get wallet address
+const wallet = await fetch(&#x27;https://api.bakkt.com/user/wallet/polygon&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;user-uuid&#x27;: userUuid
+  }
+});
+
+// 3. User sends USDC to wallet address
+// → Auto-converts to EUR
+// → EUR sent to user&#x27;s own Payments VA
+// → User can hold, withdraw, or use for other services</code></pre></div></div>
+<p><strong>Corporate Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Link corporate&#x27;s Payments VA as beneficiary
+POST /corporate/{corporate_uuid}/bank-account/remote
+{
+  &quot;account_name&quot;: &quot;Corporate Treasury Account&quot;,
+  &quot;account_details&quot;: {
+    &quot;currency&quot;: &quot;EUR&quot;,
+    &quot;iban&quot;: &quot;{corporate_payments_va_iban}&quot;
+  }
+}
+
+// 2. Get corporate wallet
+GET /corporate/{corporate_uuid}/wallet/polygon
+
+// Corporate sends crypto → Fiat to own VA</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="third-party-off-ramp-send-to-any-bank"></div><div class="heading-text">Third Party Off-Ramp (Send to Any Bank)</div><a aria-label="Skip link to Third Party Off-Ramp (Send to Any Bank)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#third-party-off-ramp-send-to-any-bank"></a></h3>
+<p>Send fiat to <strong>any external bank account</strong> - no Accounts API needed.</p>
+<p><strong>Why use this:</strong></p>
+<ul>
+<li>Paying suppliers or partners</li>
+<li>Remittance to family/friends</li>
+<li>No need for recipient to have Bakkt account</li>
+</ul>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>✅ External bank account details only</li>
+<li>❌ Does NOT require Accounts API</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> This section includes a sequence diagram showing the workflow. Refer to the original documentation for the visual diagram.</p>
+</blockquote>
+<p><strong>User Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// No Accounts API needed for third party!
+
+// 1. Add external beneficiary bank account
+const beneficiary = await fetch(&#x27;https://api.bakkt.com/user/bank-account/remote&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;unblock-session-id&#x27;: sessionId
+  },
+  body: JSON.stringify({
+    account_name: &#x27;Supplier Payment&#x27;,
+    main_beneficiary: false,
+    account_details: {
+      currency: &#x27;EUR&#x27;,
+      iban: &#x27;FR1420041010050500013M02606&#x27;  // Any external IBAN
+    }
+  })
+});
+
+// 2. Get wallet address
+const wallet = await fetch(&#x27;https://api.bakkt.com/user/wallet/polygon&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;user-uuid&#x27;: userUuid
+  }
+});
+
+// 3. User sends USDC to wallet
+// → Auto-converts to EUR
+// → EUR sent to external bank account</code></pre></div></div>
+<p><strong>Corporate Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Pay suppliers without Accounts API
+
+POST /corporate/{corporate_uuid}/bank-account/remote
+{
+  &quot;account_name&quot;: &quot;Supplier ABC&quot;,
+  &quot;account_details&quot;: {
+    &quot;currency&quot;: &quot;USD&quot;,
+    &quot;account_number&quot;: &quot;123456789&quot;,
+    &quot;bank_code&quot;: &quot;026009593&quot;,
+    &quot;bank_name&quot;: &quot;Bank of America&quot;
+  }
+}</code></pre></div></div>
+<blockquote>
+<p><strong>Warning:</strong>
+<strong>Key Difference</strong>:</p>
+</blockquote>
+<ul>
+<li><strong>First Party</strong>: Requires Accounts API VA (fiat stays in Bakkt ecosystem)</li>
+<li><strong>Third Party</strong>: Standalone (fiat leaves to external account)</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-offramp-example"></div><div class="heading-text">Complete Offramp Example</div><a aria-label="Skip link to Complete Offramp Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-offramp-example"></a></h2>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Step 1: Add destination bank account
+const bankAccount = await bakkt.addDestinationAccount(sessionId, {
+  account_name: &#x27;My Main Account&#x27;,
+  main_beneficiary: true,
+  account_details: {
+    currency: &#x27;EUR&#x27;,
+    iban: &#x27;DE89370400440532013000&#x27;
+  }
+});
+
+console.log(&#x27;Bank account UUID:&#x27;, bankAccount.uuid);
+console.log(&#x27;Crypto receiving address:&#x27;, bankAccount.receiving_address);
+
+// Step 2: Get wallet address (optional - can use receiving_address above)
+const wallets = await bakkt.getWallet(sessionId, &#x27;polygon&#x27;);
+console.log(&#x27;General wallet:&#x27;, wallets[0].address);
+
+// Step 3: User sends crypto to receiving_address
+// (Happens in user&#x27;s wallet app)
+
+// Step 4: Monitor transaction
+webhook.on(&#x27;PROCESS_COMPLETED&#x27;, (data) =&gt; {
+  if (data.direction === &#x27;cryptoToFiat&#x27;) {
+    console.log(&#x27;Offramp complete!&#x27;);
+    console.log(`${data.input.amount} ${data.input.currency} converted to`);
+    console.log(`${data.output.amount} ${data.output.currency}`);
+    console.log(&#x27;Fiat sent to bank account&#x27;);
+  }
+});</code></pre></div></div>

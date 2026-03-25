@@ -1,0 +1,64 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BakktX - Crypto Exchange API",
+    "version": "2.0.0",
+    "description": "## 🚀 Coming Soon\n\nBakktX API documentation is currently being migrated to this platform. This institutional-grade crypto trading platform provides:\n\n- **Spot Trading**: Market and limit orders for BTC, ETH, and other digital assets\n- **Order Management**: Submit, track, and cancel orders with real-time updates\n- **Position Tracking**: View crypto holdings and balances\n- **Settlement & Custody**: Secure crypto deposits and withdrawals\n- **Institutional Liquidity**: Access to deep liquidity pools and competitive pricing\n\n### Current Documentation\n\nWhile we complete the migration, the full BakktX API documentation is available at:\n\n**[https://bakkt.readme.io/reference/submitorder](https://bakkt.readme.io/reference/submitorder)**\n\n### Key Features\n\n- High-volume institutional trading\n- Sub-second order execution\n- 99.9% uptime SLA\n- Comprehensive KYB workflows\n- White-label exchange capabilities\n\n### Getting Started\n\nFor access to BakktX:\n\n- **Sales & Onboarding**: sales@bakkt.com\n- **Technical Support**: api-support@bakkt.com\n- **Current API Docs**: [bakkt.readme.io](https://bakkt.readme.io)\n\n### Migration Timeline\n\nComplete API reference documentation will be available on this platform in **Q1 2025**.\n\nStay tuned for updates! 🚀",
+    "contact": {
+      "name": "Bakkt Sales",
+      "url": "https://bakkt.com",
+      "email": "sales@bakkt.com"
+    },
+    "x-logo": {
+      "url": "https://bakkt.com/hubfs/BrandReveal_BlogOG.png"
+    }
+  },
+  "servers": [
+    {
+      "url": "/mock/bakktx/1.0"
+    }
+  ],
+  "paths": {
+    "/status": {
+      "get": {
+        "tags": [
+          "Introduction"
+        ],
+        "summary": "API Status - Coming Soon",
+        "description": "This endpoint is a placeholder. BakktX API documentation is being migrated. Visit https://bakkt.readme.io for current documentation.",
+        "operationId": "getStatus",
+        "responses": {
+          "200": {
+            "description": "Coming Soon",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Coming Soon - Documentation Migration in Progress"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BakktX API documentation is being migrated. Visit https://bakkt.readme.io for current documentation."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  },
+  "tags": [
+    {
+      "name": "Introduction",
+      "description": "BakktX API documentation is coming soon. Visit https://bakkt.readme.io for current documentation."
+    }
+  ]
+}

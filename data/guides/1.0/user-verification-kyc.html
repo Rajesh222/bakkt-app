@@ -1,0 +1,434 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="overview"></div><div class="heading-text">Overview</div><a aria-label="Skip link to Overview" class="heading-anchor-icon fa fa-regular fa-anchor" href="#overview"></a></h2>
+<p>User verification is required before they can transact on the platform. Bakkt uses Sumsub for individual users identity verification to ensure regulatory compliance and platform security. This guide shares the KYC flows&#x27; details, integration levels, statuses, and API endpoints relevant to individual user verification.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="kyc-process-flow"></div><div class="heading-text">KYC Process Flow</div><a aria-label="Skip link to KYC Process Flow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyc-process-flow"></a></h2>
+<pre class="mermaid-render mermaid_single">sequenceDiagram
+    participant User
+    participant App
+    participant Bakkt
+    participant Sumsub
+
+    App-&gt;&gt;Bakkt: POST /user/kyc/applicant
+    Bakkt--&gt;&gt;App: Applicant created
+    App-&gt;&gt;Bakkt: GET /user/kyc/applicant/token
+    Bakkt-&gt;&gt;Sumsub: Generate token
+    Sumsub--&gt;&gt;Bakkt: Token
+    Bakkt--&gt;&gt;App: Sumsub token
+    App-&gt;&gt;User: Show Sumsub Web SDK
+    User-&gt;&gt;Sumsub: Upload documents
+    Sumsub-&gt;&gt;Bakkt: Verification complete
+    Bakkt-&gt;&gt;App: Webhook: KYC status update</pre>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-1-create-kyc-application"></div><div class="heading-text">Step 1: Create KYC Application</div><a aria-label="Skip link to Step 1: Create KYC Application" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-1-create-kyc-application"></a></h3>
+<p>Initialize the KYC process for a user</p>
+<p><strong>Endpoint:</strong> <a label="POST /user/kyc/applicant" href="https://docs.bakkt.com/reference/post_onboarding-user-kyc-applicant" target="_blank" title="">POST /user/kyc/applicant</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/user/kyc/applicant&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    address: {
+      address_line_1: &#x27;123 Main Street&#x27;,
+      post_code: &#x27;SW1A 1AA&#x27;,
+      city: &#x27;London&#x27;,
+      country: &#x27;GB&#x27;
+    },
+    date_of_birth: &#x27;1990-05-15&#x27;,
+    source_of_funds: &#x27;SALARY&#x27;
+  })
+});
+
+// Returns 204 No Content - application created</code></pre></div></div>
+<p><strong>Source of Funds Options:</strong></p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">SALARY</code> - Employment income</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">BUSINESS_INCOME</code> - Self-employed/business revenue</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PENSION</code> - Retirement income</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">OTHER</code> - Other legitimate sources</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-2-get-sumsub-token"></div><div class="heading-text">Step 2: Get Sumsub Token</div><a aria-label="Skip link to Step 2: Get Sumsub Token" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-2-get-sumsub-token"></a></h3>
+<p>Get a token to initialize the Sumsub Web SDK for document collection</p>
+<p><strong>Endpoint:</strong> <a label="GET /user/kyc/applicant/token" href="https://docs.bakkt.com/reference/get_onboarding-user-kyc-applicant-token" target="_blank" title="">GET /user/kyc/applicant/token</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/user/kyc/applicant/token&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId
+  }
+});
+
+const data = await response.json();
+console.log(&#x27;Sumsub Token:&#x27;, data.token);</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-3-initialize-sumsub-sdk"></div><div class="heading-text">Step 3: Initialize Sumsub SDK</div><a aria-label="Skip link to Step 3: Initialize Sumsub SDK" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-3-initialize-sumsub-sdk"></a></h3>
+<p>Use the token to embed Sumsub&#x27;s identity verification:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="html">HTML</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">&lt;!-- Add Sumsub SDK --&gt;
+&lt;script src=&quot;https://static.sumsub.com/idensic/static/sns-websdk-builder.js&quot;&gt;&lt;/script&gt;
+
+&lt;div id=&quot;sumsub-websdk-container&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+  const token = &#x27;YOUR_SUMSUB_TOKEN&#x27;;
+
+  const snsWebSdkInstance = idensic.init(
+    token,
+    () =&gt; {
+      // Called when user completes flow
+      console.log(&#x27;KYC documents submitted&#x27;);
+    },
+    (error) =&gt; {
+      console.error(&#x27;KYC error:&#x27;, error);
+    }
+  );
+
+  snsWebSdkInstance.launch(&#x27;#sumsub-websdk-container&#x27;);
+&lt;/script&gt;</code></pre></div></div>
+<p><strong>Sumsub Documentation</strong>: For detailed SDK integration, see <a label="Sumsub Web SDK docs" href="https://docs.sumsub.com/docs/about-web-sdk" target="_blank" title="">Sumsub Web SDK docs</a>.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="step-4-check-kyc-status"></div><div class="heading-text">Step 4: Check KYC Status</div><a aria-label="Skip link to Step 4: Check KYC Status" class="heading-anchor-icon fa fa-regular fa-anchor" href="#step-4-check-kyc-status"></a></h3>
+<p>Monitor KYC application status and required documents.</p>
+<p><strong>Endpoint:</strong> <a label="GET /user/kyc/applicant" href="https://docs.bakkt.com/reference/get_onboarding-user-kyc-applicant" target="_blank" title="">GET /user/kyc/applicant</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/user/kyc/applicant&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId
+  }
+});
+
+const kycStatus = await response.json();
+console.log(&#x27;Status:&#x27;, kycStatus.status);
+console.log(&#x27;Missing docs:&#x27;, kycStatus.docs_missing);
+console.log(&#x27;Rejection reason:&#x27;, kycStatus.kyc_reject_label);</code></pre></div></div>
+<p><strong>Response Example:</strong></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;status&quot;: &quot;KYC_PENDING&quot;,
+  &quot;docs_missing&quot;: [
+    {&quot;doc_type&quot;: &quot;ID_CARD&quot;},
+    {&quot;doc_type&quot;: &quot;SELFIE&quot;}
+  ],
+  &quot;kyc_enduser_error_message&quot;: &quot;Please provide a clear photo of your ID card&quot;,
+  &quot;kyc_reject_label&quot;: []
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="alternative-upload-documents-via-api"></div><div class="heading-text">Alternative: Upload Documents via API</div><a aria-label="Skip link to Alternative: Upload Documents via API" class="heading-anchor-icon fa fa-regular fa-anchor" href="#alternative-upload-documents-via-api"></a></h3>
+<p>Instead of Sumsub SDK, you can upload documents programmatically.</p>
+<p><strong>Endpoint:</strong> <a label="PUT /user/kyc/document" href="https://docs.bakkt.com/reference/put_onboarding-user-kyc-document" target="_blank" title="">PUT /user/kyc/document</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Convert image to base64
+const base64Image = await imageToBase64(file);
+
+const response = await fetch(&#x27;https://api.bakkt.com/user/kyc/document&#x27;, {
+  method: &#x27;PUT&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    content: base64Image,
+    document_type: &#x27;PASSPORT&#x27;,
+    document_subtype: &#x27;FRONT_SIDE&#x27;, // For ID_CARD or DRIVERS
+    filename: &#x27;passport.jpg&#x27;,
+    country: &#x27;GB&#x27;
+  })
+});</code></pre></div></div>
+<p><strong>Document Types:</strong></p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">SELFIE</code> - Face photo</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PASSPORT</code> - Passport (front page only)</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">DRIVERS</code> - Driver&#x27;s license (requires FRONT_SIDE and BACK_SIDE)</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ID_CARD</code> - National ID (requires FRONT_SIDE and BACK_SIDE)</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">RESIDENCE_PERMIT</code> - Residence permit</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">UTILITY_BILL</code> - Proof of address</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">OTHER_PROOF_OF_ADDRESS</code> - Bank statement, etc.</li>
+</ul>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="exportimport-kyc-applicant"></div><div class="heading-text">Export/Import KYC Applicant</div><a aria-label="Skip link to Export/Import KYC Applicant" class="heading-anchor-icon fa fa-regular fa-anchor" href="#exportimport-kyc-applicant"></a></h3>
+<p>Share KYC data between systems using share tokens.</p>
+<p><strong>Endpoint:</strong> <a label="POST /user/kyc/applicant/share-token" href="https://docs.bakkt.com/reference/post_onboarding-user-kyc-applicant-share-token" target="_blank" title="">POST /user/kyc/applicant/share-token</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/user/kyc/applicant/share-token&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;,
+    &#x27;unblock-session-id&#x27;: sessionId,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    share_token: &#x27;token-from-other-system&#x27;,
+    source_of_funds: &#x27;SALARY&#x27;
+  })
+});</code></pre></div></div>
+<blockquote class="callout callout_error" theme="❗️"><span class="callout-icon">❗️</span><p><strong>KYC Import</strong><br/>
+<!-- -->Utilization of this feature requires previous contact with Bakkt support to enable cross-system KYC sharing</p></blockquote>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const corporate = await bakkt.getCorporate(corporateUuid);
+
+if (corporate.status === &#x27;ACTIVE&#x27;) {
+  console.log(&#x27;KYB approved - corporate can transact&#x27;);
+} else if (corporate.status === &#x27;REJECTED&#x27;) {
+  console.log(&#x27;KYB rejected - contact support&#x27;);
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="alternative-verification-methods"></div><div class="heading-text">Alternative Verification Methods</div><a aria-label="Skip link to Alternative Verification Methods" class="heading-anchor-icon fa fa-regular fa-anchor" href="#alternative-verification-methods"></a></h3>
+<p>For users who cannot provide standard ID documents or document-based proof of address, Bakkt supports alternative verification flows via Sumsub.</p>
+<blockquote class="callout callout_error" theme="❗️"><span class="callout-icon">❗️</span><p><strong>Availability of alternative methods depends on region and merchant setup</strong>
+Reach out to Bakkt Support to review the options applicable for your users</p></blockquote>
+<p><strong>Supported alternative verification flows</strong></p>
+<ul>
+<li>
+<p><strong>Non-Document ID (non-doc ID)</strong><br/>
+<!-- -->Identity verification without uploading an ID document (e.g. liveness and other provider-supported checks). If this flow fails, the user can retry with standard document-based KYC</p>
+</li>
+<li>
+<p><strong>Non-Document Proof of Address (non-doc POA)</strong><br/>
+<!-- -->Verification that does not require a document-based proof of address</p>
+</li>
+</ul>
+<p><strong>Regional availability</strong></p>
+<ul>
+<li><strong>Non-Doc ID:</strong> available only for <strong>US</strong> residents</li>
+<li><strong>Non-Doc POA:</strong> typically used for users outside EUR/GBP where document-based PoA is not required. The exact list is configurable; eligibility is determined by the applicant’s country from the KYC applicant payload</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="kyc-best-practices"></div><div class="heading-text">KYC Best Practices</div><a aria-label="Skip link to KYC Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#kyc-best-practices"></a></h2>
+<blockquote class="callout callout_info" theme="📘"><span class="callout-icon">📘</span><p><strong>Most common user verification issues &amp; how to avoid them</strong></p><ul>
+<li>
+<p><strong>Same document used for ID and Proof of Address (PoA)</strong></p>
+<p>The PoA must be a different document than the one used for identity verification.</p>
+</li>
+<li>
+<p><strong>Screenshot submitted instead of a document</strong></p>
+<p>Screenshots are not accepted.</p>
+<p>IDs: clear photos only no scans allowed</p>
+<p>PoA: clear photos or PDF files</p>
+</li>
+<li>
+<p><strong>PoA document is outdated</strong></p>
+<p>Most of the PoA documents must be issued within the last 6 months.</p>
+<p>Mobile Operator document dated within the past 3 months are accepted.</p>
+</li>
+<li>
+<p><strong>Document image is cropped</strong></p>
+<p>All corners of the document must be fully visible, even if they contain no information.</p>
+</li>
+<li>
+<p><strong>Address Mismatch</strong></p>
+<p>The address on the PoA must exactly match the address provided by the user.</p>
+<p>Please upload a correct document, or update the user verification profile as a merchant.</p>
+</li>
+</ul></blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="rejection-reasons-guide"></div><div class="heading-text">Rejection Reasons Guide</div><a aria-label="Skip link to Rejection Reasons Guide" class="heading-anchor-icon fa fa-regular fa-anchor" href="#rejection-reasons-guide"></a></h2>
+<p>When KYC fails, users receive specific rejection reasons to guide remediation.</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="soft-vs-hard-failures"></div><div class="heading-text">Soft vs Hard Failures</div><a aria-label="Skip link to Soft vs Hard Failures" class="heading-anchor-icon fa fa-regular fa-anchor" href="#soft-vs-hard-failures"></a></h4>
+<p>🟠 <strong>Soft KYC Failed</strong> (<code class="rdmd-code lang- theme-undefined" data-lang="">SOFT_KYC_FAILED</code>): User can resubmit with corrections</p>
+<p>🔴 <strong>Hard KYC Failed</strong> (<code class="rdmd-code lang- theme-undefined" data-lang="">HARD_KYC_FAILED</code>): Permanent rejection, no retry possible</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="common-kyc-soft-failures"></div><div class="heading-text"><strong>Common KYC SOFT Failures</strong></div><a aria-label="Skip link to [object Object]" class="heading-anchor-icon fa fa-regular fa-anchor" href="#common-kyc-soft-failures"></a></h3>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Document Quality</summary><div class="Accordion-content"><p><strong>Rejection Label/Cause:</strong></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">LOW_QUALITY</code> Image too blurry or pixelated</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">INCOMPLETE_DOCUMENT</code> Part of document cut off</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">SCAN</code> Document scanned, which is not allowed</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT_DAMAGED</code> Document is torn or damaged</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">UNSATISFACTORY_PHOTOS</code> Overall poor image quality</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">SCREENSHOTS</code> Screenshot instead of photo</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">BLACK_AND_WHITE</code> Colour photo required</p><p><strong>Solutions:</strong></p><ul>
+<li>Images should be clear and well-lit</li>
+<li>All four corners of documents visible</li>
+<li>Take photo, not screenshot</li>
+<li>No glare or shadows</li>
+<li>Text is readable</li>
+</ul></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Document Validity Issues</summary><div class="Accordion-content"><p><strong>Rejection Label/Cause:</strong></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT EXPIRED</code></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT INVALID</code> Document type or format invalid or not recognised)</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">NOT_DOCUMENT</code> Wrong type of document uploaded</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT_DEPRIVED</code> Document is missing or damaged</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT_DAMAGED</code> Document is torn or damaged</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT_PAGE_MISSING</code>, <code class="rdmd-code lang- theme-undefined" data-lang="">MISSING_PAGE</code> Document page is missing</p><p><strong>Solutions:</strong></p><ul>
+<li>Use current, unexpired documents</li>
+<li>Submit original, unedited photos</li>
+<li>Upload correct document type</li>
+</ul></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Data Mismatch</summary><div class="Accordion-content"><p><strong>Rejection Label/Cause:</strong></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DATA_MISMATCH</code> Often a mismatch between the address provided by the user in the text field, and the 					address from the POA document</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DOB_DATA_FORMAT_MISMATCH</code> Common mistakes due to DOB data format</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">FULL_NAME_ADDRESS_DATA_MISSING_OR_MISMATCH</code> Full name, address data missing or mismatch</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">DATA_NOT_FOUND_IN_SOURCE</code> Data not found in source</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">INCONSISTENT_PROFILE</code> Profile data doesn&#x27;t match documents</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">WRONG_ADDRESS</code> Address verification failed</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">REQUESTED_DATA_MISMATCH</code> Data doesn&#x27;t match request</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">PROBLEMATIC_APPLICANT_DATA</code> Data quality issues</p><p><strong>Solutions:</strong></p><ul>
+<li>Address	matches proof-of-address document word-for-word</li>
+<li>DOB	correct format and matches ID</li>
+<li>Full name as on ID, same spelling and order</li>
+<li>Documents are not expire<!-- -->
+<ul>
+<li>Ensure profile matches documents exactly</li>
+<li>Photo (not scan/screenshot), colour, full document visible, in focus</li>
+</ul>
+</li>
+<li>Verify address with utility bill</li>
+<li>Double-check all entered information</li>
+</ul></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Selfie Issues</summary><div class="Accordion-content"><p><strong>Rejection Label/Cause:</strong></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">BAD_SELFIE</code> Selfie quality issues</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">BAD_VIDEO_SELFIE</code> Video selfie problems</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">BAD_FACE_MATCHING</code> Face doesn&#x27;t match ID photo</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">SELFIE_MISMATCH</code> Person in selfie appears different</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">SELFIE_WITH_PAPER</code> Holding paper in selfie</p><p><strong>Solutions:</strong></p><ul>
+<li>Ensure good lighting for selfie</li>
+<li>Look directly at camera</li>
+<li>Selfie shows clear face (no sunglasses, hats or masks)</li>
+<li>Ensure face matches ID photo</li>
+</ul></div></details>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="common-kyc-hard-failures"></div><div class="heading-text"><strong>Common KYC HARD Failures</strong></div><a aria-label="Skip link to [object Object]" class="heading-anchor-icon fa fa-regular fa-anchor" href="#common-kyc-hard-failures"></a></h3>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Compliance Issues</summary><div class="Accordion-content"><p><strong>Rejection Label/Cause:</strong></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">PEP</code> Politically Exposed Person</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">ADVERSE_MEDIA</code> Negative media coverage</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">SANCTIONS</code> On sanctions list</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">CRIMINAL</code> Criminal record flags</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">BLACKLIST</code> / <code class="rdmd-code lang- theme-undefined" data-lang="">BLOCKLIST</code> On compliance blacklist</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">REGULATIONS_VIOLATIONS</code> Regulatory violations</p><p><strong>Solutions:</strong></p><ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PEP</code> and <code class="rdmd-code lang- theme-undefined" data-lang="">ADVERSE_MEDIA</code> are often false positives (e.g. name matches, unrelated media). They are reviewed case by case and may require enhanced due diligence rather than automatic rejection. Contact support for guidance</li>
+</ul></div></details>
+<details class="Accordion"><summary class="Accordion-title"><i class="Accordion-toggleIcon fa fa-regular fa-chevron-right"></i>Document Validity Issues</summary><div class="Accordion-content"><p><strong>Rejection Label/Cause:</strong></p><p><code class="rdmd-code lang- theme-undefined" data-lang="">FORGERY</code> Document tampering detected</p><p><code class="rdmd-code lang- theme-undefined" data-lang="">GRAPHIC_EDITOR</code> Photo edited/manipulated</p><p><strong>Solutions:</strong></p><ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">FORGERY</code> and <code class="rdmd-code lang- theme-undefined" data-lang="">GRAPHIC_EDITOR</code> are hard rejection reasons (possible fraud). Resubmission is not allowed for these two. Contact support if you require further explanation.</li>
+</ul></div></details>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="document-requirements-by-country"></div><div class="heading-text">Document Requirements by Country</div><a aria-label="Skip link to Document Requirements by Country" class="heading-anchor-icon fa fa-regular fa-anchor" href="#document-requirements-by-country"></a></h2>
+<p>Use the reference endpoint to check which documents are accepted per country:</p>
+<p><strong>Endpoint:</strong> <a label="GET /kyc-documents" href="https://docs.bakkt.com/reference/get_onboarding-kyc-documents" target="_blank" title="">GET /kyc-documents</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://api.bakkt.com/kyc-documents/?country_code=GB&#x27;, {
+  headers: {
+    &#x27;Authorization&#x27;: &#x27;YOUR_API_KEY&#x27;
+  }
+});
+
+const docs = await response.json();
+console.log(&#x27;UK Documents:&#x27;, docs.GB);
+// {
+//   &quot;passport&quot;: &quot;FRONT&quot;,
+//   &quot;id_card&quot;: &quot;FRONT_AND_BACK&quot;,
+//   &quot;driving_license&quot;: &quot;FRONT_AND_BACK&quot;
+// }</code></pre></div></div>
+<p><strong>Document Page Requirements:</strong></p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">FRONT</code>: Front page only</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">FRONT_AND_BACK</code>: Both sides required</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">NOT_SUPPORTED</code>: Document type not accepted</li>
+</ul>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="working-with-multiple-countries"></div><div class="heading-text">Working with Multiple Countries</div><a aria-label="Skip link to Working with Multiple Countries" class="heading-anchor-icon fa fa-regular fa-anchor" href="#working-with-multiple-countries"></a></h4>
+<p>Check document requirements for multiple countries at once:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Get KYC requirements for multiple countries
+const docs = await bakkt.getKYCDocuments();
+
+// Check UK requirements
+console.log(&#x27;UK:&#x27;, docs.GB);
+// { passport: &#x27;FRONT&#x27;, id_card: &#x27;FRONT_AND_BACK&#x27;, ... }
+
+// Check Nigeria requirements
+console.log(&#x27;Nigeria:&#x27;, docs.NG);
+// { passport: &#x27;FRONT&#x27;, id_card: &#x27;FRONT_AND_BACK&#x27;, ... }
+
+// Check India requirements
+console.log(&#x27;India:&#x27;, docs.IN);
+// { passport: &#x27;FRONT&#x27;, id_card: &#x27;FRONT_AND_BACK&#x27;, driving_license: &#x27;FRONT_AND_BACK&#x27; }</code></pre></div></div>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="building-dynamic-ui-from-requirements"></div><div class="heading-text">Building Dynamic UI from Requirements</div><a aria-label="Skip link to Building Dynamic UI from Requirements" class="heading-anchor-icon fa fa-regular fa-anchor" href="#building-dynamic-ui-from-requirements"></a></h4>
+<p>Use the document requirements to build a dynamic UI that adapts to each country:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">function getAcceptedDocuments(countryCode, docReqs) {
+  const docs = docReqs[countryCode];
+  const accepted = [];
+
+  for (const [docType, requirement] of Object.entries(docs)) {
+    if (requirement !== &#x27;NOT_SUPPORTED&#x27;) {
+      accepted.push({
+        type: docType,
+        pages: requirement
+      });
+    }
+  }
+
+  return accepted;
+}
+
+// Usage example
+const ukDocs = getAcceptedDocuments(&#x27;GB&#x27;, kycRequirements);
+ukDocs.forEach(doc =&gt; {
+  console.log(`Accept ${doc.type}: ${doc.pages}`);
+});
+// Accept passport: FRONT
+// Accept id_card: FRONT_AND_BACK
+// Accept driving_license: FRONT_AND_BACK</code></pre></div></div>
+<p><strong>Cache KYC document requirements</strong> for 24+ hours - they rarely change and are safe to store locally for better performance</p>
+<!-- -->
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="sandbox-testing"></div><div class="heading-text">Sandbox Testing</div><a aria-label="Skip link to Sandbox Testing" class="heading-anchor-icon fa fa-regular fa-anchor" href="#sandbox-testing"></a></h2>
+<p>Test KYC flow without real verification</p>
+<h4 class="heading heading-4 header-scroll"><div class="heading-anchor anchor waypoint" id="fast-track-kyc-sandbox-only"></div><div class="heading-text">Fast-Track KYC (Sandbox Only)</div><a aria-label="Skip link to Fast-Track KYC (Sandbox Only)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#fast-track-kyc-sandbox-only"></a></h4>
+<p><strong>Endpoint:</strong> <a label="PATCH /user/kyc/verification" href="https://docs.bakkt.com/reference/patch_onboarding-user-kyc-verification" target="_blank" title="">PATCH /user/kyc/verification</a></p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X PATCH https://sandbox.bakkt.com/user/kyc/verification \
+  -H &quot;Authorization: YOUR_API_KEY&quot; \
+  -H &quot;unblock-session-id: SESSION_ID&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;status&quot;: &quot;FULL_USER&quot;
+  }&#x27;</code></pre></div></div>
+<p><strong>Available Statuses:</strong></p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">KYC_NEEDED</code></li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PENDING_KYC_DATA</code></li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">KYC_PENDING</code></li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">SOFT_KYC_FAILED</code></li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">HARD_KYC_FAILED</code></li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">FULL_USER</code></li>
+</ul>
+<p><strong>Rejection Reasons (for failed statuses):</strong></p>
+<ul>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">PEP</code> - Politically Exposed Person</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">ADVERSE_MEDIA</code> - Negative media coverage</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">FORGERY</code> - Document forgery detected</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">DOCUMENT_TEMPLATE</code> - Template document used</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">SELFIE_MISMATCH</code> - Selfie doesn&#x27;t match ID</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">DUPLICATE</code> - Duplicate account detected</li>
+<li><code class="rdmd-code lang- theme-undefined" data-lang="">BLACKLIST</code> / <code class="rdmd-code lang- theme-undefined" data-lang="">BLOCKLIST</code> - On compliance blacklist</li>
+<li>And many more - see full list in API reference</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="webhook-notifications"></div><div class="heading-text">Webhook Notifications</div><a aria-label="Skip link to Webhook Notifications" class="heading-anchor-icon fa fa-regular fa-anchor" href="#webhook-notifications"></a></h2>
+<p>Both KYC and KYB send webhook notifications on status changes</p>
+<p><strong>See:</strong> <a label="Webhooks Guide" href="https://docs.bakkt.com/docs/webhooks" target="_blank" title="">Webhooks Guide</a> for complete webhook integration details including:</p>
+<ul>
+<li>KYC status webhooks</li>
+<li>Payload examples</li>
+<li>Verification code</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="privacy--data-handling"></div><div class="heading-text">Privacy &amp; Data Handling</div><a aria-label="Skip link to Privacy &amp; Data Handling" class="heading-anchor-icon fa fa-regular fa-anchor" href="#privacy--data-handling"></a></h2>
+<p>KYC data is stored securely by Sumsub (Bakkt&#x27;s provider)</p>
+<ul>
+<li>Users have right to data deletion (GDPR)</li>
+<li>Documents are encrypted at rest and in transit</li>
+<li>Access is logged and audited</li>
+<li>Retention policies follow regulatory requirements</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="complete-kyc-example"></div><div class="heading-text">Complete KYC Example</div><a aria-label="Skip link to Complete KYC Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#complete-kyc-example"></a></h2>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Complete KYC flow
+async function completeKYC(sessionId) {
+  // 1. Create KYC application
+  await fetch(&#x27;https://api.bakkt.com/user/kyc/applicant&#x27;, {
+    method: &#x27;POST&#x27;,
+    headers: {
+      &#x27;Authorization&#x27;: API_KEY,
+      &#x27;unblock-session-id&#x27;: sessionId,
+      &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    body: JSON.stringify({
+      address: {
+        address_line_1: &#x27;123 Main St&#x27;,
+        post_code: &#x27;SW1A 1AA&#x27;,
+        city: &#x27;London&#x27;,
+        country: &#x27;GB&#x27;
+      },
+      date_of_birth: &#x27;1990-05-15&#x27;,
+      source_of_funds: &#x27;SALARY&#x27;
+    })
+  });
+
+  // 2. Get Sumsub token
+  const tokenResponse = await fetch(&#x27;https://api.bakkt.com/user/kyc/applicant/token&#x27;, {
+    headers: {
+      &#x27;Authorization&#x27;: API_KEY,
+      &#x27;unblock-session-id&#x27;: sessionId
+    }
+  });
+
+  const { token } = await tokenResponse.json();
+
+  // 3. Initialize Sumsub SDK
+  const snsWebSdk = idensic.init(
+    token,
+    () =&gt; console.log(&#x27;Documents submitted&#x27;),
+    (error) =&gt; console.error(&#x27;Error:&#x27;, error)
+  );
+
+  snsWebSdk.launch(&#x27;#kyc-container&#x27;);
+
+  // 4. Monitor via webhook or polling
+  await monitorKYCStatus(sessionId);
+}
+
+async function monitorKYCStatus(sessionId) {
+  const interval = setInterval(async () =&gt; {
+    const user = await bakkt.getUser(sessionId);
+
+    console.log(&#x27;Current status:&#x27;, user.status);
+
+    if (user.status === &#x27;FULL_USER&#x27;) {
+      console.log(&#x27;✅ KYC Approved!&#x27;);
+      clearInterval(interval);
+    } else if (user.status === &#x27;HARD_KYC_FAILED&#x27;) {
+      console.log(&#x27;❌ KYC Failed&#x27;);
+      clearInterval(interval);
+    }
+  }, 10000); // Check every 10 seconds
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="explore-more"></div><div class="heading-text">Explore more</div><a aria-label="Skip link to Explore more" class="heading-anchor-icon fa fa-regular fa-anchor" href="#explore-more"></a></h2>
+<div class="CardsGrid" style="--CardsGrid-cardWidth:200px;--CardsGrid-columns:auto-fit"><a class="Card Card_card" href="https://docs.bakkt.com/reference/post_onboarding-user-kyc-applicant" target="blank"><i class="Card-icon fa-duotone fa-solid fa-code"></i><div class="Card-content"><div class="Card-title">Create a KYC applicant for a user API<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Start a KYC process for a user by creating an applicant</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/accounts-1" target="blank"><i class="Card-icon fa-duotone fa-solid fa-bank"></i><div class="Card-content"><div class="Card-title">Accounts API Overview<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Create bank accounts in supported currencies, manage beneficiaries, track transactions, and view balances</p></div></a><a class="Card Card_card" href="https://docs.bakkt.com/docs/stablecoin" target="blank"><i class="Card-icon fa-duotone fa-solid fa-coin"></i><div class="Card-content"><div class="Card-title">Stablecoins API Overview<i aria-hidden="true" class="Card-arrow fa-regular fa-arrow-right"></i></div><p>Explore the possibilities of stablecoins API that enables bi-directional crypto-fiat conversions</p></div></a></div>

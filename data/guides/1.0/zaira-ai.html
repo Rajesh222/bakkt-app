@@ -1,0 +1,209 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><p>Zaira is Bakkt&#x27;s conversational AI agent designed to help you interact with the Bakkt platform using natural language. Whether you&#x27;re onboarding users, processing payments, or managing crypto transactions, Zaira provides intelligent assistance to streamline your operations.</p>
+<ul>
+<li><strong>Natural Language Queries</strong> - Ask questions in plain English and get instant answers</li>
+<li><strong>Guided Operations</strong> - Get step-by-step guidance for complex workflows like KYC verification or payment processing</li>
+<li><strong>Customer Support</strong> - Provide intelligent, context-aware support to your users</li>
+<li><strong>API Automation</strong> - Execute API operations through conversational commands without writing code</li>
+</ul>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="capabilities"></div><div class="heading-text">Capabilities</div><a aria-label="Skip link to Capabilities" class="heading-anchor-icon fa fa-regular fa-anchor" href="#capabilities"></a></h2>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody><tr><td>User onboarding</td><td>Account creation through conversation</td></tr><tr><td>KYC verification</td><td>Identity verification, document collection, compliance checks</td></tr><tr><td>Beneficiary management</td><td>Add and manage transfer recipients</td></tr><tr><td>Money transfers</td><td>International remittances with multi-currency support</td></tr><tr><td>Account operations</td><td>Balances, transaction history, settings</td></tr></tbody></table></div></div>
+<p>Under the hood, Zaira coordinates a swarm of specialized AI agents. Each handles a specific domain (transfers, compliance, user management). You send a message, the right agents work together to deliver the result.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="how-it-works"></div><div class="heading-text">How It Works</div><a aria-label="Skip link to How It Works" class="heading-anchor-icon fa fa-regular fa-anchor" href="#how-it-works"></a></h2>
+<p>Zaira uses an asynchronous execution model:</p>
+<ol>
+<li><strong>Submit a Prompt</strong>: Send your question or request to Zaira</li>
+<li><strong>Receive Execution ID</strong>: Get a unique identifier to track your request</li>
+<li><strong>Poll for Results</strong>: Check the status until your request is processed</li>
+<li><strong>Get Response</strong>: Retrieve Zaira&#x27;s answer and any suggested actions</li>
+</ol>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="endpoints"></div><div class="heading-text">Endpoints</div><a aria-label="Skip link to Endpoints" class="heading-anchor-icon fa fa-regular fa-anchor" href="#endpoints"></a></h2>
+<p>Base URL: <code class="rdmd-code lang- theme-undefined" data-lang="">https://zaira.dtr.org/webhook</code></p>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /initiate</code></td><td>Create a user, returns <code class="rdmd-code lang- theme-undefined" data-lang="">user_uuid</code></td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /ask</code></td><td>Send a message, get an execution ID</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /ask/stream</code></td><td>Send a message, stream the response</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /check-execution</code></td><td>Poll for a response</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">GET /sessions</code></td><td>Fetch session history</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">GET /info</code></td><td>Get client info</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">/webhooks</code></td><td>Manage webhook endpoints</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">GET /health</code></td><td>Health check</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="basic-flow"></div><div class="heading-text">Basic Flow</div><a aria-label="Skip link to Basic Flow" class="heading-anchor-icon fa fa-regular fa-anchor" href="#basic-flow"></a></h2>
+<ol>
+<li>Call <code class="rdmd-code lang- theme-undefined" data-lang="">/initiate</code> to create a user</li>
+<li>Send messages with <code class="rdmd-code lang- theme-undefined" data-lang="">/ask</code> or <code class="rdmd-code lang- theme-undefined" data-lang="">/ask/stream</code></li>
+<li>Get responses via polling, streaming, or webhooks</li>
+</ol>
+<p>Zaira maintains session context across requests.</p>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="use-cases"></div><div class="heading-text">Use Cases</div><a aria-label="Skip link to Use Cases" class="heading-anchor-icon fa fa-regular fa-anchor" href="#use-cases"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="customer-support-automation"></div><div class="heading-text">Customer Support Automation</div><a aria-label="Skip link to Customer Support Automation" class="heading-anchor-icon fa fa-regular fa-anchor" href="#customer-support-automation"></a></h3>
+<p>Deploy Zaira as a first-line support agent to handle common customer inquiries:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X POST https://zaira.dtr.org/webhook/ask \
+  -H &quot;x-api-key: your_api_key&quot; \
+  -H &quot;x-user-uuid: customer_uuid&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;session_id&quot;: &quot;support_session_123&quot;,
+    &quot;message&quot;: &quot;How do I verify my identity?&quot;
+  }&#x27;</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="account-management"></div><div class="heading-text">Account Management</div><a aria-label="Skip link to Account Management" class="heading-anchor-icon fa fa-regular fa-anchor" href="#account-management"></a></h3>
+<p>Users can check balances, review transactions, and manage their accounts:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X POST https://zaira.dtr.org/webhook/ask \
+  -H &quot;x-api-key: your_api_key&quot; \
+  -H &quot;x-user-uuid: user_uuid&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;session_id&quot;: &quot;account_session_456&quot;,
+    &quot;message&quot;: &quot;What is my current balance?&quot;
+  }&#x27;</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="money-transfers"></div><div class="heading-text">Money Transfers</div><a aria-label="Skip link to Money Transfers" class="heading-anchor-icon fa fa-regular fa-anchor" href="#money-transfers"></a></h3>
+<p>Send international remittances through conversational commands:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X POST https://zaira.dtr.org/webhook/ask \
+  -H &quot;x-api-key: your_api_key&quot; \
+  -H &quot;x-user-uuid: user_uuid&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;session_id&quot;: &quot;transfer_session_789&quot;,
+    &quot;message&quot;: &quot;I want to send 500 USD to my brother in Mexico&quot;
+  }&#x27;</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="transaction-history"></div><div class="heading-text">Transaction History</div><a aria-label="Skip link to Transaction History" class="heading-anchor-icon fa fa-regular fa-anchor" href="#transaction-history"></a></h3>
+<p>Users can query their transaction status and history:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X POST https://zaira.dtr.org/webhook/ask \
+  -H &quot;x-api-key: your_api_key&quot; \
+  -H &quot;x-user-uuid: user_uuid&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;session_id&quot;: &quot;history_session&quot;,
+    &quot;message&quot;: &quot;Show me my recent transactions&quot;
+  }&#x27;</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="session-management"></div><div class="heading-text">Session Management</div><a aria-label="Skip link to Session Management" class="heading-anchor-icon fa fa-regular fa-anchor" href="#session-management"></a></h2>
+<p>Zaira supports session-based conversations for context-aware interactions. Use the <code class="rdmd-code lang- theme-undefined" data-lang="">session_id</code> parameter to maintain conversation history:</p>
+<ol>
+<li><strong>Start a Session</strong>: Send your first prompt with an empty or new <code class="rdmd-code lang- theme-undefined" data-lang="">session_id</code></li>
+<li><strong>Continue Conversation</strong>: Use the same <code class="rdmd-code lang- theme-undefined" data-lang="">session_id</code> in subsequent requests</li>
+<li><strong>Reference Previous Messages</strong>: Zaira remembers earlier parts of the conversation</li>
+</ol>
+<p><strong>Example Multi-Turn Conversation</strong>:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// First message
+{
+  &quot;session_id&quot;: &quot;conv_789&quot;,
+  &quot;message&quot;: &quot;I need to onboard a new user&quot;
+}
+
+// Follow-up message (same session)
+{
+  &quot;session_id&quot;: &quot;conv_789&quot;,
+  &quot;message&quot;: &quot;Make them a corporate user instead&quot;
+}
+// Zaira understands you&#x27;re still talking about the same user</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="input-modes"></div><div class="heading-text">Input Modes</div><a aria-label="Skip link to Input Modes" class="heading-anchor-icon fa fa-regular fa-anchor" href="#input-modes"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="text-prompts"></div><div class="heading-text">Text Prompts</div><a aria-label="Skip link to Text Prompts" class="heading-anchor-icon fa fa-regular fa-anchor" href="#text-prompts"></a></h3>
+<p>Send text-based questions and commands (most common):</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">POST /webhook/ask
+x-api-key: your_api_key
+x-user-uuid: user_uuid
+Content-Type: application/json
+
+{
+  &quot;session_id&quot;: &quot;session_123&quot;,
+  &quot;message&quot;: &quot;What can you help me with?&quot;
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="binaryfile-input"></div><div class="heading-text">Binary/File Input</div><a aria-label="Skip link to Binary/File Input" class="heading-anchor-icon fa fa-regular fa-anchor" href="#binaryfile-input"></a></h3>
+<p>Upload images or audio files for analysis using multipart form data:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">POST /webhook/ask
+x-api-key: your_api_key
+x-user-uuid: user_uuid
+Content-Type: multipart/form-data
+
+session_id: session_123
+file: [binary file]
+message: (optional) &quot;send 100 USD to attached bank account&quot;</code></pre></div></div>
+<blockquote>
+<p><strong>Supported File Types</strong>: Images (PNG, JPG), Documents (PDF), Audio (MP3, WAV). Maximum file size: 10MB.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="response-structure"></div><div class="heading-text">Response Structure</div><a aria-label="Skip link to Response Structure" class="heading-anchor-icon fa fa-regular fa-anchor" href="#response-structure"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="successful-response"></div><div class="heading-text">Successful Response</div><a aria-label="Skip link to Successful Response" class="heading-anchor-icon fa fa-regular fa-anchor" href="#successful-response"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;executionId&quot;: &quot;773e183b-512f-4b12-ae7e-52361d903a6e&quot;,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;result&quot;: {
+    &quot;response&quot;: &quot;I can help you with user onboarding, payment processing, transaction monitoring, and API integration guidance.&quot;,
+    &quot;actions&quot;: [
+      {
+        &quot;type&quot;: &quot;suggestion&quot;,
+        &quot;description&quot;: &quot;Would you like me to guide you through onboarding a new user?&quot;
+      }
+    ]
+  }
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="failed-response"></div><div class="heading-text">Failed Response</div><a aria-label="Skip link to Failed Response" class="heading-anchor-icon fa fa-regular fa-anchor" href="#failed-response"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="json">JSON</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">{
+  &quot;executionId&quot;: &quot;773e183b-512f-4b12-ae7e-52361d903a6e&quot;,
+  &quot;status&quot;: &quot;failed&quot;,
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;PROCESSING_ERROR&quot;,
+    &quot;message&quot;: &quot;Unable to process the prompt. Please try again.&quot;
+  }
+}</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="polling-best-practices"></div><div class="heading-text">Polling Best Practices</div><a aria-label="Skip link to Polling Best Practices" class="heading-anchor-icon fa fa-regular fa-anchor" href="#polling-best-practices"></a></h2>
+<p>When polling for execution status:</p>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Practice</th><th>Recommendation</th></tr></thead><tbody><tr><td>Polling Interval</td><td>Start with 2-3 second intervals. Most responses complete within 5-10 seconds.</td></tr><tr><td>Timeout Strategy</td><td>Set a maximum timeout of 60 seconds. If no response, handle gracefully.</td></tr><tr><td>Error Handling</td><td>Check for <code class="rdmd-code lang- theme-undefined" data-lang="">failed</code> status and handle errors appropriately.</td></tr><tr><td>Rate Limiting</td><td>Respect rate limits. Use exponential backoff if you receive 429 errors.</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="rate-limits"></div><div class="heading-text">Rate Limits</div><a aria-label="Skip link to Rate Limits" class="heading-anchor-icon fa fa-regular fa-anchor" href="#rate-limits"></a></h2>
+<div class="rdmd-table"><div class="rdmd-table-inner"><table><thead><tr><th>Endpoint</th><th>Limit</th></tr></thead><tbody><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /webhook/ask</code></td><td>10 per minute</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /webhook/ask/stream</code></td><td>10 per minute</td></tr><tr><td><code class="rdmd-code lang- theme-undefined" data-lang="">POST /webhook/check-execution</code></td><td>30 per minute</td></tr></tbody></table></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="examples"></div><div class="heading-text">Examples</div><a aria-label="Skip link to Examples" class="heading-anchor-icon fa fa-regular fa-anchor" href="#examples"></a></h2>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="basic-question"></div><div class="heading-text">Basic Question</div><a aria-label="Skip link to Basic Question" class="heading-anchor-icon fa fa-regular fa-anchor" href="#basic-question"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X POST https://zaira.dtr.org/webhook/ask \
+  -H &quot;x-api-key: your_api_key&quot; \
+  -H &quot;x-user-uuid: your_user_uuid&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;session_id&quot;: &quot;session_123&quot;,
+    &quot;message&quot;: &quot;What services do you offer?&quot;
+  }&#x27;</code></pre></div></div>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">const response = await fetch(&#x27;https://zaira.dtr.org/webhook/ask&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;x-api-key&#x27;: &#x27;your_api_key&#x27;,
+    &#x27;x-user-uuid&#x27;: &#x27;your_user_uuid&#x27;,
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+  },
+  body: JSON.stringify({
+    session_id: &quot;session_123&quot;,
+    message: &quot;What services do you offer?&quot;
+  })
+});
+
+const { executionId } = await response.json();</code></pre></div></div>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="python">Python</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">import requests
+
+response = requests.post(
+    &#x27;https://zaira.dtr.org/webhook/ask&#x27;,
+    headers={
+        &#x27;x-api-key&#x27;: &#x27;your_api_key&#x27;,
+        &#x27;x-user-uuid&#x27;: &#x27;your_user_uuid&#x27;,
+        &#x27;Content-Type&#x27;: &#x27;application/json&#x27;
+    },
+    json={
+        &#x27;session_id&#x27;: &#x27;session_123&#x27;,
+        &#x27;message&#x27;: &#x27;What services do you offer?&#x27;
+    }
+)
+
+execution_id = response.json()[&#x27;executionId&#x27;]</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="check-execution-status"></div><div class="heading-text">Check Execution Status</div><a aria-label="Skip link to Check Execution Status" class="heading-anchor-icon fa fa-regular fa-anchor" href="#check-execution-status"></a></h3>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">curl -X POST https://zaira.dtr.org/webhook/check-execution \
+  -H &quot;x-api-key: your_api_key&quot; \
+  -H &quot;x-user-uuid: your_user_uuid&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{
+    &quot;executionId&quot;: &quot;773e183b-512f-4b12-ae7e-52361d903a6e&quot;
+  }&#x27;</code></pre></div></div>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="getting-started"></div><div class="heading-text">Getting Started</div><a aria-label="Skip link to Getting Started" class="heading-anchor-icon fa fa-regular fa-anchor" href="#getting-started"></a></h2>
+<ol>
+<li>Request your API key from <a href="mailto:sales@bakkt.com">sales@bakkt.com</a></li>
+<li>Add <code class="rdmd-code lang- theme-undefined" data-lang="">x-api-key</code> header to all requests</li>
+<li>Call <code class="rdmd-code lang- theme-undefined" data-lang="">/initiate</code> to create your first user</li>
+<li>Start sending messages with <code class="rdmd-code lang- theme-undefined" data-lang="">/ask</code></li>
+</ol>
+<blockquote>
+<p>Keep your API key secure and never expose it in client-side code.</p>
+</blockquote>
+<h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="support"></div><div class="heading-text">Support</div><a aria-label="Skip link to Support" class="heading-anchor-icon fa fa-regular fa-anchor" href="#support"></a></h2>
+<p>Need help with Zaira?</p>
+<ul>
+<li><strong>Email</strong>: <a href="mailto:sales@bakkt.com">sales@bakkt.com</a></li>
+</ul>

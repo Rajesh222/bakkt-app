@@ -1,0 +1,82 @@
+<style>/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
+@layer utilities;
+</style><h2 class="heading heading-2 header-scroll"><div class="heading-anchor anchor waypoint" id="-feature-1-on-ramp-fiat-to-stablecoin"></div><div class="heading-text">🚀 Feature 1: On-Ramp (Fiat to Stablecoin)</div><a aria-label="Skip link to 🚀 Feature 1: On-Ramp (Fiat to Stablecoin)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#-feature-1-on-ramp-fiat-to-stablecoin"></a></h2>
+<p>Link a Accounts API Virtual IBAN to a crypto wallet for automatic fiat-to-stable conversions.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="how-on-ramp-works"></div><div class="heading-text">How On-Ramp Works</div><a aria-label="Skip link to How On-Ramp Works" class="heading-anchor-icon fa fa-regular fa-anchor" href="#how-on-ramp-works"></a></h3>
+<blockquote>
+<p><strong>Note:</strong> This section includes a sequence diagram showing the workflow. Refer to the original documentation for the visual diagram.</p>
+</blockquote>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="prerequisites"></div><div class="heading-text">Prerequisites</div><a aria-label="Skip link to Prerequisites" class="heading-anchor-icon fa fa-regular fa-anchor" href="#prerequisites"></a></h3>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="1-accounts-api-virtual-iban"></div><div class="heading-text">1. Accounts API Virtual IBAN</div><a aria-label="Skip link to 1. Accounts API Virtual IBAN" class="heading-anchor-icon fa fa-regular fa-anchor" href="#1-accounts-api-virtual-iban"></a></h3>
+<p>Create a Virtual IBAN in the user&#x27;s preferred currency:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">  POST /user/bank-account/bakkt
+  {
+    &quot;currency&quot;: &quot;EUR&quot;
+  }</code></pre></div></div>
+<p><a href="/guides/accounts">See Accounts API guide</a> for details.</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="2-target-address-from-onboarding"></div><div class="heading-text">2. Target Address (from Onboarding)</div><a aria-label="Skip link to 2. Target Address (from Onboarding)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#2-target-address-from-onboarding"></a></h3>
+<p>User must have <code class="rdmd-code lang- theme-undefined" data-lang="">target_address</code> set during creation in Onboarding API. This becomes the DEFAULT destination for on-ramp conversions.</p>
+<p>The address should be the user&#x27;s external wallet (MetaMask, Coinbase, etc.).</p>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="3-token-preferences-optional"></div><div class="heading-text">3. Token Preferences (Optional)</div><a aria-label="Skip link to 3. Token Preferences (Optional)" class="heading-anchor-icon fa fa-regular fa-anchor" href="#3-token-preferences-optional"></a></h3>
+<p>Set preferred stablecoin and chain. Defaults to USDC on Polygon if not set.</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="bash">Bash</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">PATCH /user/token-preferences
+{
+  &quot;currency&quot;: &quot;EUR&quot;,
+&quot;chain&quot;: &quot;polygon&quot;,
+  &quot;token&quot;: &quot;USDC&quot;
+}</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="user-on-ramp-example"></div><div class="heading-text">User On-Ramp Example</div><a aria-label="Skip link to User On-Ramp Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#user-on-ramp-example"></a></h3>
+<p>Complete flow for individual users:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// Assumes: User created in Onboarding with FULL_USER status and target_address set
+
+// 1. Create Virtual IBAN in Accounts API
+const virtualAccount = await fetch(&#x27;https://api.bakkt.com/user/bank-account/bakkt&#x27;, {
+  method: &#x27;POST&#x27;,
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;unblock-session-id&#x27;: sessionId
+  },
+  body: JSON.stringify({ currency: &#x27;EUR&#x27; })
+});
+
+const va = await virtualAccount.json();
+console.log(&#x27;Virtual IBAN:&#x27;, va.iban);
+console.log(&#x27;VA UUID:&#x27;, va.uuid);
+
+// 2. Link Virtual IBAN to On-Ramp wallet
+const wallet = await fetch(`https://api.bakkt.com/user/wallet/polygon?linked_bank_account_uuid=${va.uuid}`, {
+  headers: {
+    &#x27;Authorization&#x27;: apiKey,
+    &#x27;user-uuid&#x27;: userUuid
+  }
+});
+
+const walletData = await wallet.json();
+console.log(&#x27;Conversion active - fiat deposits will convert to USDC&#x27;);
+console.log(&#x27;Destination wallet:&#x27;, walletData[0].address); // User&#x27;s target_address
+
+// 3. User deposits EUR to Virtual IBAN
+// User transfers from their bank to va.iban
+
+// 4. Automatic conversion happens
+// → Fiat received in VA
+// → Auto-converts to USDC
+// → Sends to user&#x27;s target_address
+// → Webhook: fiatToCrypto SUCCESS</code></pre></div></div>
+<h3 class="heading heading-3 header-scroll"><div class="heading-anchor anchor waypoint" id="corporate-on-ramp-example"></div><div class="heading-text">Corporate On-Ramp Example</div><a aria-label="Skip link to Corporate On-Ramp Example" class="heading-anchor-icon fa fa-regular fa-anchor" href="#corporate-on-ramp-example"></a></h3>
+<p>Same flow for corporates:</p>
+<div class="CodeTabs CodeTabs_initial theme-undefined"><div class="CodeTabs-toolbar"><button type="button" value="javascript">JavaScript</button></div><div class="CodeTabs-inner"><pre><code class="rdmd-code lang- theme-undefined" data-lang="">// 1. Create Corporate Virtual IBAN (Accounts API)
+POST /corporate/{corporate_uuid}/bank-account/bakkt
+{
+  &quot;currency&quot;: &quot;EUR&quot;
+}
+
+// 2. Link to corporate wallet (On/Off Ramp API)
+GET /corporate/{corporate_uuid}/wallet/polygon?linked_bank_account_uuid={va_uuid}
+
+// Returns corporate&#x27;s target_address from Onboarding</code></pre></div></div>
+<blockquote>
+<p><strong>Info:</strong>
+<strong>On-Ramp Benefit</strong>: Users just deposit fiat to an IBAN like any bank transfer. Conversion to crypto happens automatically in the background.</p>
+</blockquote>
